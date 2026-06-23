@@ -1,0 +1,32 @@
+name: Sync knockout fixtures (openfootball)
+
+# Optional, hands-off bracket updates. Pulls matchups & kick-off times from the
+# public-domain openfootball dataset into Supabase on a schedule. Requires repo
+# secrets SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (service key — server-side
+# only). Disable by deleting this file if you'd rather sync from the Admin panel.
+
+on:
+  schedule:
+    - cron: '0 * * * *' # hourly
+  workflow_dispatch: # manual "Run workflow" button
+
+concurrency:
+  group: sync-fixtures
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worldcup-predictor
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run sync
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
