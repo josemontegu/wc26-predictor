@@ -97,6 +97,19 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
+          <span className="rule-icon">🏅</span>
+          <h2>Tournament awards</h2>
+        </div>
+        <p>
+          On top of the matches, pick a player for each tournament award — Golden Ball
+          (best player), Golden Boot (top scorer) and Golden Glove (best goalkeeper). Each
+          is worth a big bonus if you call it right, and picks lock before the knockouts
+          start. Make yours on the <strong>Awards</strong> tab.
+        </p>
+      </div>
+
+      <div className="form-card">
+        <div className="rule-card-head">
           <span className="rule-icon">📈</span>
           <h2>Round multipliers</h2>
         </div>

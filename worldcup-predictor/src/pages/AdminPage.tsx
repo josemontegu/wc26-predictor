@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, DEMO } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { AppConfig, Match, Round, RoundCode } from '../lib/types'
+import type { AppConfig, Award, Match, Round, RoundCode } from '../lib/types'
 import { ROUND_NAMES, ROUND_ORDER } from '../lib/format'
 import { buildUpserts, fetchFeed, isRealTeam, type SyncSummary } from '../lib/openfootball'
 import { teamFlag } from '../lib/teamMeta'
+import { isoToLocalInput, localInputToIso } from '../lib/datetime'
 import AdminMatchRow from '../components/AdminMatchRow'
 import Spinner from '../components/Spinner'
 
@@ -13,6 +14,9 @@ export default function AdminPage() {
   const [matches, setMatches] = useState<Match[]>([])
   const [config, setConfig] = useState<AppConfig | null>(null)
   const [rounds, setRounds] = useState<Round[]>([])
+  const [awards, setAwards] = useState<Award[]>([])
+  const [awardBusy, setAwardBusy] = useState(false)
+  const [awardSaved, setAwardSaved] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeRound, setActiveRound] = useState<RoundCode>('R32')
@@ -36,14 +40,16 @@ export default function AdminPage() {
   useEffect(() => {
     let active = true
     async function load() {
-      const [matchRes, cfgRes, roundRes] = await Promise.all([
+      const [matchRes, cfgRes, roundRes, awardRes] = await Promise.all([
         supabase.from('matches').select('*').order('match_no'),
         supabase.from('app_config').select('*').eq('id', 1).maybeSingle(),
         supabase.from('rounds').select('*').order('sort_order'),
+        supabase.from('awards').select('*').order('sort_order'),
       ])
       if (!active) return
       if (matchRes.error) setError(matchRes.error.message)
       setMatches((matchRes.data as Match[]) ?? [])
+      setAwards((awardRes.data as Award[]) ?? [])
       const cfg = (cfgRes.data as AppConfig) ?? null
       setConfig(cfg)
       setCfgDraft(cfg)
@@ -76,6 +82,33 @@ export default function AdminPage() {
 
   function handleMatchSaved(updated: Match) {
     setMatches((prev) => prev.map((m) => (m.id === updated.id ? updated : m)))
+  }
+
+  function editAward(id: string, patch: Partial<Award>) {
+    setAwards((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)))
+  }
+
+  async function saveAwards() {
+    setAwardBusy(true)
+    setAwardSaved(false)
+    setError(null)
+    const rows = awards.map((a) => ({
+      id: a.id,
+      key: a.key,
+      name: a.name,
+      description: a.description,
+      points: Number(a.points),
+      lock_time: a.lock_time,
+      winner: a.winner && a.winner.trim() ? a.winner.trim() : null,
+      sort_order: a.sort_order,
+    }))
+    const { error } = await supabase.from('awards').upsert(rows, { onConflict: 'id' })
+    setAwardBusy(false)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setAwardSaved(true)
   }
 
   async function syncFromOpenfootball() {
@@ -367,6 +400,50 @@ export default function AdminPage() {
           {cfgSaved && <div className="notice notice-ok">Settings saved ✓</div>}
           <button className="btn btn-primary" onClick={saveConfig} disabled={cfgBusy}>
             {cfgBusy ? 'Saving…' : 'Save settings'}
+          </button>
+        </div>
+      )}
+
+      <h2 className="mt-lg">Tournament awards</h2>
+      {awards.length === 0 ? (
+        <p className="muted small">No awards set up. Run the awards migration + seed.</p>
+      ) : (
+        <div className="form-card">
+          {awards.map((a) => (
+            <div key={a.id} className="admin-award">
+              <div className="admin-section-label">{a.name}</div>
+              <div className="admin-grid">
+                <label>
+                  Winner
+                  <input
+                    type="text"
+                    placeholder="Player name"
+                    value={a.winner ?? ''}
+                    onChange={(e) => editAward(a.id, { winner: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Points
+                  <input
+                    type="number"
+                    value={a.points}
+                    onChange={(e) => editAward(a.id, { points: Number(e.target.value) })}
+                  />
+                </label>
+              </div>
+              <label>
+                Picks lock at
+                <input
+                  type="datetime-local"
+                  value={isoToLocalInput(a.lock_time)}
+                  onChange={(e) => editAward(a.id, { lock_time: localInputToIso(e.target.value) })}
+                />
+              </label>
+            </div>
+          ))}
+          {awardSaved && <div className="notice notice-ok">Awards saved ✓</div>}
+          <button className="btn btn-primary" onClick={saveAwards} disabled={awardBusy}>
+            {awardBusy ? 'Saving…' : 'Save awards'}
           </button>
         </div>
       )}

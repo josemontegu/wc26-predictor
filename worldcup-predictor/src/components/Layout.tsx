@@ -7,6 +7,7 @@ import ThemeToggle from './ThemeToggle'
 const tabs = [
   { to: '/', label: 'Matches', icon: '⚽', end: true },
   { to: '/bracket', label: 'Bracket', icon: '🗺️', end: false },
+  { to: '/awards', label: 'Awards', icon: '🏅', end: false },
   { to: '/leaderboard', label: 'Table', icon: '🏆', end: false },
   { to: '/rules', label: 'Rules', icon: '📖', end: false },
   { to: '/profile', label: 'You', icon: '👤', end: false },

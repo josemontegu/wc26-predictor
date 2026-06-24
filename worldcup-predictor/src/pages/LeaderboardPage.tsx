@@ -56,6 +56,7 @@ export default function LeaderboardPage() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'predictions' }, () =>
         fetchRows(),
       )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'awards' }, () => fetchRows())
       .subscribe((status: string) => {
         if (status === 'SUBSCRIBED') setLive(true)
       })

@@ -1538,3 +1538,80 @@ label {
   margin: 0 0 0.5rem;
   font-size: 0.95rem;
 }
+
+/* ---------- awards ---------- */
+.award-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--line-soft);
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.award-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.award-icon {
+  font-size: 1.7rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gold-soft);
+  flex: 0 0 auto;
+}
+.award-title {
+  flex: 1;
+  min-width: 0;
+}
+.award-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1rem;
+}
+.award-points {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #8a6400;
+  background: var(--gold-soft);
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+.award-foot {
+  display: flex;
+  align-items: center;
+}
+.award-status {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.award-hit {
+  color: var(--accent-dark);
+}
+.award-miss {
+  color: var(--muted);
+}
+[data-theme='dark'] .award-points {
+  color: #f0c560;
+}
+
+.admin-award {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--line);
+}
+.admin-award:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}

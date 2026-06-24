@@ -1,4 +1,13 @@
-import type { AppConfig, Match, Prediction, Profile, Round, RoundCode } from './types'
+import type {
+  AppConfig,
+  Award,
+  AwardPrediction,
+  Match,
+  Prediction,
+  Profile,
+  Round,
+  RoundCode,
+} from './types'
 
 // In-memory dataset powering demo mode (no Supabase needed). Mutations persist
 // for the browser session so editing predictions updates the table live.
@@ -106,6 +115,18 @@ export const demoPredictions: Prediction[] = [
 // No other-player predictions seeded: with no results they wouldn't affect the
 // (empty) leaderboard, and matches aren't locked yet so picks stay hidden.
 export const demoOtherPredictions: Prediction[] = []
+
+// Tournament awards (no winners yet — decided at the end).
+export const demoAwards: Award[] = [
+  { id: 'aw1', key: 'golden_ball', name: 'Golden Ball', description: 'Best player of the tournament', points: 10, lock_time: '2026-06-28T19:00:00Z', winner: null, sort_order: 1 },
+  { id: 'aw2', key: 'golden_boot', name: 'Golden Boot', description: 'Top scorer', points: 10, lock_time: '2026-06-28T19:00:00Z', winner: null, sort_order: 2 },
+  { id: 'aw3', key: 'golden_glove', name: 'Golden Glove', description: 'Best goalkeeper', points: 10, lock_time: '2026-06-28T19:00:00Z', winner: null, sort_order: 3 },
+]
+
+export const demoAwardPredictions: AwardPrediction[] = [
+  { id: 'apa', user_id: DEMO_USER_ID, award_id: 'aw1', pick: 'Lamine Yamal', created_at: '', updated_at: '' },
+  { id: 'apb', user_id: DEMO_USER_ID, award_id: 'aw2', pick: 'Kylian Mbappé', created_at: '', updated_at: '' },
+]
 
 function pred(
   match_id: string,

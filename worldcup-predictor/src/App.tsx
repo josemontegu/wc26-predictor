@@ -11,6 +11,7 @@ import LeaderboardPage from './pages/LeaderboardPage'
 import RulesPage from './pages/RulesPage'
 import AdminPage from './pages/AdminPage'
 import BracketPage from './pages/BracketPage'
+import AwardsPage from './pages/AwardsPage'
 
 export default function App() {
   const { session, profile, loading } = useAuth()
@@ -57,6 +58,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<MatchesPage />} />
         <Route path="/bracket" element={<BracketPage />} />
+        <Route path="/awards" element={<AwardsPage />} />
         <Route path="/match/:id" element={<MatchDetailPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/rules" element={<RulesPage />} />

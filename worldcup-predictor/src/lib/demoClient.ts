@@ -2,6 +2,8 @@ import type { AppConfig, LeaderboardRow, Match, MyScore, Prediction, Profile } f
 import {
   DEMO_EMAIL,
   DEMO_USER_ID,
+  demoAwardPredictions,
+  demoAwards,
   demoConfig,
   demoMatches,
   demoOtherPredictions,
@@ -21,6 +23,8 @@ interface Store {
   predictions: Prediction[]
   rounds: typeof demoRounds
   app_config: AppConfig[]
+  awards: typeof demoAwards
+  award_predictions: typeof demoAwardPredictions
 }
 
 const store: Store = {
@@ -29,6 +33,8 @@ const store: Store = {
   predictions: structuredClone([...demoPredictions, ...demoOtherPredictions]),
   rounds: structuredClone(demoRounds),
   app_config: [structuredClone(demoConfig)],
+  awards: structuredClone(demoAwards),
+  award_predictions: structuredClone(demoAwardPredictions),
 }
 
 type Filter = { col: string; val: unknown }
@@ -135,6 +141,13 @@ function leaderboard(): LeaderboardRow[] {
       if (s.pts_advance > 0) advances += 1
       if (s.pts_exact > 0) exacts += 1
     }
+    // Award points (winner entered + pick matches).
+    for (const ap of store.award_predictions.filter((x) => x.user_id === pr.id)) {
+      const a = store.awards.find((x) => x.id === ap.award_id)
+      if (a?.winner && ap.pick.trim().toLowerCase() === a.winner.trim().toLowerCase()) {
+        total += a.points
+      }
+    }
     return {
       user_id: pr.id,
       display_name: pr.display_name,
@@ -220,17 +233,25 @@ class QueryBuilder<T = any> {
     }
     if (this.op === 'upsert') {
       const arr = (store as any)[this.table] as any[]
-      const existing = arr.find((r) => this.conflictKeys.every((k) => r[k] === this.payload[k]))
-      let result: any
-      if (existing) {
-        Object.assign(existing, this.payload, { updated_at: new Date().toISOString() })
-        result = existing
-      } else {
-        result = { id: `gen-${Math.round(performance.now())}-${arr.length}`, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), ...this.payload }
-        arr.push(result)
-      }
+      // supabase-js accepts a single row or an array of rows.
+      const items: any[] = Array.isArray(this.payload) ? this.payload : [this.payload]
+      const results = items.map((item) => {
+        const existing = arr.find((r) => this.conflictKeys.every((k) => r[k] === item[k]))
+        if (existing) {
+          Object.assign(existing, item, { updated_at: new Date().toISOString() })
+          return existing
+        }
+        const created = {
+          id: `gen-${Math.round(performance.now())}-${arr.length}`,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          ...item,
+        }
+        arr.push(created)
+        return created
+      })
       emitChange()
-      return this.finish([result])
+      return this.finish(results)
     }
     if (this.op === 'delete') {
       const arr = (store as any)[this.table] as any[]

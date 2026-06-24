@@ -67,6 +67,32 @@ export interface LeaderboardRow {
   exact_scores: number
 }
 
+export interface Award {
+  id: string
+  key: string
+  name: string
+  description: string | null
+  points: number
+  lock_time: string | null
+  winner: string | null
+  sort_order: number
+}
+
+export interface AwardPrediction {
+  id: string
+  user_id: string
+  award_id: string
+  pick: string
+  created_at: string
+  updated_at: string
+}
+
+/** An award is locked once its lock_time has passed. No lock_time = open. */
+export function awardLocked(award: Pick<Award, 'lock_time'>): boolean {
+  if (!award.lock_time) return false
+  return Date.now() >= new Date(award.lock_time).getTime()
+}
+
 export interface LockedPrediction {
   match_id: string
   user_id: string
