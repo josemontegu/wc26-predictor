@@ -1,8 +1,8 @@
 -- =============================================================================
 -- Seed data for the World Cup 2026 knockout predictor.
 -- Run AFTER 0001_init.sql. Safe to re-run (uses upserts).
--- Teams are 'TBD' and times are approximate placeholders — the admin edits
--- real fixtures and kickoff times from the in-app Admin panel.
+-- Kick-off times are the REAL official schedule (UTC). Teams are 'TBD' until the
+-- group stage resolves each slot — fill them via the in-app "Sync" button or Admin.
 -- =============================================================================
 
 -- Rounds with default multipliers (later rounds worth more) --------------------
@@ -22,52 +22,55 @@ insert into public.app_config (id) values (1)
 on conflict (id) do nothing;
 
 -- Knockout matches (FIFA match numbers 73–104) --------------------------------
--- kickoff/lock left null where unscheduled; admin sets them. We pre-fill a
--- plausible date window per round so the bracket is usable immediately.
+-- Real official kick-off times (stored in UTC; the app shows each user their own
+-- local time). Teams stay 'TBD' until the group stage resolves each slot — the
+-- in-app "Sync" button (openfootball) or the admin fills them in.
 insert into public.matches (match_no, round, home_team, away_team, kickoff_time)
 values
-  -- Round of 32 (28 Jun – 3 Jul 2026)
-  (73, 'R32', 'TBD', 'TBD', '2026-06-28 16:00:00+00'),
-  (74, 'R32', 'TBD', 'TBD', '2026-06-28 20:00:00+00'),
-  (75, 'R32', 'TBD', 'TBD', '2026-06-29 16:00:00+00'),
-  (76, 'R32', 'TBD', 'TBD', '2026-06-29 20:00:00+00'),
-  (77, 'R32', 'TBD', 'TBD', '2026-06-30 16:00:00+00'),
-  (78, 'R32', 'TBD', 'TBD', '2026-06-30 20:00:00+00'),
-  (79, 'R32', 'TBD', 'TBD', '2026-07-01 16:00:00+00'),
-  (80, 'R32', 'TBD', 'TBD', '2026-07-01 20:00:00+00'),
-  (81, 'R32', 'TBD', 'TBD', '2026-07-02 16:00:00+00'),
-  (82, 'R32', 'TBD', 'TBD', '2026-07-02 20:00:00+00'),
-  (83, 'R32', 'TBD', 'TBD', '2026-07-02 23:00:00+00'),
-  (84, 'R32', 'TBD', 'TBD', '2026-07-03 16:00:00+00'),
-  (85, 'R32', 'TBD', 'TBD', '2026-07-03 20:00:00+00'),
-  (86, 'R32', 'TBD', 'TBD', '2026-07-03 23:00:00+00'),
-  (87, 'R32', 'TBD', 'TBD', '2026-07-03 19:00:00+00'),
-  (88, 'R32', 'TBD', 'TBD', '2026-07-03 22:00:00+00'),
+  -- Round of 32 (28 Jun – 3 Jul 2026, local venue times in comments)
+  (73, 'R32', 'TBD', 'TBD', '2026-06-28 19:00:00+00'),  -- 12:00 PT
+  (74, 'R32', 'TBD', 'TBD', '2026-06-29 20:30:00+00'),  -- 16:30 ET
+  (75, 'R32', 'TBD', 'TBD', '2026-06-30 01:00:00+00'),  -- 19:00 CT
+  (76, 'R32', 'TBD', 'TBD', '2026-06-29 17:00:00+00'),  -- 12:00 ET
+  (77, 'R32', 'TBD', 'TBD', '2026-06-30 21:00:00+00'),  -- 17:00 ET
+  (78, 'R32', 'TBD', 'TBD', '2026-06-30 17:00:00+00'),  -- 12:00 ET
+  (79, 'R32', 'TBD', 'TBD', '2026-07-01 01:00:00+00'),  -- 19:00 CT
+  (80, 'R32', 'TBD', 'TBD', '2026-07-01 16:00:00+00'),  -- 12:00 ET
+  (81, 'R32', 'TBD', 'TBD', '2026-07-02 00:00:00+00'),  -- 17:00 PT
+  (82, 'R32', 'TBD', 'TBD', '2026-07-01 20:00:00+00'),  -- 13:00 PT
+  (83, 'R32', 'TBD', 'TBD', '2026-07-02 23:00:00+00'),  -- 19:00 ET
+  (84, 'R32', 'TBD', 'TBD', '2026-07-02 19:00:00+00'),  -- 12:00 PT
+  (85, 'R32', 'TBD', 'TBD', '2026-07-03 03:00:00+00'),  -- 20:00 PT
+  (86, 'R32', 'TBD', 'TBD', '2026-07-03 22:00:00+00'),  -- 18:00 ET
+  (87, 'R32', 'TBD', 'TBD', '2026-07-04 01:30:00+00'),  -- 20:30 CT
+  (88, 'R32', 'TBD', 'TBD', '2026-07-03 18:00:00+00'),  -- 13:00 CT
   -- Round of 16 (4 – 7 Jul 2026)
-  (89, 'R16', 'TBD', 'TBD', '2026-07-04 16:00:00+00'),
-  (90, 'R16', 'TBD', 'TBD', '2026-07-04 20:00:00+00'),
-  (91, 'R16', 'TBD', 'TBD', '2026-07-05 16:00:00+00'),
-  (92, 'R16', 'TBD', 'TBD', '2026-07-05 20:00:00+00'),
-  (93, 'R16', 'TBD', 'TBD', '2026-07-06 16:00:00+00'),
-  (94, 'R16', 'TBD', 'TBD', '2026-07-06 20:00:00+00'),
-  (95, 'R16', 'TBD', 'TBD', '2026-07-07 16:00:00+00'),
-  (96, 'R16', 'TBD', 'TBD', '2026-07-07 20:00:00+00'),
+  (89, 'R16', 'TBD', 'TBD', '2026-07-04 21:00:00+00'),  -- 17:00 ET
+  (90, 'R16', 'TBD', 'TBD', '2026-07-04 17:00:00+00'),  -- 12:00 ET
+  (91, 'R16', 'TBD', 'TBD', '2026-07-05 20:00:00+00'),  -- 16:00 ET
+  (92, 'R16', 'TBD', 'TBD', '2026-07-06 00:00:00+00'),  -- 18:00 MT
+  (93, 'R16', 'TBD', 'TBD', '2026-07-06 19:00:00+00'),  -- 14:00 CT
+  (94, 'R16', 'TBD', 'TBD', '2026-07-07 00:00:00+00'),  -- 17:00 PT
+  (95, 'R16', 'TBD', 'TBD', '2026-07-07 16:00:00+00'),  -- 12:00 ET
+  (96, 'R16', 'TBD', 'TBD', '2026-07-07 20:00:00+00'),  -- 13:00 PT
   -- Quarter-finals (9 – 11 Jul 2026)
-  (97, 'QF', 'TBD', 'TBD', '2026-07-09 20:00:00+00'),
-  (98, 'QF', 'TBD', 'TBD', '2026-07-10 20:00:00+00'),
-  (99, 'QF', 'TBD', 'TBD', '2026-07-11 16:00:00+00'),
-  (100, 'QF', 'TBD', 'TBD', '2026-07-11 20:00:00+00'),
+  (97, 'QF', 'TBD', 'TBD', '2026-07-09 20:00:00+00'),  -- 16:00 ET
+  (98, 'QF', 'TBD', 'TBD', '2026-07-10 19:00:00+00'),  -- 12:00 PT
+  (99, 'QF', 'TBD', 'TBD', '2026-07-11 21:00:00+00'),  -- 17:00 ET
+  (100, 'QF', 'TBD', 'TBD', '2026-07-12 01:00:00+00'), -- 20:00 CT
   -- Semi-finals (14 – 15 Jul 2026)
-  (101, 'SF', 'TBD', 'TBD', '2026-07-14 20:00:00+00'),
-  (102, 'SF', 'TBD', 'TBD', '2026-07-15 20:00:00+00'),
+  (101, 'SF', 'TBD', 'TBD', '2026-07-14 19:00:00+00'), -- 14:00 CT
+  (102, 'SF', 'TBD', 'TBD', '2026-07-15 19:00:00+00'), -- 15:00 ET
   -- Third-place play-off (18 Jul 2026)
-  (103, 'TP', 'TBD', 'TBD', '2026-07-18 20:00:00+00'),
-  -- Final (19 Jul 2026)
-  (104, 'F', 'TBD', 'TBD', '2026-07-19 19:00:00+00')
-on conflict (match_no) do nothing;
+  (103, 'TP', 'TBD', 'TBD', '2026-07-18 21:00:00+00'), -- 17:00 ET
+  -- Final (19 Jul 2026, MetLife Stadium)
+  (104, 'F', 'TBD', 'TBD', '2026-07-19 19:00:00+00')   -- 15:00 ET
+on conflict (match_no) do update
+  set kickoff_time = excluded.kickoff_time,
+      round = excluded.round;
 
--- Default lock_time = kickoff − lock_minutes_before_kickoff, where unset -------
+-- Default lock_time = kickoff − lock_minutes_before_kickoff -------------------
 update public.matches m
 set lock_time = m.kickoff_time - (cfg.lock_minutes_before_kickoff * interval '1 minute')
 from public.app_config cfg
-where m.lock_time is null and m.kickoff_time is not null;
+where m.kickoff_time is not null;

@@ -21,13 +21,16 @@ const FLAGS: Record<string, string> = {
   'Cape Verde': '🇨🇻', Curacao: '🇨🇼', Haiti: '🇭🇹', Honduras: '🇭🇳',
 }
 
-export function teamFlag(name: string | null | undefined): string {
-  if (!name || name === 'TBD') return '🏳️'
-  return FLAGS[name] ?? '⚽'
+// A bracket slot ("2A", "3A/B/C/D/F", "Winner M74") rather than a real nation.
+export function isTBD(name: string | null | undefined): boolean {
+  if (!name) return true
+  const s = name.trim()
+  return s === '' || s === 'TBD' || /[0-9]/.test(s) || s.includes('/')
 }
 
-export function isTBD(name: string | null | undefined): boolean {
-  return !name || name === 'TBD'
+export function teamFlag(name: string | null | undefined): string {
+  if (isTBD(name)) return '🏳️'
+  return FLAGS[name as string] ?? '⚽'
 }
 
 // Kit / flag-derived primary colour per nation, used as card and header accents.
