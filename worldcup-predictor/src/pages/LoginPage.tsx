@@ -26,10 +26,13 @@ export default function LoginPage() {
   return (
     <div className="center-screen">
       <div className="login-card">
-        <div className="login-logo">🌎⚽</div>
-        <h1>WC26 Predictor</h1>
+        <div className="login-badge">⚽</div>
+        <h1 className="login-title">
+          Polla <span className="brand-accent">LDF</span>
+        </h1>
+        <p className="login-tag">La polla del Mundial 2026 🏆</p>
         <p className="muted">
-          Private knockout-stage prediction game. Sign in with your email — we'll send
+          Private knockout-stage prediction pool. Sign in with your email — we'll send
           you a one-tap magic link.
         </p>
 

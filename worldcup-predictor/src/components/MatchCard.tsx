@@ -69,7 +69,8 @@ export default function MatchCard({ match, prediction, points }: Props) {
       <div className="mcard-foot">
         {prediction ? (
           <span className="pick">
-            ✓ {prediction.home_score}–{prediction.away_score} · {prediction.advancing_team}
+            <span className="pick-label">Your pick:</span> {prediction.home_score}–
+            {prediction.away_score} · {prediction.advancing_team}
             {prediction.penalties ? ' (pens)' : ''}
           </span>
         ) : (

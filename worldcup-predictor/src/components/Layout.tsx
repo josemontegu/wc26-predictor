@@ -19,7 +19,12 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="app-shell">
       <header className="app-header">
         <div className="app-header-inner">
-          <span className="brand">🌎 WC26 Predictor</span>
+          <span className="brand">
+            <span className="brand-badge">⚽</span>
+            <span className="brand-word">
+              Polla <span className="brand-accent">LDF</span>
+            </span>
+          </span>
           <span className="brand-right">
             {DEMO && <span className="demo-badge">Demo</span>}
             {profile?.nickname && <span className="brand-nick">{profile.nickname}</span>}

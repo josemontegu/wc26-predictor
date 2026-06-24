@@ -1,7 +1,7 @@
-# 🌎 WC26 Predictor
+# ⚽ Polla LDF
 
-A private, mobile-first web app for a **World Cup 2026 knockout-stage prediction game**
-among friends. Predict the Round of 32 through the Final, lock in your calls before
+A private, mobile-first web app for a **World Cup 2026 knockout-stage prediction pool**
+("polla") among friends. Predict the Round of 32 through the Final, lock in your calls before
 kick-off, and climb an automatically-scored leaderboard.
 
 Built with **React + Vite + TypeScript** on the front end and **Supabase**

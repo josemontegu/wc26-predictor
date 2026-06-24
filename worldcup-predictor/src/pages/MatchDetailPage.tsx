@@ -33,6 +33,9 @@ export default function MatchDetailPage() {
   const [aetHome, setAetHome] = useState('')
   const [aetAway, setAetAway] = useState('')
   const [advancing, setAdvancing] = useState('')
+  // Has the player engaged with the score yet? Controls progressive disclosure
+  // of the extra-time row + outcome (an untouched 0–0 shouldn't reveal them).
+  const [touched, setTouched] = useState(false)
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -66,6 +69,7 @@ export default function MatchDetailPage() {
         setAetHome(p.aet_home_score != null ? String(p.aet_home_score) : '')
         setAetAway(p.aet_away_score != null ? String(p.aet_away_score) : '')
         setAdvancing(p.advancing_team)
+        setTouched(true)
       } else {
         // No prediction yet — reset to defaults (don't carry over the last match).
         setHome('0')
@@ -73,6 +77,7 @@ export default function MatchDetailPage() {
         setAetHome('')
         setAetAway('')
         setAdvancing('')
+        setTouched(false)
       }
       setLoading(false)
 
@@ -213,6 +218,17 @@ export default function MatchDetailPage() {
       : match.away_team
     : null
   const isShootout = outcome.phase === 'shootout'
+  // Progressive disclosure: keep a fresh form to just the 90' score.
+  const showResolution = touched
+  const showExtraTime = isDraw90 && touched
+  const bumpHome = (d: number) => {
+    setTouched(true)
+    setHome(String(clampScore(homeN + d)))
+  }
+  const bumpAway = (d: number) => {
+    setTouched(true)
+    setAway(String(clampScore(awayN + d)))
+  }
 
   return (
     <div className="page">
@@ -289,8 +305,8 @@ export default function MatchDetailPage() {
             value={homeN}
             disabled={!canEdit}
             atMin={homeN <= 0}
-            onDec={() => setHome(String(clampScore(homeN - 1)))}
-            onInc={() => setHome(String(clampScore(homeN + 1)))}
+            onDec={() => bumpHome(-1)}
+            onInc={() => bumpHome(1)}
           />
           <span className="stepper-dash">–</span>
           <ScoreStepper
@@ -299,12 +315,16 @@ export default function MatchDetailPage() {
             value={awayN}
             disabled={!canEdit}
             atMin={awayN <= 0}
-            onDec={() => setAway(String(clampScore(awayN - 1)))}
-            onInc={() => setAway(String(clampScore(awayN + 1)))}
+            onDec={() => bumpAway(-1)}
+            onInc={() => bumpAway(1)}
           />
         </div>
 
-        {isDraw90 && (
+        {canEdit && !touched && (
+          <p className="muted small hint">Set the 90-minute score to make your prediction.</p>
+        )}
+
+        {showExtraTime && (
           <>
             <label className="field-label">
               Score after extra time{' '}
@@ -334,34 +354,38 @@ export default function MatchDetailPage() {
           </>
         )}
 
-        <label className="field-label">Who advances?</label>
-        <div className="choice-row">
-          {[match.home_team, match.away_team].map((team) => (
-            <button
-              type="button"
-              key={team}
-              disabled={!canEdit || !isShootout}
-              className={`choice ${advancing === team ? 'choice-active' : ''}`}
-              onClick={() => setAdvancing(team)}
-            >
-              <span>{teamFlag(team)}</span>
-              {team}
-            </button>
-          ))}
-        </div>
-        {canEdit && (
-          <p className="muted small hint">
-            {outcome.phase === 'reg' && `${lockedWinner} win in 90′ and advance.`}
-            {outcome.phase === 'aet' && `${lockedWinner} win in extra time and advance.`}
-            {isShootout && 'Level after extra time — pick who wins the shootout.'}
-          </p>
-        )}
+        {showResolution && (
+          <>
+            <label className="field-label">Who advances?</label>
+            <div className="choice-row">
+              {[match.home_team, match.away_team].map((team) => (
+                <button
+                  type="button"
+                  key={team}
+                  disabled={!canEdit || !isShootout}
+                  className={`choice ${advancing === team ? 'choice-active' : ''}`}
+                  onClick={() => setAdvancing(team)}
+                >
+                  <span>{teamFlag(team)}</span>
+                  {team}
+                </button>
+              ))}
+            </div>
+            {canEdit && (
+              <p className="muted small hint">
+                {outcome.phase === 'reg' && `${lockedWinner} win in 90′ and advance.`}
+                {outcome.phase === 'aet' && `${lockedWinner} win in extra time and advance.`}
+                {isShootout && 'Level after extra time — pick who wins the shootout.'}
+              </p>
+            )}
 
-        <div className={`outcome-chip outcome-${outcome.phase}`}>
-          {outcome.phase === 'reg' && '✅ Settled in 90 minutes — no penalties'}
-          {outcome.phase === 'aet' && '⏱️ Decided in extra time — no penalties'}
-          {outcome.phase === 'shootout' && '🥅 Goes to a penalty shootout'}
-        </div>
+            <div className={`outcome-chip outcome-${outcome.phase}`}>
+              {outcome.phase === 'reg' && '✅ Settled in 90 minutes — no penalties'}
+              {outcome.phase === 'aet' && '⏱️ Decided in extra time — no penalties'}
+              {outcome.phase === 'shootout' && '🥅 Goes to a penalty shootout'}
+            </div>
+          </>
+        )}
 
         {error && <div className="notice notice-err">{error}</div>}
         {saved && <div className="notice notice-ok">Prediction saved ✓</div>}
@@ -370,7 +394,7 @@ export default function MatchDetailPage() {
           <button
             className="btn btn-primary"
             type="submit"
-            disabled={busy || (isShootout && !advancing)}
+            disabled={busy || !touched || (isShootout && !advancing)}
           >
             {busy ? 'Saving…' : prediction ? 'Update prediction' : 'Submit prediction'}
           </button>

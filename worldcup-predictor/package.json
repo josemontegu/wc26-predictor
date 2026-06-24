@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Private World Cup 2026 knockout-stage prediction game for friends",
+  "description": "Polla LDF — private World Cup 2026 knockout-stage prediction pool for friends",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
