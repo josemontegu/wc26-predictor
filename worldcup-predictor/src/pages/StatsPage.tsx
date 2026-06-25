@@ -175,15 +175,15 @@ export default function StatsPage() {
     const crowdQ = (r: Rec) => r.crowdN >= crowdThresh
 
     return [
-      { icon: '🎯', title: 'Sniper', desc: 'Most exact scores', win: winner(skillQ, (r) => r.exactRate, 'max', true), fmt: (r: Rec) => `${r.exact} exact` },
-      { icon: '🔮', title: 'Oracle', desc: 'Best advance accuracy', win: winner(skillQ, (r) => r.advanceAcc, 'max', true), fmt: (r: Rec) => `${Math.round((r.advanceAcc ?? 0) * 100)}% right` },
-      { icon: '💀', title: 'Cursed', desc: 'Most blank matches', win: winner(skillQ, (r) => r.zero, 'max', true), fmt: (r: Rec) => `${r.zero} blanks` },
-      { icon: '🌋', title: 'Optimist', desc: 'Predicts most goals', win: winner(crowdQ, (r) => r.goalsAvg, 'max', false), fmt: (r: Rec) => `${(r.goalsAvg ?? 0).toFixed(1)} g/game` },
-      { icon: '🧱', title: 'The Wall', desc: 'Predicts fewest goals', win: winner(crowdQ, (r) => r.goalsAvg, 'min', false), fmt: (r: Rec) => `${(r.goalsAvg ?? 0).toFixed(1)} g/game` },
-      { icon: '🎲', title: 'Chaos Agent', desc: 'Most shootouts called', win: winner(crowdQ, (r) => r.pensShare, 'max', true), fmt: (r: Rec) => `${Math.round((r.pensShare ?? 0) * 100)}% pens` },
-      { icon: '🐑', title: 'The Sheep', desc: 'Most with the crowd', win: winner(crowdQ, (r) => r.sheep, 'max', true), fmt: (r: Rec) => `${Math.round((r.sheep ?? 0) * 100)}% consensus` },
-      { icon: '🤠', title: 'Maverick', desc: 'Most against the crowd', win: winner(crowdQ, (r) => r.maverick, 'max', true), fmt: (r: Rec) => `${Math.round((r.maverick ?? 0) * 100)}% contrarian` },
-      { icon: '🦄', title: 'Lone Wolf', desc: 'Most unique scorelines', win: winner(crowdQ, (r) => r.unique, 'max', true), fmt: (r: Rec) => `${r.unique} unique` },
+      { icon: '🎯', title: 'Sniper', desc: 'Highest exact-score rate', win: winner(skillQ, (r) => r.exactRate, 'max', true), fmt: (r: Rec) => `${r.exact} exact` },
+      { icon: '🔮', title: 'Oracle', desc: 'Best advance accuracy (correct ÷ scored)', win: winner(skillQ, (r) => r.advanceAcc, 'max', true), fmt: (r: Rec) => `${Math.round((r.advanceAcc ?? 0) * 100)}% right` },
+      { icon: '💀', title: 'Cursed', desc: 'Most blank (zero-point) matches', win: winner(skillQ, (r) => r.zero, 'max', true), fmt: (r: Rec) => `${r.zero} blanks` },
+      { icon: '🌋', title: 'Optimist', desc: 'Most goals predicted per game', win: winner(crowdQ, (r) => r.goalsAvg, 'max', false), fmt: (r: Rec) => `${(r.goalsAvg ?? 0).toFixed(1)} g/game` },
+      { icon: '🧱', title: 'The Wall', desc: 'Fewest goals predicted per game', win: winner(crowdQ, (r) => r.goalsAvg, 'min', false), fmt: (r: Rec) => `${(r.goalsAvg ?? 0).toFixed(1)} g/game` },
+      { icon: '🎲', title: 'Chaos Agent', desc: 'Highest share of picks calling penalties', win: winner(crowdQ, (r) => r.pensShare, 'max', true), fmt: (r: Rec) => `${Math.round((r.pensShare ?? 0) * 100)}% pens` },
+      { icon: '🐑', title: 'The Sheep', desc: "Most often with the pool's pick", win: winner(crowdQ, (r) => r.sheep, 'max', true), fmt: (r: Rec) => `${Math.round((r.sheep ?? 0) * 100)}% consensus` },
+      { icon: '🤠', title: 'Maverick', desc: 'Most often against the consensus', win: winner(crowdQ, (r) => r.maverick, 'max', true), fmt: (r: Rec) => `${Math.round((r.maverick ?? 0) * 100)}% contrarian` },
+      { icon: '🦄', title: 'Lone Wolf', desc: 'Most scorelines no one else picked', win: winner(crowdQ, (r) => r.unique, 'max', true), fmt: (r: Rec) => `${r.unique} unique` },
     ].map((a) => ({ ...a, res: a.win }))
   }, [picks, stats, matches])
 
@@ -258,8 +258,11 @@ export default function StatsPage() {
           {supers.map((a) => (
             <div key={a.title} className={`super ${a.res ? '' : 'super-pending'}`}>
               <span className="super-icon">{a.icon}</span>
-              <div className="super-body">
+              <div className="super-main">
                 <div className="super-title">{a.title}</div>
+                <div className="super-crit">{a.desc}</div>
+              </div>
+              <div className="super-right">
                 {a.res ? (
                   <>
                     <div className="super-winner">
@@ -269,7 +272,7 @@ export default function StatsPage() {
                     <div className="super-val">{a.fmt(a.res[0])}</div>
                   </>
                 ) : (
-                  <div className="super-pending-txt">{a.desc}</div>
+                  <div className="super-pending-txt">Not yet</div>
                 )}
               </div>
             </div>
