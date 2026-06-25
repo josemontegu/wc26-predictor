@@ -124,6 +124,7 @@ export interface PlayerStat {
   correct_advances: number
   exact_scores: number
   correct_tendencies: number
+  zero_points: number
 }
 
 export interface LockedAwardPrediction {

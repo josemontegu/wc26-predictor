@@ -1970,3 +1970,53 @@ label {
   height: 10px;
   border-radius: 3px;
 }
+
+/* ---------- superlatives ---------- */
+.super-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+.super {
+  background: var(--card);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--line-soft);
+  padding: 0.7rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.super-pending {
+  opacity: 0.6;
+}
+.super-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+.super-body {
+  min-width: 0;
+}
+.super-title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+.super-winner {
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.super-val {
+  font-size: 0.72rem;
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+.super-pending-txt {
+  font-size: 0.74rem;
+  color: var(--muted);
+}

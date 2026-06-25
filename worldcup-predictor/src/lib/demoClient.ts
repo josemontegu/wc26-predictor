@@ -168,7 +168,7 @@ function playerStats() {
   const cfg = store.app_config[0]
   return store.profiles.map((pr) => {
     let pts_advance = 0, pts_exact = 0, pts_tendency = 0, pts_penalties = 0, pts_exact_aet = 0
-    let scored = 0, correct_advances = 0, exact_scores = 0, correct_tendencies = 0
+    let scored = 0, correct_advances = 0, exact_scores = 0, correct_tendencies = 0, zero_points = 0
     for (const p of store.predictions.filter((x) => x.user_id === pr.id)) {
       const m = store.matches.find((x) => x.id === p.match_id)
       if (!m || !hasAnyResult(m)) continue
@@ -183,6 +183,8 @@ function playerStats() {
       if (s.pts_advance > 0) correct_advances += 1
       if (s.pts_exact > 0) exact_scores += 1
       if (s.pts_tendency > 0) correct_tendencies += 1
+      if (s.pts_advance + s.pts_exact + s.pts_tendency + s.pts_penalties + s.pts_exact_aet === 0)
+        zero_points += 1
     }
     let pts_awards = 0
     for (const ap of store.award_predictions.filter((x) => x.user_id === pr.id)) {
@@ -195,7 +197,7 @@ function playerStats() {
       nickname: pr.nickname,
       emoji: pr.emoji,
       pts_advance, pts_exact, pts_tendency, pts_penalties, pts_exact_aet, pts_awards,
-      scored, correct_advances, exact_scores, correct_tendencies,
+      scored, correct_advances, exact_scores, correct_tendencies, zero_points,
     }
   })
 }

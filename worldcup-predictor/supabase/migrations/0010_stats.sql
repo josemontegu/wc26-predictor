@@ -29,7 +29,8 @@ select
   count(pt.prediction_id)                        as scored,
   coalesce(sum((pt.pts_advance > 0)::int), 0)    as correct_advances,
   coalesce(sum((pt.pts_exact > 0)::int), 0)      as exact_scores,
-  coalesce(sum((pt.pts_tendency > 0)::int), 0)   as correct_tendencies
+  coalesce(sum((pt.pts_tendency > 0)::int), 0)   as correct_tendencies,
+  coalesce(sum((pt.total_points = 0)::int), 0)   as zero_points
 from public.profiles pr
 left join public.prediction_totals pt on pt.user_id = pr.id
 left join award_pts awp on awp.user_id = pr.id

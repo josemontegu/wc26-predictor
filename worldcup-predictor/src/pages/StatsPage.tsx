@@ -97,6 +97,96 @@ export default function StatsPage() {
     return { actual, predicted, playedCount: played.length }
   }, [matches, picks])
 
+  // Superlatives — objective titles computed from revealed picks + results.
+  const supers = useMemo(() => {
+    const byUser = new Map<string, LockedPrediction[]>()
+    for (const p of picks) {
+      if (!byUser.has(p.user_id)) byUser.set(p.user_id, [])
+      byUser.get(p.user_id)!.push(p)
+    }
+    const lockedTotal = new Set(picks.map((p) => p.match_id)).size
+
+    const advCounts = new Map<string, Map<string, number>>()
+    const scoreCounts = new Map<string, Map<string, number>>()
+    for (const p of picks) {
+      const am = advCounts.get(p.match_id) ?? new Map()
+      am.set(p.advancing_team, (am.get(p.advancing_team) ?? 0) + 1)
+      advCounts.set(p.match_id, am)
+      const sm = scoreCounts.get(p.match_id) ?? new Map()
+      const k = `${p.home_score}-${p.away_score}`
+      sm.set(k, (sm.get(k) ?? 0) + 1)
+      scoreCounts.set(p.match_id, sm)
+    }
+    const plurality = new Map<string, string>()
+    for (const [mid, am] of advCounts) {
+      let best = ''
+      let n = -1
+      for (const [t, c] of am) if (c > n) ((best = t), (n = c))
+      plurality.set(mid, best)
+    }
+
+    const scoredTotal = matches.filter((m) => m.home_score != null).length
+    const skillThresh = Math.max(2, Math.ceil(scoredTotal * 0.5))
+    const crowdThresh = Math.max(2, Math.ceil(lockedTotal * 0.5))
+
+    const recs = stats.map((s) => {
+      const ps = byUser.get(s.user_id) ?? []
+      const n = ps.length
+      let withCrowd = 0
+      let unique = 0
+      for (const p of ps) {
+        if (plurality.get(p.match_id) === p.advancing_team) withCrowd++
+        if (scoreCounts.get(p.match_id)?.get(`${p.home_score}-${p.away_score}`) === 1) unique++
+      }
+      return {
+        nick: s.nickname,
+        emoji: s.emoji,
+        skillN: s.scored,
+        crowdN: n,
+        exact: s.exact_scores,
+        exactRate: s.scored ? s.exact_scores / s.scored : null,
+        advanceAcc: s.scored ? s.correct_advances / s.scored : null,
+        zero: s.zero_points,
+        goalsAvg: n ? ps.reduce((a, p) => a + p.home_score + p.away_score, 0) / n : null,
+        pensShare: n ? ps.filter((p) => p.penalties).length / n : null,
+        sheep: n ? withCrowd / n : null,
+        maverick: n ? (n - withCrowd) / n : null,
+        unique,
+      }
+    })
+    type Rec = (typeof recs)[number]
+
+    function winner(
+      qual: (r: Rec) => boolean,
+      val: (r: Rec) => number | null,
+      dir: 'max' | 'min',
+      suppressZero: boolean,
+    ) {
+      const cands = recs
+        .filter(qual)
+        .map((r) => ({ r, v: val(r) }))
+        .filter((c): c is { r: Rec; v: number } => c.v != null)
+      if (!cands.length) return null
+      const best = dir === 'max' ? Math.max(...cands.map((c) => c.v)) : Math.min(...cands.map((c) => c.v))
+      if (suppressZero && best === 0) return null
+      return cands.filter((c) => c.v === best).map((c) => c.r)
+    }
+    const skillQ = (r: Rec) => r.skillN >= skillThresh
+    const crowdQ = (r: Rec) => r.crowdN >= crowdThresh
+
+    return [
+      { icon: '🎯', title: 'Sniper', desc: 'Most exact scores', win: winner(skillQ, (r) => r.exactRate, 'max', true), fmt: (r: Rec) => `${r.exact} exact` },
+      { icon: '🔮', title: 'Oracle', desc: 'Best advance accuracy', win: winner(skillQ, (r) => r.advanceAcc, 'max', true), fmt: (r: Rec) => `${Math.round((r.advanceAcc ?? 0) * 100)}% right` },
+      { icon: '💀', title: 'Cursed', desc: 'Most blank matches', win: winner(skillQ, (r) => r.zero, 'max', true), fmt: (r: Rec) => `${r.zero} blanks` },
+      { icon: '🌋', title: 'Optimist', desc: 'Predicts most goals', win: winner(crowdQ, (r) => r.goalsAvg, 'max', false), fmt: (r: Rec) => `${(r.goalsAvg ?? 0).toFixed(1)} g/game` },
+      { icon: '🧱', title: 'The Wall', desc: 'Predicts fewest goals', win: winner(crowdQ, (r) => r.goalsAvg, 'min', false), fmt: (r: Rec) => `${(r.goalsAvg ?? 0).toFixed(1)} g/game` },
+      { icon: '🎲', title: 'Chaos Agent', desc: 'Most shootouts called', win: winner(crowdQ, (r) => r.pensShare, 'max', true), fmt: (r: Rec) => `${Math.round((r.pensShare ?? 0) * 100)}% pens` },
+      { icon: '🐑', title: 'The Sheep', desc: 'Most with the crowd', win: winner(crowdQ, (r) => r.sheep, 'max', true), fmt: (r: Rec) => `${Math.round((r.sheep ?? 0) * 100)}% consensus` },
+      { icon: '🤠', title: 'Maverick', desc: 'Most against the crowd', win: winner(crowdQ, (r) => r.maverick, 'max', true), fmt: (r: Rec) => `${Math.round((r.maverick ?? 0) * 100)}% contrarian` },
+      { icon: '🦄', title: 'Lone Wolf', desc: 'Most unique scorelines', win: winner(crowdQ, (r) => r.unique, 'max', true), fmt: (r: Rec) => `${r.unique} unique` },
+    ].map((a) => ({ ...a, res: a.win }))
+  }, [picks, stats, matches])
+
   if (loading) {
     return (
       <div className="page">
@@ -107,6 +197,7 @@ export default function StatsPage() {
   }
 
   const maxPts = Math.max(1, ...board.map((r) => r.total_points))
+  const hasSupers = supers.some((a) => a.res)
   const hasPulse = pulse.champTotal > 0 || picks.length > 0
   const hasResults = stats.some((s) => s.scored > 0)
 
@@ -156,6 +247,34 @@ export default function StatsPage() {
             </div>
           </div>
         </>
+      )}
+
+      {/* ---------------- Superlatives ---------------- */}
+      <h2 className="stat-h mt-lg">🏅 Superlatives</h2>
+      {!hasSupers ? (
+        <p className="muted small">Titles are awarded once there are enough picks &amp; results.</p>
+      ) : (
+        <div className="super-grid">
+          {supers.map((a) => (
+            <div key={a.title} className={`super ${a.res ? '' : 'super-pending'}`}>
+              <span className="super-icon">{a.icon}</span>
+              <div className="super-body">
+                <div className="super-title">{a.title}</div>
+                {a.res ? (
+                  <>
+                    <div className="super-winner">
+                      {a.res.map((w) => w.emoji).join(' ')}{' '}
+                      {a.res.length === 1 ? a.res[0].nick : 'Tied'}
+                    </div>
+                    <div className="super-val">{a.fmt(a.res[0])}</div>
+                  </>
+                ) : (
+                  <div className="super-pending-txt">{a.desc}</div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* ---------------- Per-player breakdown ---------------- */}
