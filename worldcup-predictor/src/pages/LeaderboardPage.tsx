@@ -162,13 +162,12 @@ export default function LeaderboardPage() {
                       {r.nickname || r.display_name}
                       {isMe && <span className="you-tag">YOU</span>}
                     </div>
-                    <div className="lb-name">{r.display_name}</div>
-                  </div>
-                  <div className="lb-stats">
-                    <div className="lb-points">{r.total_points}</div>
                     <div className="lb-sub">
                       {r.correct_advances} adv · {r.exact_scores} exact
                     </div>
+                  </div>
+                  <div className="lb-stats">
+                    <div className="lb-points">{r.total_points}</div>
                   </div>
                 </div>
               )

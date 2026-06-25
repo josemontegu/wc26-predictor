@@ -41,9 +41,8 @@ export default function App() {
     return <LoginPage />
   }
 
-  // Signed in but profile incomplete → force profile setup before anything else.
-  const needsProfile =
-    !profile || !profile.display_name.trim() || !profile.nickname.trim()
+  // Signed in but no nickname yet → force nickname setup before anything else.
+  const needsProfile = !profile || !profile.nickname.trim()
 
   if (needsProfile) {
     return (
