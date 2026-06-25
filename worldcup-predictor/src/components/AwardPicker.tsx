@@ -15,6 +15,12 @@ async function loadSquads(): Promise<Squads> {
   return cache
 }
 
+// Strip diacritics + lowercase so "vinicius junior" matches "Vinícius Júnior".
+const DIACRITICS = new RegExp('[\\u0300-\\u036f]', 'g')
+function norm(s: string): string {
+  return s.normalize('NFD').replace(DIACRITICS, '').toLowerCase().trim()
+}
+
 function buildOptions(m: Squads, kind: AwardKind): Opt[] {
   if (kind === 'team') {
     return m.TEAMS.map((t) => ({ value: t.name, flag: t.flag, sub: t.code }))
@@ -64,18 +70,16 @@ export default function AwardPicker({
   }, [kind])
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
+    const q = norm(query)
     const list = q
-      ? options.filter(
-          (o) => o.value.toLowerCase().includes(q) || o.sub.toLowerCase().includes(q),
-        )
+      ? options.filter((o) => norm(o.value).includes(q) || norm(o.sub).includes(q))
       : options
     return list.slice(0, 40)
   }, [options, query])
 
   const selectedFlag = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return options.find((o) => o.value.toLowerCase() === q)?.flag ?? null
+    const q = norm(query)
+    return options.find((o) => norm(o.value) === q)?.flag ?? null
   }, [options, query])
 
   const placeholder =
