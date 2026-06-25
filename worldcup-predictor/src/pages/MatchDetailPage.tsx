@@ -27,15 +27,13 @@ export default function MatchDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const confettiFired = useRef(false)
 
-  // form state
-  const [home, setHome] = useState('0')
-  const [away, setAway] = useState('0')
+  // form state. 90' scores start blank ('') so they must be actively chosen,
+  // rather than defaulting to a 0–0 nobody picked.
+  const [home, setHome] = useState('')
+  const [away, setAway] = useState('')
   const [aetHome, setAetHome] = useState('')
   const [aetAway, setAetAway] = useState('')
   const [advancing, setAdvancing] = useState('')
-  // Has the player engaged with the score yet? Controls progressive disclosure
-  // of the extra-time row + outcome (an untouched 0–0 shouldn't reveal them).
-  const [touched, setTouched] = useState(false)
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -69,15 +67,13 @@ export default function MatchDetailPage() {
         setAetHome(p.aet_home_score != null ? String(p.aet_home_score) : '')
         setAetAway(p.aet_away_score != null ? String(p.aet_away_score) : '')
         setAdvancing(p.advancing_team)
-        setTouched(true)
       } else {
-        // No prediction yet — reset to defaults (don't carry over the last match).
-        setHome('0')
-        setAway('0')
+        // No prediction yet — blank slate (don't carry over the last match).
+        setHome('')
+        setAway('')
         setAetHome('')
         setAetAway('')
         setAdvancing('')
-        setTouched(false)
       }
       setLoading(false)
 
@@ -112,8 +108,9 @@ export default function MatchDetailPage() {
   useEffect(() => {
     if (!match || isLocked(match)) return
     if (match.home_team === 'TBD' || match.away_team === 'TBD') return
-    const h = home === '' ? 0 : Number(home)
-    const a = away === '' ? 0 : Number(away)
+    if (home === '' || away === '') return // wait until both 90' scores are chosen
+    const h = Number(home)
+    const a = Number(away)
     if (h !== a) {
       if (aetHome !== '') setAetHome('')
       if (aetAway !== '') setAetAway('')
@@ -206,29 +203,28 @@ export default function MatchDetailPage() {
 
   const teamsKnown = match.home_team !== 'TBD' && match.away_team !== 'TBD'
   const canEdit = !locked && teamsKnown
-  const homeN = home === '' ? 0 : Number(home)
-  const awayN = away === '' ? 0 : Number(away)
-  const isDraw90 = homeN === awayN
+  const homeN = home === '' ? null : Number(home)
+  const awayN = away === '' ? null : Number(away)
+  const bothSet = homeN !== null && awayN !== null
+  const isDraw90 = bothSet && homeN === awayN
   const aetHomeN = aetHome === '' ? (isDraw90 ? homeN : null) : Number(aetHome)
   const aetAwayN = aetAway === '' ? (isDraw90 ? awayN : null) : Number(aetAway)
-  const outcome = resolveOutcome(homeN, awayN, aetHomeN, aetAwayN)
+  const outcome = resolveOutcome(homeN ?? 0, awayN ?? 0, aetHomeN, aetAwayN)
   const lockedWinner = outcome.winnerSide
     ? outcome.winnerSide === 'home'
       ? match.home_team
       : match.away_team
     : null
   const isShootout = outcome.phase === 'shootout'
-  // Progressive disclosure: keep a fresh form to just the 90' score.
-  const showResolution = touched
-  const showExtraTime = isDraw90 && touched
-  const bumpHome = (d: number) => {
-    setTouched(true)
-    setHome(String(clampScore(homeN + d)))
-  }
-  const bumpAway = (d: number) => {
-    setTouched(true)
-    setAway(String(clampScore(awayN + d)))
-  }
+  // Progressive disclosure: reveal extra time + outcome only once both 90'
+  // scores have actually been chosen.
+  const showResolution = bothSet
+  const showExtraTime = isDraw90 && bothSet
+  // A blank side increments to 0; 0 decrements back to blank.
+  const bumpHome = (d: number) =>
+    setHome(homeN === null ? (d > 0 ? '0' : '') : homeN + d < 0 ? '' : String(clampScore(homeN + d)))
+  const bumpAway = (d: number) =>
+    setAway(awayN === null ? (d > 0 ? '0' : '') : awayN + d < 0 ? '' : String(clampScore(awayN + d)))
 
   return (
     <div className="page">
@@ -304,7 +300,7 @@ export default function MatchDetailPage() {
             team={match.home_team}
             value={homeN}
             disabled={!canEdit}
-            atMin={homeN <= 0}
+            atMin={homeN === null}
             onDec={() => bumpHome(-1)}
             onInc={() => bumpHome(1)}
           />
@@ -314,14 +310,16 @@ export default function MatchDetailPage() {
             team={match.away_team}
             value={awayN}
             disabled={!canEdit}
-            atMin={awayN <= 0}
+            atMin={awayN === null}
             onDec={() => bumpAway(-1)}
             onInc={() => bumpAway(1)}
           />
         </div>
 
-        {canEdit && !touched && (
-          <p className="muted small hint">Set the 90-minute score to make your prediction.</p>
+        {canEdit && !bothSet && (
+          <p className="muted small hint">
+            Tap + to set each team's 90-minute score and make your prediction.
+          </p>
         )}
 
         {showExtraTime && (
@@ -334,21 +332,21 @@ export default function MatchDetailPage() {
               <ScoreStepper
                 flag={teamFlag(match.home_team)}
                 team={match.home_team}
-                value={aetHomeN ?? homeN}
+                value={aetHomeN ?? homeN ?? 0}
                 disabled={!canEdit}
-                atMin={(aetHomeN ?? homeN) <= homeN}
-                onDec={() => setAetHome(String(clampScore((aetHomeN ?? homeN) - 1)))}
-                onInc={() => setAetHome(String(clampScore((aetHomeN ?? homeN) + 1)))}
+                atMin={(aetHomeN ?? homeN ?? 0) <= (homeN ?? 0)}
+                onDec={() => setAetHome(String(clampScore((aetHomeN ?? homeN ?? 0) - 1)))}
+                onInc={() => setAetHome(String(clampScore((aetHomeN ?? homeN ?? 0) + 1)))}
               />
               <span className="stepper-dash">–</span>
               <ScoreStepper
                 flag={teamFlag(match.away_team)}
                 team={match.away_team}
-                value={aetAwayN ?? awayN}
+                value={aetAwayN ?? awayN ?? 0}
                 disabled={!canEdit}
-                atMin={(aetAwayN ?? awayN) <= awayN}
-                onDec={() => setAetAway(String(clampScore((aetAwayN ?? awayN) - 1)))}
-                onInc={() => setAetAway(String(clampScore((aetAwayN ?? awayN) + 1)))}
+                atMin={(aetAwayN ?? awayN ?? 0) <= (awayN ?? 0)}
+                onDec={() => setAetAway(String(clampScore((aetAwayN ?? awayN ?? 0) - 1)))}
+                onInc={() => setAetAway(String(clampScore((aetAwayN ?? awayN ?? 0) + 1)))}
               />
             </div>
           </>
@@ -394,7 +392,7 @@ export default function MatchDetailPage() {
           <button
             className="btn btn-primary"
             type="submit"
-            disabled={busy || !touched || (isShootout && !advancing)}
+            disabled={busy || !bothSet || (isShootout && !advancing)}
           >
             {busy ? 'Saving…' : prediction ? 'Update prediction' : 'Submit prediction'}
           </button>
@@ -464,7 +462,7 @@ function ScoreStepper({
 }: {
   flag: string
   team: string
-  value: number
+  value: number | null
   disabled: boolean
   atMin: boolean
   onDec: () => void
@@ -484,7 +482,9 @@ function ScoreStepper({
         >
           −
         </button>
-        <span className="step-val">{value}</span>
+        <span className={`step-val ${value === null ? 'step-val-blank' : ''}`}>
+          {value === null ? '–' : value}
+        </span>
         <button
           type="button"
           className="step-btn"

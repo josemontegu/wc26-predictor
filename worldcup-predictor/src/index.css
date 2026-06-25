@@ -1725,3 +1725,8 @@ label {
   top: auto;
   bottom: calc(100% + 5px);
 }
+
+.step-val-blank {
+  color: var(--muted);
+  opacity: 0.65;
+}
