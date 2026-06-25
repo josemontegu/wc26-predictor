@@ -74,8 +74,8 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
         <>
           {!isAdmin && (
             <div className="notice notice-info">
-              ⚠️ Choose carefully — your nickname and emoji are set <strong>once</strong>.
-              Afterwards only an admin can change them.
+              ⚠️ Choose carefully — your nickname and emoji are set <strong>once</strong> and
+              can't be changed afterwards.
             </div>
           )}
           <form onSubmit={handleSave} className="form-card">
@@ -111,9 +111,7 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
             <span className="profile-emoji-lg">{profile?.emoji}</span>
             <div>
               <div className="profile-nick">{profile?.nickname}</div>
-              <div className="muted small">
-                Your nickname &amp; emoji are locked in. Ask an admin to change them.
-              </div>
+              <div className="muted small">Your nickname &amp; emoji are locked in.</div>
             </div>
           </div>
         </div>
