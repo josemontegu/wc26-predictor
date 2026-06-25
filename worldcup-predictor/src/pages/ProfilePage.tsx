@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Profile } from '../lib/types'
@@ -117,7 +118,11 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
         </div>
       )}
 
-      <div className="form-card">
+      <Link to="/rules" className="btn btn-ghost">
+        📖 Rules &amp; scoring
+      </Link>
+
+      <div className="form-card" style={{ marginTop: '1rem' }}>
         <div className="muted">Signed in as {session?.user.email}</div>
         <button className="btn btn-ghost" onClick={signOut}>
           Sign out

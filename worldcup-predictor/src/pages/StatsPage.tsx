@@ -1,0 +1,284 @@
+import { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../lib/supabase'
+import type {
+  LeaderboardRow,
+  LockedAwardPrediction,
+  LockedPrediction,
+  Match,
+  PlayerStat,
+} from '../lib/types'
+import { teamFlag } from '../lib/teamMeta'
+import Spinner from '../components/Spinner'
+
+const CATS = [
+  { key: 'pts_advance', label: 'Advance', color: '#07a06a' },
+  { key: 'pts_exact', label: 'Exact', color: '#2b4ea8' },
+  { key: 'pts_tendency', label: 'Tendency', color: '#0bbd7e' },
+  { key: 'pts_penalties', label: 'Pens', color: '#e0464a' },
+  { key: 'pts_exact_aet', label: 'Extra time', color: '#8b5cf6' },
+  { key: 'pts_awards', label: 'Awards', color: '#f5b301' },
+] as const
+
+function topPick(list: LockedAwardPrediction[]) {
+  const counts = new Map<string, number>()
+  for (const p of list) counts.set(p.pick, (counts.get(p.pick) ?? 0) + 1)
+  let best = ''
+  let n = 0
+  for (const [k, v] of counts) if (v > n) ((best = k), (n = v))
+  return { pick: best, n, total: list.length }
+}
+
+export default function StatsPage() {
+  const [board, setBoard] = useState<LeaderboardRow[]>([])
+  const [stats, setStats] = useState<PlayerStat[]>([])
+  const [picks, setPicks] = useState<LockedPrediction[]>([])
+  const [awardPicks, setAwardPicks] = useState<LockedAwardPrediction[]>([])
+  const [matches, setMatches] = useState<Match[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    Promise.all([
+      supabase.from('leaderboard').select('*'),
+      supabase.from('player_stats').select('*'),
+      supabase.from('locked_predictions').select('*'),
+      supabase.from('locked_award_predictions').select('*'),
+      supabase.from('matches').select('*'),
+    ]).then(([b, s, p, a, m]) => {
+      if (!active) return
+      setBoard((b.data as LeaderboardRow[]) ?? [])
+      setStats((s.data as PlayerStat[]) ?? [])
+      setPicks((p.data as LockedPrediction[]) ?? [])
+      setAwardPicks((a.data as LockedAwardPrediction[]) ?? [])
+      setMatches((m.data as Match[]) ?? [])
+      setLoading(false)
+    })
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const pulse = useMemo(() => {
+    const champ = awardPicks.filter((a) => a.award_key === 'champion')
+    const champCounts = new Map<string, number>()
+    for (const c of champ) champCounts.set(c.pick, (champCounts.get(c.pick) ?? 0) + 1)
+    const champBars = [...champCounts.entries()]
+      .map(([team, n]) => ({ team, n, pct: champ.length ? Math.round((n / champ.length) * 100) : 0 }))
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 5)
+
+    const pensTotal = picks.length
+    const pensYes = picks.filter((p) => p.penalties).length
+    const avgGoals = picks.length
+      ? picks.reduce((s, p) => s + p.home_score + p.away_score, 0) / picks.length
+      : 0
+
+    return {
+      champBars,
+      champTotal: champ.length,
+      ball: topPick(awardPicks.filter((a) => a.award_key === 'golden_ball')),
+      boot: topPick(awardPicks.filter((a) => a.award_key === 'golden_boot')),
+      glove: topPick(awardPicks.filter((a) => a.award_key === 'golden_glove')),
+      pensPct: pensTotal ? Math.round((pensYes / pensTotal) * 100) : 0,
+      avgGoals,
+    }
+  }, [awardPicks, picks])
+
+  const goals = useMemo(() => {
+    const played = matches.filter((m) => m.home_score != null && m.away_score != null)
+    const playedIds = new Set(played.map((m) => m.id))
+    const actual = played.length
+      ? played.reduce((s, m) => s + (m.home_score ?? 0) + (m.away_score ?? 0), 0) / played.length
+      : 0
+    const onPlayed = picks.filter((p) => playedIds.has(p.match_id))
+    const predicted = onPlayed.length
+      ? onPlayed.reduce((s, p) => s + p.home_score + p.away_score, 0) / onPlayed.length
+      : 0
+    return { actual, predicted, playedCount: played.length }
+  }, [matches, picks])
+
+  if (loading) {
+    return (
+      <div className="page">
+        <h1>Stats</h1>
+        <Spinner label="Crunching the numbers…" />
+      </div>
+    )
+  }
+
+  const maxPts = Math.max(1, ...board.map((r) => r.total_points))
+  const hasPulse = pulse.champTotal > 0 || picks.length > 0
+  const hasResults = stats.some((s) => s.scored > 0)
+
+  return (
+    <div className="page">
+      <h1>📊 Stats</h1>
+
+      {/* ---------------- Pool Pulse ---------------- */}
+      <h2 className="stat-h">🔮 Pool Pulse</h2>
+      {!hasPulse ? (
+        <p className="muted small">
+          Pool stats appear as matches lock and award picks close — nothing revealed yet.
+        </p>
+      ) : (
+        <>
+          {pulse.champBars.length > 0 && (
+            <div className="form-card">
+              <div className="stat-title">Who the pool backs to win it</div>
+              {pulse.champBars.map((b) => (
+                <div key={b.team} className="cbar-row">
+                  <span className="cbar-label">
+                    {teamFlag(b.team)} {b.team}
+                  </span>
+                  <div className="cbar-track">
+                    <div className="cbar-fill" style={{ width: `${b.pct}%` }} />
+                  </div>
+                  <span className="cbar-pct">{b.pct}%</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="stat-tiles">
+            <AwardTile icon="⚽" label="Golden Ball" pick={pulse.ball} />
+            <AwardTile icon="👟" label="Golden Boot" pick={pulse.boot} />
+            <AwardTile icon="🧤" label="Golden Glove" pick={pulse.glove} />
+          </div>
+
+          <div className="stat-tiles">
+            <div className="stat-tile">
+              <div className="stat-big">{pulse.pensPct}%</div>
+              <div className="stat-cap">🥅 of picks call penalties</div>
+            </div>
+            <div className="stat-tile">
+              <div className="stat-big">{pulse.avgGoals.toFixed(1)}</div>
+              <div className="stat-cap">⚽ goals/game the pool expects</div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ---------------- Per-player breakdown ---------------- */}
+      <h2 className="stat-h mt-lg">📈 By player</h2>
+      {!hasResults ? (
+        <p className="muted small">Player stats appear once results are in.</p>
+      ) : (
+        <div className="pstat-list">
+          {[...stats]
+            .sort(
+              (a, b) =>
+                b.pts_advance +
+                b.pts_exact +
+                b.pts_tendency +
+                b.pts_penalties +
+                b.pts_exact_aet +
+                b.pts_awards -
+                (a.pts_advance +
+                  a.pts_exact +
+                  a.pts_tendency +
+                  a.pts_penalties +
+                  a.pts_exact_aet +
+                  a.pts_awards),
+            )
+            .map((s) => {
+              const total =
+                s.pts_advance + s.pts_exact + s.pts_tendency + s.pts_penalties + s.pts_exact_aet + s.pts_awards
+              const acc = s.scored ? Math.round((s.correct_advances / s.scored) * 100) : 0
+              return (
+                <div key={s.user_id} className="pstat">
+                  <div className="pstat-head">
+                    <span className="pstat-emoji">{s.emoji || '🏳️'}</span>
+                    <span className="pstat-nick">{s.nickname}</span>
+                    <span className="pstat-meta">
+                      {acc}% advance · {s.exact_scores} exact
+                    </span>
+                  </div>
+                  <div className="cat-bar">
+                    {CATS.map((c) => {
+                      const v = s[c.key] as number
+                      if (!v || !total) return null
+                      return (
+                        <div
+                          key={c.key}
+                          className="cat-seg"
+                          style={{ width: `${(v / total) * 100}%`, background: c.color }}
+                          title={`${c.label}: ${v}`}
+                        />
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          <div className="cat-legend">
+            {CATS.map((c) => (
+              <span key={c.key} className="cat-key">
+                <span className="cat-dot" style={{ background: c.color }} /> {c.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ---------------- Charts & figures ---------------- */}
+      <h2 className="stat-h mt-lg">🎛️ Figures</h2>
+      {board.length === 0 ? (
+        <p className="muted small">No players yet.</p>
+      ) : (
+        <>
+          <div className="form-card">
+            <div className="stat-title">Points distribution</div>
+            {board.map((r) => (
+              <div key={r.user_id} className="cbar-row">
+                <span className="cbar-label">
+                  {r.emoji || '🏳️'} {r.nickname}
+                </span>
+                <div className="cbar-track">
+                  <div
+                    className="cbar-fill cbar-gold"
+                    style={{ width: `${Math.round((r.total_points / maxPts) * 100)}%` }}
+                  />
+                </div>
+                <span className="cbar-pct">{r.total_points}</span>
+              </div>
+            ))}
+          </div>
+
+          {goals.playedCount > 0 && (
+            <div className="stat-tiles">
+              <div className="stat-tile">
+                <div className="stat-big">{goals.predicted.toFixed(1)}</div>
+                <div className="stat-cap">🔮 pool predicted goals/game</div>
+              </div>
+              <div className="stat-tile">
+                <div className="stat-big">{goals.actual.toFixed(1)}</div>
+                <div className="stat-cap">✅ actual goals/game</div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+function AwardTile({
+  icon,
+  label,
+  pick,
+}: {
+  icon: string
+  label: string
+  pick: { pick: string; n: number; total: number }
+}) {
+  const pct = pick.total ? Math.round((pick.n / pick.total) * 100) : 0
+  return (
+    <div className="stat-tile">
+      <div className="award-tile-label">
+        {icon} {label}
+      </div>
+      <div className="award-tile-pick">{pick.pick || '—'}</div>
+      {pick.pick && <div className="stat-cap">{pct}% of the pool</div>}
+    </div>
+  )
+}

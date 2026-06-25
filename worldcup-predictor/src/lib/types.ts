@@ -110,6 +110,32 @@ export interface LockedPrediction {
   penalties: boolean
 }
 
+export interface PlayerStat {
+  user_id: string
+  nickname: string
+  emoji: string
+  pts_advance: number
+  pts_exact: number
+  pts_tendency: number
+  pts_penalties: number
+  pts_exact_aet: number
+  pts_awards: number
+  scored: number
+  correct_advances: number
+  exact_scores: number
+  correct_tendencies: number
+}
+
+export interface LockedAwardPrediction {
+  award_key: string
+  award_name: string
+  award_kind: AwardKind
+  user_id: string
+  nickname: string
+  emoji: string
+  pick: string
+}
+
 export interface MyScore {
   prediction_id: string
   user_id: string

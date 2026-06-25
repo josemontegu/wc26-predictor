@@ -9,7 +9,7 @@ const tabs = [
   { to: '/bracket', label: 'Bracket', icon: '🗺️', end: false },
   { to: '/awards', label: 'Awards', icon: '🏅', end: false },
   { to: '/leaderboard', label: 'Table', icon: '🏆', end: false },
-  { to: '/rules', label: 'Rules', icon: '📖', end: false },
+  { to: '/stats', label: 'Stats', icon: '📊', end: false },
   { to: '/profile', label: 'You', icon: '👤', end: false },
 ]
 

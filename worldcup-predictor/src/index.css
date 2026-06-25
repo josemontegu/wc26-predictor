@@ -1826,3 +1826,147 @@ label {
   font-size: 1.4rem;
   line-height: 1;
 }
+
+/* ---------- stats page ---------- */
+.stat-h {
+  margin: 0.4rem 0 0.7rem;
+}
+.stat-title {
+  font-weight: 700;
+  font-size: 0.92rem;
+  margin-bottom: 0.2rem;
+}
+.cbar-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+.cbar-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cbar-track {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  overflow: hidden;
+}
+.cbar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent-2), var(--accent));
+  transition: width 0.4s ease;
+}
+.cbar-gold {
+  background: linear-gradient(90deg, #ffd23f, var(--gold));
+}
+.cbar-pct {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  min-width: 34px;
+  text-align: right;
+}
+.stat-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.stat-tiles:has(.stat-tile:nth-child(2):last-child) {
+  grid-template-columns: 1fr 1fr;
+}
+.stat-tile {
+  background: var(--card);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--line-soft);
+  padding: 0.8rem 0.7rem;
+  text-align: center;
+}
+.stat-big {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.7rem;
+  color: var(--accent-dark);
+}
+.stat-cap {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+.award-tile-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.award-tile-pick {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0.25rem 0 0.1rem;
+}
+
+/* per-player breakdown */
+.pstat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: 0.5rem;
+}
+.pstat {
+  background: var(--card);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--line-soft);
+  padding: 0.7rem 0.85rem;
+}
+.pstat-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.pstat-emoji {
+  font-size: 1.3rem;
+}
+.pstat-nick {
+  font-weight: 700;
+  flex: 1;
+}
+.pstat-meta {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.cat-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--bg-2);
+}
+.cat-seg {
+  height: 100%;
+}
+.cat-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  margin-top: 0.5rem;
+}
+.cat-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.cat-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
