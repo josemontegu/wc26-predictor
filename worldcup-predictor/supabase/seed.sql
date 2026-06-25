@@ -22,10 +22,11 @@ insert into public.app_config (id) values (1)
 on conflict (id) do nothing;
 
 -- Tournament award predictions (lock when the Round of 32 kicks off) -----------
-insert into public.awards (key, name, description, points, lock_time, sort_order) values
-  ('golden_ball',  'Golden Ball',  'Best player of the tournament', 10, '2026-06-28 19:00:00+00', 1),
-  ('golden_boot',  'Golden Boot',  'Top scorer',                    10, '2026-06-28 19:00:00+00', 2),
-  ('golden_glove', 'Golden Glove', 'Best goalkeeper',               10, '2026-06-28 19:00:00+00', 3)
+insert into public.awards (key, name, description, kind, points, lock_time, sort_order) values
+  ('champion',     'Champion',     'Winner of the World Cup',       'team',       15, '2026-06-28 19:00:00+00', 0),
+  ('golden_ball',  'Golden Ball',  'Best player of the tournament', 'player',     10, '2026-06-28 19:00:00+00', 1),
+  ('golden_boot',  'Golden Boot',  'Top scorer',                    'player',     10, '2026-06-28 19:00:00+00', 2),
+  ('golden_glove', 'Golden Glove', 'Best goalkeeper',               'goalkeeper', 10, '2026-06-28 19:00:00+00', 3)
 on conflict (key) do nothing;
 
 -- Knockout matches (FIFA match numbers 73–104) --------------------------------

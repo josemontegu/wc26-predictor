@@ -7,6 +7,7 @@ import { buildUpserts, fetchFeed, isRealTeam, type SyncSummary } from '../lib/op
 import { teamFlag } from '../lib/teamMeta'
 import { isoToLocalInput, localInputToIso } from '../lib/datetime'
 import AdminMatchRow from '../components/AdminMatchRow'
+import AwardPicker from '../components/AwardPicker'
 import Spinner from '../components/Spinner'
 
 export default function AdminPage() {
@@ -412,16 +413,15 @@ export default function AdminPage() {
           {awards.map((a) => (
             <div key={a.id} className="admin-award">
               <div className="admin-section-label">{a.name}</div>
+              <label>
+                Winner
+                <AwardPicker
+                  kind={a.kind}
+                  value={a.winner ?? ''}
+                  onChange={(v) => editAward(a.id, { winner: v })}
+                />
+              </label>
               <div className="admin-grid">
-                <label>
-                  Winner
-                  <input
-                    type="text"
-                    placeholder="Player name"
-                    value={a.winner ?? ''}
-                    onChange={(e) => editAward(a.id, { winner: e.target.value })}
-                  />
-                </label>
                 <label>
                   Points
                   <input
@@ -430,15 +430,15 @@ export default function AdminPage() {
                     onChange={(e) => editAward(a.id, { points: Number(e.target.value) })}
                   />
                 </label>
+                <label>
+                  Picks lock at
+                  <input
+                    type="datetime-local"
+                    value={isoToLocalInput(a.lock_time)}
+                    onChange={(e) => editAward(a.id, { lock_time: localInputToIso(e.target.value) })}
+                  />
+                </label>
               </div>
-              <label>
-                Picks lock at
-                <input
-                  type="datetime-local"
-                  value={isoToLocalInput(a.lock_time)}
-                  onChange={(e) => editAward(a.id, { lock_time: localInputToIso(e.target.value) })}
-                />
-              </label>
             </div>
           ))}
           {awardSaved && <div className="notice notice-ok">Awards saved ✓</div>}

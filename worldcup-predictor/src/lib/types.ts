@@ -67,11 +67,14 @@ export interface LeaderboardRow {
   exact_scores: number
 }
 
+export type AwardKind = 'team' | 'player' | 'goalkeeper'
+
 export interface Award {
   id: string
   key: string
   name: string
   description: string | null
+  kind: AwardKind
   points: number
   lock_time: string | null
   winner: string | null

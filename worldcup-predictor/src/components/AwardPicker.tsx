@@ -1,0 +1,128 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { AwardKind } from '../lib/types'
+
+interface Opt {
+  value: string
+  flag: string
+  sub: string
+}
+
+// Module-level cache so the ~130KB squad data loads once, on demand.
+type Squads = typeof import('../lib/squads')
+let cache: Squads | null = null
+async function loadSquads(): Promise<Squads> {
+  if (!cache) cache = await import('../lib/squads')
+  return cache
+}
+
+function buildOptions(m: Squads, kind: AwardKind): Opt[] {
+  if (kind === 'team') {
+    return m.TEAMS.map((t) => ({ value: t.name, flag: t.flag, sub: t.code }))
+  }
+  const players = kind === 'goalkeeper' ? m.PLAYERS.filter((p) => p.pos === 'GK') : m.PLAYERS
+  return players.map((p) => ({
+    value: p.name,
+    flag: p.flag,
+    sub: p.club ? `${p.team} · ${p.club}` : p.team,
+  }))
+}
+
+export default function AwardPicker({
+  kind,
+  value,
+  onChange,
+  disabled,
+}: {
+  kind: AwardKind
+  value: string
+  onChange: (v: string) => void
+  disabled?: boolean
+}) {
+  const [options, setOptions] = useState<Opt[]>([])
+  const [query, setQuery] = useState(value)
+  const [open, setOpen] = useState(false)
+  const [dropUp, setDropUp] = useState(false)
+  const fieldRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => setQuery(value), [value])
+
+  // Flip the menu upward when there isn't room below (e.g. near the tab bar).
+  function openMenu() {
+    const rect = fieldRef.current?.getBoundingClientRect()
+    if (rect) setDropUp(window.innerHeight - rect.bottom < 300)
+    setOpen(true)
+  }
+
+  useEffect(() => {
+    let active = true
+    loadSquads().then((m) => {
+      if (active) setOptions(buildOptions(m, kind))
+    })
+    return () => {
+      active = false
+    }
+  }, [kind])
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    const list = q
+      ? options.filter(
+          (o) => o.value.toLowerCase().includes(q) || o.sub.toLowerCase().includes(q),
+        )
+      : options
+    return list.slice(0, 40)
+  }, [options, query])
+
+  const selectedFlag = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return options.find((o) => o.value.toLowerCase() === q)?.flag ?? null
+  }, [options, query])
+
+  const placeholder =
+    kind === 'team' ? 'Search teams…' : kind === 'goalkeeper' ? 'Search goalkeepers…' : 'Search players…'
+
+  return (
+    <div className="picker">
+      <div className={`picker-field ${disabled ? 'picker-disabled' : ''}`} ref={fieldRef}>
+        <span className="picker-chip">{selectedFlag ?? (disabled ? '🏳️' : '🔎')}</span>
+        <input
+          type="text"
+          value={query}
+          disabled={disabled}
+          placeholder={placeholder}
+          autoComplete="off"
+          onChange={(e) => {
+            setQuery(e.target.value)
+            onChange(e.target.value)
+            openMenu()
+          }}
+          onFocus={openMenu}
+          onBlur={() => window.setTimeout(() => setOpen(false), 130)}
+        />
+      </div>
+      {open && !disabled && filtered.length > 0 && (
+        <div className={`picker-menu ${dropUp ? 'picker-menu-up' : ''}`}>
+          {filtered.map((o) => (
+            <button
+              type="button"
+              key={`${o.value}|${o.sub}`}
+              className="picker-opt"
+              onMouseDown={(e) => {
+                e.preventDefault()
+                onChange(o.value)
+                setQuery(o.value)
+                setOpen(false)
+              }}
+            >
+              <span className="picker-opt-flag">{o.flag}</span>
+              <span className="picker-opt-main">
+                <span className="picker-opt-name">{o.value}</span>
+                <span className="picker-opt-sub">{o.sub}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}

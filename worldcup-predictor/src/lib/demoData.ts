@@ -118,12 +118,14 @@ export const demoOtherPredictions: Prediction[] = []
 
 // Tournament awards (no winners yet — decided at the end).
 export const demoAwards: Award[] = [
-  { id: 'aw1', key: 'golden_ball', name: 'Golden Ball', description: 'Best player of the tournament', points: 10, lock_time: '2026-06-28T19:00:00Z', winner: null, sort_order: 1 },
-  { id: 'aw2', key: 'golden_boot', name: 'Golden Boot', description: 'Top scorer', points: 10, lock_time: '2026-06-28T19:00:00Z', winner: null, sort_order: 2 },
-  { id: 'aw3', key: 'golden_glove', name: 'Golden Glove', description: 'Best goalkeeper', points: 10, lock_time: '2026-06-28T19:00:00Z', winner: null, sort_order: 3 },
+  { id: 'aw0', key: 'champion', name: 'Champion', description: 'Winner of the World Cup', kind: 'team', points: 15, lock_time: '2026-06-28T19:00:00Z', winner: null, sort_order: 0 },
+  { id: 'aw1', key: 'golden_ball', name: 'Golden Ball', description: 'Best player of the tournament', kind: 'player', points: 10, lock_time: '2026-06-28T19:00:00Z', winner: null, sort_order: 1 },
+  { id: 'aw2', key: 'golden_boot', name: 'Golden Boot', description: 'Top scorer', kind: 'player', points: 10, lock_time: '2026-06-28T19:00:00Z', winner: null, sort_order: 2 },
+  { id: 'aw3', key: 'golden_glove', name: 'Golden Glove', description: 'Best goalkeeper', kind: 'goalkeeper', points: 10, lock_time: '2026-06-28T19:00:00Z', winner: null, sort_order: 3 },
 ]
 
 export const demoAwardPredictions: AwardPrediction[] = [
+  { id: 'ap0', user_id: DEMO_USER_ID, award_id: 'aw0', pick: 'Argentina', created_at: '', updated_at: '' },
   { id: 'apa', user_id: DEMO_USER_ID, award_id: 'aw1', pick: 'Lamine Yamal', created_at: '', updated_at: '' },
   { id: 'apb', user_id: DEMO_USER_ID, award_id: 'aw2', pick: 'Kylian Mbappé', created_at: '', updated_at: '' },
 ]

@@ -24,7 +24,7 @@ Built with **React + Vite + TypeScript** on the front end and **Supabase**
 - **Live leaderboard** — updates in real time (Supabase Realtime) as results are entered, with rank-movement arrows since your last visit.
 - **Knockout bracket view** — a swipeable column-per-round tree showing the path to the Final.
 - **Delight**: confetti when you nail a perfect prediction, team kit-colour accents on cards and match headers.
-- **Tournament award picks** — Golden Ball / Boot / Glove outright predictions, locked before kick-off and scored into the leaderboard.
+- **Tournament award picks** — Champion (the winner), Golden Ball / Boot / Glove. Players are chosen from the official squad lists via a searchable, flag-rich picker (Golden Glove is goalkeepers-only); locked before kick-off and scored into the leaderboard.
 
 ## Scoring (defaults — all configurable in Admin)
 
@@ -90,7 +90,7 @@ admin-entered** to keep the 90-minute scoring rules correct.
 ### 1. Create a Supabase project
 
 1. Go to [supabase.com](https://supabase.com) → **New project** (free tier is fine).
-2. In **SQL Editor**, run these files in order: [`0001_init.sql`](supabase/migrations/0001_init.sql), [`0002_features.sql`](supabase/migrations/0002_features.sql) (reveal-picks view + Realtime), [`0003_consistency.sql`](supabase/migrations/0003_consistency.sql) (outcome constraints), [`0004_extra_time.sql`](supabase/migrations/0004_extra_time.sql) (two-score model + extra-time bonus), [`0005_awards.sql`](supabase/migrations/0005_awards.sql) (tournament award picks), then [`supabase/seed.sql`](supabase/seed.sql).
+2. In **SQL Editor**, run these files in order: [`0001_init.sql`](supabase/migrations/0001_init.sql), [`0002_features.sql`](supabase/migrations/0002_features.sql) (reveal-picks view + Realtime), [`0003_consistency.sql`](supabase/migrations/0003_consistency.sql) (outcome constraints), [`0004_extra_time.sql`](supabase/migrations/0004_extra_time.sql) (two-score model + extra-time bonus), [`0005_awards.sql`](supabase/migrations/0005_awards.sql) (tournament award picks), [`0006_champion_squads.sql`](supabase/migrations/0006_champion_squads.sql) (Champion pick + award kinds), then [`supabase/seed.sql`](supabase/seed.sql).
 3. In **Authentication → Providers → Email**, make sure **Email** is enabled. Magic links work out of the box on the free tier.
    - The live leaderboard uses **Realtime**; `0002_features.sql` already adds the `matches` and `predictions` tables to the `supabase_realtime` publication, so no extra clicks are needed.
 4. In **Authentication → URL Configuration**, add your local URL (`http://localhost:5173`) and your GitHub Pages URL (e.g. `https://YOURNAME.github.io/REPO/`) to the **Redirect URLs** allow-list.

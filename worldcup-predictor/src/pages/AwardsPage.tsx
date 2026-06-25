@@ -5,8 +5,10 @@ import type { Award, AwardPrediction } from '../lib/types'
 import { awardLocked } from '../lib/types'
 import { formatLock, timeUntilLock } from '../lib/format'
 import Spinner from '../components/Spinner'
+import AwardPicker from '../components/AwardPicker'
 
 const AWARD_ICON: Record<string, string> = {
+  champion: '🏆',
   golden_ball: '⚽',
   golden_boot: '👟',
   golden_glove: '🧤',
@@ -96,7 +98,8 @@ export default function AwardsPage() {
     <div className="page">
       <h1>🏅 Tournament awards</h1>
       <p className="muted small">
-        Pick a player for each award. Worth big points — and you can edit until they lock.
+        Call the champion and the individual award winners. Worth big points — editable
+        until they lock before kick-off.
       </p>
       {error && <div className="notice notice-err">{error}</div>}
 
@@ -110,9 +113,9 @@ export default function AwardsPage() {
             const myPick = picks[a.id] ?? ''
             const got = decided && myPick.trim().toLowerCase() === a.winner!.trim().toLowerCase()
             return (
-              <div key={a.id} className="award-card">
+              <div key={a.id} className={`award-card ${a.kind === 'team' ? 'award-champion' : ''}`}>
                 <div className="award-head">
-                  <span className="award-icon">{AWARD_ICON[a.key] ?? '🏆'}</span>
+                  <span className="award-icon">{AWARD_ICON[a.key] ?? '🏅'}</span>
                   <div className="award-title">
                     <div className="award-name">{a.name}</div>
                     {a.description && <div className="muted small">{a.description}</div>}
@@ -120,13 +123,11 @@ export default function AwardsPage() {
                   <span className="award-points">{a.points} pts</span>
                 </div>
 
-                <input
-                  type="text"
-                  placeholder="Player name"
-                  maxLength={60}
-                  disabled={locked || decided}
+                <AwardPicker
+                  kind={a.kind}
                   value={myPick}
-                  onChange={(e) => setPicks((p) => ({ ...p, [a.id]: e.target.value }))}
+                  disabled={locked || decided}
+                  onChange={(v) => setPicks((p) => ({ ...p, [a.id]: v }))}
                 />
 
                 <div className="award-foot">
