@@ -482,8 +482,8 @@ function ScoreStepper({
         >
           −
         </button>
-        <span className={`step-val ${value === null ? 'step-val-blank' : ''}`}>
-          {value === null ? '–' : value}
+        <span className="step-val">
+          {value === null ? <span className="step-empty" aria-label="not set" /> : value}
         </span>
         <button
           type="button"

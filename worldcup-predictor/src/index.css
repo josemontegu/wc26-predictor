@@ -1726,7 +1726,16 @@ label {
   bottom: calc(100% + 5px);
 }
 
-.step-val-blank {
-  color: var(--muted);
-  opacity: 0.65;
+/* "not set yet" placeholder — a soft dot, distinct from the minus/score dashes */
+.step-empty {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--line);
+  vertical-align: middle;
+}
+[data-theme='dark'] .step-empty {
+  background: var(--muted);
+  opacity: 0.5;
 }
