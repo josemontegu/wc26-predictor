@@ -2,10 +2,10 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Profile } from '../lib/types'
-import { PROFILE_EMOJIS } from '../lib/emojis'
+import EmojiPicker from '../components/EmojiPicker'
 
 export default function ProfilePage({ forced = false }: { forced?: boolean }) {
-  const { session, profile, refreshProfile, signOut } = useAuth()
+  const { session, profile, isAdmin, refreshProfile, signOut } = useAuth()
   const [nickname, setNickname] = useState('')
   const [emoji, setEmoji] = useState('')
   const [others, setOthers] = useState<Pick<Profile, 'id' | 'nickname' | 'emoji'>[]>([])
@@ -28,6 +28,9 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
   }, [])
 
   const myId = session?.user.id
+  const identitySet = Boolean(profile?.nickname?.trim() && profile?.emoji)
+  // Nickname + emoji are chosen once. After that only an admin can change them.
+  const canEdit = !identitySet || isAdmin
   const takenEmojis = new Set(others.filter((p) => p.id !== myId && p.emoji).map((p) => p.emoji))
 
   async function handleSave(e: FormEvent) {
@@ -66,54 +69,55 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
   return (
     <div className="page">
       <h1>{forced ? 'Set up your player' : 'Your profile'}</h1>
-      {forced && (
-        <p className="muted">
-          Pick a nickname and an emoji to go by on the leaderboard. Both have to be unique.
-        </p>
-      )}
 
-      <form onSubmit={handleSave} className="form-card">
-        <label htmlFor="nick">Nickname</label>
-        <input
-          id="nick"
-          type="text"
-          required
-          maxLength={24}
-          placeholder="How you'll show on the leaderboard"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-        />
+      {canEdit ? (
+        <>
+          {!isAdmin && (
+            <div className="notice notice-info">
+              ⚠️ Choose carefully — your nickname and emoji are set <strong>once</strong>.
+              Afterwards only an admin can change them.
+            </div>
+          )}
+          <form onSubmit={handleSave} className="form-card">
+            <label htmlFor="nick">Nickname</label>
+            <input
+              id="nick"
+              type="text"
+              required
+              maxLength={24}
+              placeholder="How you'll show on the leaderboard"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+            />
 
-        <div>
-          <label>
-            Your emoji {emoji && <span className="emoji-current">{emoji}</span>}
-          </label>
-          <div className="emoji-grid">
-            {PROFILE_EMOJIS.map((em) => {
-              const taken = takenEmojis.has(em)
-              return (
-                <button
-                  type="button"
-                  key={em}
-                  className={`emoji-opt ${emoji === em ? 'emoji-selected' : ''}`}
-                  disabled={taken && emoji !== em}
-                  title={taken ? 'Taken' : undefined}
-                  onClick={() => setEmoji(em)}
-                >
-                  {em}
-                </button>
-              )
-            })}
+            <div>
+              <label>
+                Your emoji {emoji && <span className="emoji-current">{emoji}</span>}
+              </label>
+              <EmojiPicker value={emoji} onChange={setEmoji} taken={takenEmojis} />
+            </div>
+
+            {error && <div className="notice notice-err">{error}</div>}
+            {saved && <div className="notice notice-ok">Profile saved ✓</div>}
+
+            <button className="btn btn-primary" type="submit" disabled={busy}>
+              {busy ? 'Saving…' : 'Save profile'}
+            </button>
+          </form>
+        </>
+      ) : (
+        <div className="form-card">
+          <div className="profile-readonly">
+            <span className="profile-emoji-lg">{profile?.emoji}</span>
+            <div>
+              <div className="profile-nick">{profile?.nickname}</div>
+              <div className="muted small">
+                Your nickname &amp; emoji are locked in. Ask an admin to change them.
+              </div>
+            </div>
           </div>
         </div>
-
-        {error && <div className="notice notice-err">{error}</div>}
-        {saved && <div className="notice notice-ok">Profile saved ✓</div>}
-
-        <button className="btn btn-primary" type="submit" disabled={busy}>
-          {busy ? 'Saving…' : 'Save profile'}
-        </button>
-      </form>
+      )}
 
       <div className="form-card">
         <div className="muted">Signed in as {session?.user.email}</div>

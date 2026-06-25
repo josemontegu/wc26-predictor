@@ -1798,3 +1798,31 @@ label {
 .brand-nick-emoji {
   margin-right: 0.3rem;
 }
+
+/* ---------- profile read-only + admin player ---------- */
+.profile-readonly {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.profile-emoji-lg {
+  font-size: 2.4rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--card-tint);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.profile-nick {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+.player-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+}

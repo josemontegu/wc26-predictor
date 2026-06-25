@@ -12,7 +12,7 @@ Built with **React + Vite + TypeScript** on the front end and **Supabase**
 ## Features
 
 - **Email magic-link sign-in** (Supabase Auth) — no passwords to manage.
-- **Profiles** with a unique nickname and a unique emoji avatar (picked from a grid; taken ones are greyed out).
+- **Profiles** with a unique nickname and a unique emoji avatar (picked from a grid; taken ones are greyed out). Each player sets these **once**; afterwards only an admin can change them (enforced by a DB trigger, not just the UI), via an admin "Players" editor.
 - **Predictions** per match: 90' home/away score, team advancing, penalties yes/no.
 - **Self-service editing** until a configurable lock time before kick-off; **read-only** after.
 - **Admin panel**: create/edit fixtures, set kick-off & lock times, enter results, pick the team that advanced, and tune scoring.
@@ -90,7 +90,7 @@ admin-entered** to keep the 90-minute scoring rules correct.
 ### 1. Create a Supabase project
 
 1. Go to [supabase.com](https://supabase.com) → **New project** (free tier is fine).
-2. In **SQL Editor**, run these files in order: [`0001_init.sql`](supabase/migrations/0001_init.sql), [`0002_features.sql`](supabase/migrations/0002_features.sql) (reveal-picks view + Realtime), [`0003_consistency.sql`](supabase/migrations/0003_consistency.sql) (outcome constraints), [`0004_extra_time.sql`](supabase/migrations/0004_extra_time.sql) (two-score model + extra-time bonus), [`0005_awards.sql`](supabase/migrations/0005_awards.sql) (tournament award picks), [`0006_champion_squads.sql`](supabase/migrations/0006_champion_squads.sql) (Champion pick + award kinds), [`0007_unique_nickname.sql`](supabase/migrations/0007_unique_nickname.sql) (unique nicknames), [`0008_profile_emoji.sql`](supabase/migrations/0008_profile_emoji.sql) (unique emoji avatars), then [`supabase/seed.sql`](supabase/seed.sql).
+2. In **SQL Editor**, run these files in order: [`0001_init.sql`](supabase/migrations/0001_init.sql), [`0002_features.sql`](supabase/migrations/0002_features.sql) (reveal-picks view + Realtime), [`0003_consistency.sql`](supabase/migrations/0003_consistency.sql) (outcome constraints), [`0004_extra_time.sql`](supabase/migrations/0004_extra_time.sql) (two-score model + extra-time bonus), [`0005_awards.sql`](supabase/migrations/0005_awards.sql) (tournament award picks), [`0006_champion_squads.sql`](supabase/migrations/0006_champion_squads.sql) (Champion pick + award kinds), [`0007_unique_nickname.sql`](supabase/migrations/0007_unique_nickname.sql) (unique nicknames), [`0008_profile_emoji.sql`](supabase/migrations/0008_profile_emoji.sql) (unique emoji avatars), [`0009_identity_lock.sql`](supabase/migrations/0009_identity_lock.sql) (set-once nickname/emoji, admin override), then [`supabase/seed.sql`](supabase/seed.sql).
 3. In **Authentication → Providers → Email**, make sure **Email** is enabled. Magic links work out of the box on the free tier.
    - The live leaderboard uses **Realtime**; `0002_features.sql` already adds the `matches` and `predictions` tables to the `supabase_realtime` publication, so no extra clicks are needed.
 4. In **Authentication → URL Configuration**, add your local URL (`http://localhost:5173`) and your GitHub Pages URL (e.g. `https://YOURNAME.github.io/REPO/`) to the **Redirect URLs** allow-list.

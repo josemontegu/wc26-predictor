@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, DEMO } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { AppConfig, Award, Match, Round, RoundCode } from '../lib/types'
+import type { AppConfig, Award, Match, Profile, Round, RoundCode } from '../lib/types'
 import { ROUND_NAMES, ROUND_ORDER } from '../lib/format'
 import { buildUpserts, fetchFeed, isRealTeam, type SyncSummary } from '../lib/openfootball'
 import { teamFlag } from '../lib/teamMeta'
 import { isoToLocalInput, localInputToIso } from '../lib/datetime'
 import AdminMatchRow from '../components/AdminMatchRow'
+import AdminPlayerRow from '../components/AdminPlayerRow'
 import AwardPicker from '../components/AwardPicker'
 import Spinner from '../components/Spinner'
 
@@ -18,6 +19,7 @@ export default function AdminPage() {
   const [awards, setAwards] = useState<Award[]>([])
   const [awardBusy, setAwardBusy] = useState(false)
   const [awardSaved, setAwardSaved] = useState(false)
+  const [players, setPlayers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeRound, setActiveRound] = useState<RoundCode>('R32')
@@ -41,16 +43,18 @@ export default function AdminPage() {
   useEffect(() => {
     let active = true
     async function load() {
-      const [matchRes, cfgRes, roundRes, awardRes] = await Promise.all([
+      const [matchRes, cfgRes, roundRes, awardRes, playerRes] = await Promise.all([
         supabase.from('matches').select('*').order('match_no'),
         supabase.from('app_config').select('*').eq('id', 1).maybeSingle(),
         supabase.from('rounds').select('*').order('sort_order'),
         supabase.from('awards').select('*').order('sort_order'),
+        supabase.from('profiles').select('*').order('nickname'),
       ])
       if (!active) return
       if (matchRes.error) setError(matchRes.error.message)
       setMatches((matchRes.data as Match[]) ?? [])
       setAwards((awardRes.data as Award[]) ?? [])
+      setPlayers((playerRes.data as Profile[]) ?? [])
       const cfg = (cfgRes.data as AppConfig) ?? null
       setConfig(cfg)
       setCfgDraft(cfg)
@@ -447,6 +451,25 @@ export default function AdminPage() {
           </button>
         </div>
       )}
+
+      <h2 className="mt-lg">Players</h2>
+      <p className="muted small">
+        Nicknames &amp; emojis are set once by each player; edit them here if needed.
+      </p>
+      <div className="admin-list">
+        {players.map((p) => (
+          <AdminPlayerRow
+            key={p.id}
+            profile={p}
+            takenEmojis={
+              new Set(players.filter((o) => o.id !== p.id && o.emoji).map((o) => o.emoji))
+            }
+            onSaved={(updated) =>
+              setPlayers((prev) => prev.map((x) => (x.id === updated.id ? updated : x)))
+            }
+          />
+        ))}
+      </div>
     </div>
   )
 }
