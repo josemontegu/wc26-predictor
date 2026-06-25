@@ -2,51 +2,59 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Profile } from '../lib/types'
+import { PROFILE_EMOJIS } from '../lib/emojis'
 
 export default function ProfilePage({ forced = false }: { forced?: boolean }) {
   const { session, profile, refreshProfile, signOut } = useAuth()
   const [nickname, setNickname] = useState('')
+  const [emoji, setEmoji] = useState('')
+  const [others, setOthers] = useState<Pick<Profile, 'id' | 'nickname' | 'emoji'>[]>([])
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (profile) setNickname(profile.nickname ?? '')
+    if (profile) {
+      setNickname(profile.nickname ?? '')
+      setEmoji(profile.emoji ?? '')
+    }
   }, [profile])
+
+  useEffect(() => {
+    supabase
+      .from('profiles')
+      .select('id, nickname, emoji')
+      .then(({ data }) => setOthers((data as Pick<Profile, 'id' | 'nickname' | 'emoji'>[]) ?? []))
+  }, [])
+
+  const myId = session?.user.id
+  const takenEmojis = new Set(others.filter((p) => p.id !== myId && p.emoji).map((p) => p.emoji))
 
   async function handleSave(e: FormEvent) {
     e.preventDefault()
     if (!session?.user) return
     const value = nickname.trim()
-    if (!value) {
-      setError('Please choose a nickname.')
-      return
-    }
+    if (!value) return setError('Please choose a nickname.')
+    if (!emoji) return setError('Please pick an emoji.')
+
+    const nameTaken = others.some(
+      (p) => p.id !== myId && p.nickname.trim().toLowerCase() === value.toLowerCase(),
+    )
+    if (nameTaken) return setError(`"${value}" is already taken — pick another nickname.`)
+    if (takenEmojis.has(emoji)) return setError('That emoji is taken — pick another.')
+
     setBusy(true)
     setError(null)
     setSaved(false)
-
-    // Enforce a unique nickname (case-insensitive) across players.
-    const { data: others } = await supabase.from('profiles').select('id, nickname')
-    const taken = ((others as Pick<Profile, 'id' | 'nickname'>[]) ?? []).some(
-      (p) => p.id !== session.user.id && p.nickname.trim().toLowerCase() === value.toLowerCase(),
-    )
-    if (taken) {
-      setBusy(false)
-      setError(`"${value}" is already taken — pick another nickname.`)
-      return
-    }
-
-    // display_name is kept in sync with the nickname (used elsewhere internally).
     const { error } = await supabase
       .from('profiles')
-      .update({ nickname: value, display_name: value })
+      .update({ nickname: value, display_name: value, emoji })
       .eq('id', session.user.id)
     setBusy(false)
     if (error) {
       setError(
         error.code === '23505'
-          ? `"${value}" is already taken — pick another nickname.`
+          ? 'That nickname or emoji is already taken — pick another.'
           : error.message,
       )
       return
@@ -57,10 +65,10 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
 
   return (
     <div className="page">
-      <h1>{forced ? 'Choose your nickname' : 'Your profile'}</h1>
+      <h1>{forced ? 'Set up your player' : 'Your profile'}</h1>
       {forced && (
         <p className="muted">
-          Pick the nickname you'll go by on the leaderboard. It has to be unique.
+          Pick a nickname and an emoji to go by on the leaderboard. Both have to be unique.
         </p>
       )}
 
@@ -76,11 +84,34 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
           onChange={(e) => setNickname(e.target.value)}
         />
 
+        <div>
+          <label>
+            Your emoji {emoji && <span className="emoji-current">{emoji}</span>}
+          </label>
+          <div className="emoji-grid">
+            {PROFILE_EMOJIS.map((em) => {
+              const taken = takenEmojis.has(em)
+              return (
+                <button
+                  type="button"
+                  key={em}
+                  className={`emoji-opt ${emoji === em ? 'emoji-selected' : ''}`}
+                  disabled={taken && emoji !== em}
+                  title={taken ? 'Taken' : undefined}
+                  onClick={() => setEmoji(em)}
+                >
+                  {em}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         {error && <div className="notice notice-err">{error}</div>}
-        {saved && <div className="notice notice-ok">Nickname saved ✓</div>}
+        {saved && <div className="notice notice-ok">Profile saved ✓</div>}
 
         <button className="btn btn-primary" type="submit" disabled={busy}>
-          {busy ? 'Saving…' : 'Save nickname'}
+          {busy ? 'Saving…' : 'Save profile'}
         </button>
       </form>
 

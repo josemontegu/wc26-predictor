@@ -424,10 +424,10 @@ export default function MatchDetailPage() {
                 return (
                   <div key={p.user_id} className={`pick-row ${isMe ? 'pick-row-me' : ''}`}>
                     <span
-                      className="pick-avatar"
-                      style={{ background: avatarGradient(p.user_id) }}
+                      className={`pick-avatar ${p.emoji ? 'avatar-emoji' : ''}`}
+                      style={p.emoji ? undefined : { background: avatarGradient(p.user_id) }}
                     >
-                      {(p.nickname || p.display_name || '?').slice(0, 2).toUpperCase()}
+                      {p.emoji || (p.nickname || p.display_name || '?').slice(0, 2).toUpperCase()}
                     </span>
                     <span className="pick-who">
                       {p.nickname || p.display_name}

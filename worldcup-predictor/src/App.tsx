@@ -41,8 +41,8 @@ export default function App() {
     return <LoginPage />
   }
 
-  // Signed in but no nickname yet → force nickname setup before anything else.
-  const needsProfile = !profile || !profile.nickname.trim()
+  // Signed in but no nickname/emoji yet → force setup before anything else.
+  const needsProfile = !profile || !profile.nickname.trim() || !profile.emoji
 
   if (needsProfile) {
     return (

@@ -1739,3 +1739,62 @@ label {
   background: var(--muted);
   opacity: 0.5;
 }
+
+/* ---------- profile emoji picker ---------- */
+.emoji-current {
+  font-size: 1.2rem;
+  margin-left: 0.3rem;
+}
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+.emoji-opt {
+  aspect-ratio: 1;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  border-radius: 12px;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s, border-color 0.12s, background 0.12s;
+}
+.emoji-opt:active {
+  transform: scale(0.9);
+}
+.emoji-selected {
+  border-color: var(--accent);
+  background: rgba(7, 160, 106, 0.14);
+  box-shadow: 0 0 0 2px rgba(7, 160, 106, 0.25);
+}
+.emoji-opt:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+/* emoji used as an avatar (leaderboard, podium, picks) */
+.avatar-emoji {
+  background: var(--card-tint) !important;
+  border: 1px solid var(--line);
+}
+.lb-avatar.avatar-emoji {
+  font-size: 1.25rem;
+}
+.podium-avatar.avatar-emoji {
+  font-size: 1.5rem;
+}
+.podium-1 .podium-avatar.avatar-emoji {
+  font-size: 1.8rem;
+}
+.pick-avatar.avatar-emoji {
+  font-size: 1rem;
+}
+.brand-nick-emoji {
+  margin-right: 0.3rem;
+}

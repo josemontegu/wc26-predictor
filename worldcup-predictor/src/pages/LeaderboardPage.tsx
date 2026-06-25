@@ -124,8 +124,11 @@ export default function LeaderboardPage() {
                 return (
                   <div key={r.user_id} className={`podium-col podium-${rank}`}>
                     <span className="podium-medal">{medals[rank]}</span>
-                    <div className="podium-avatar" style={{ background: avatarGradient(r.user_id) }}>
-                      {initials(r)}
+                    <div
+                      className={`podium-avatar ${r.emoji ? 'avatar-emoji' : ''}`}
+                      style={r.emoji ? undefined : { background: avatarGradient(r.user_id) }}
+                    >
+                      {r.emoji || initials(r)}
                     </div>
                     <div className="podium-nick">{r.nickname || r.display_name}</div>
                     <div className="podium-pts">{r.total_points}</div>
@@ -154,8 +157,11 @@ export default function LeaderboardPage() {
                       </span>
                     )}
                   </span>
-                  <span className="lb-avatar" style={{ background: avatarGradient(r.user_id) }}>
-                    {initials(r)}
+                  <span
+                    className={`lb-avatar ${r.emoji ? 'avatar-emoji' : ''}`}
+                    style={r.emoji ? undefined : { background: avatarGradient(r.user_id) }}
+                  >
+                    {r.emoji || initials(r)}
                   </span>
                   <div className="lb-id">
                     <div className="lb-nick">

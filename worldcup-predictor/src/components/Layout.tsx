@@ -28,7 +28,12 @@ export default function Layout({ children }: { children: ReactNode }) {
           </span>
           <span className="brand-right">
             {DEMO && <span className="demo-badge">Demo</span>}
-            {profile?.nickname && <span className="brand-nick">{profile.nickname}</span>}
+            {profile?.nickname && (
+              <span className="brand-nick">
+                {profile.emoji && <span className="brand-nick-emoji">{profile.emoji}</span>}
+                {profile.nickname}
+              </span>
+            )}
             <ThemeToggle />
           </span>
         </div>

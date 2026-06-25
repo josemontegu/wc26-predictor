@@ -11,6 +11,7 @@ export interface Profile {
   id: string
   display_name: string
   nickname: string
+  emoji: string
   is_admin: boolean
   created_at: string
 }
@@ -61,6 +62,7 @@ export interface LeaderboardRow {
   user_id: string
   display_name: string
   nickname: string
+  emoji: string
   total_points: number
   scored_predictions: number
   correct_advances: number
@@ -101,6 +103,7 @@ export interface LockedPrediction {
   user_id: string
   nickname: string
   display_name: string
+  emoji: string
   home_score: number
   away_score: number
   advancing_team: string
