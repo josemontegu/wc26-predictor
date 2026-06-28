@@ -141,7 +141,7 @@ export default function AdminPage() {
         return
       }
 
-      const lockMins = config?.lock_minutes_before_kickoff ?? 60
+      const lockMins = config?.lock_minutes_before_kickoff ?? 1
       const { rows, summary } = buildUpserts(matches, feed, lockMins)
       if (rows.length > 0) {
         const { error } = await supabase

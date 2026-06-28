@@ -32,7 +32,7 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
 
   function applyDefaultLock() {
     const kickoffIso = localInputToIso(kickoff)
-    const iso = defaultLockIso(kickoffIso, config?.lock_minutes_before_kickoff ?? 60)
+    const iso = defaultLockIso(kickoffIso, config?.lock_minutes_before_kickoff ?? 1)
     setLock(isoToLocalInput(iso))
   }
 
@@ -149,8 +149,8 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
           </label>
           <button type="button" className="btn btn-ghost btn-sm" onClick={applyDefaultLock}>
             {t(
-              `Set lock = kick-off − ${config?.lock_minutes_before_kickoff ?? 60} min`,
-              `Cierre = inicio − ${config?.lock_minutes_before_kickoff ?? 60} min`,
+              `Set lock = kick-off − ${config?.lock_minutes_before_kickoff ?? 1} min`,
+              `Cierre = inicio − ${config?.lock_minutes_before_kickoff ?? 1} min`,
             )}
           </button>
 

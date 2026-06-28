@@ -31,7 +31,7 @@ create table if not exists public.app_config (
   points_exact                int not null default 4,   -- exact final score (stacks on the result)
   points_tendency             int not null default 2,   -- correct result (1/X/2)
   points_penalties            int not null default 0,   -- retired (kept for compatibility)
-  lock_minutes_before_kickoff int not null default 60,  -- default lock offset
+  lock_minutes_before_kickoff int not null default 1,   -- default lock offset (mins before kick-off)
   constraint app_config_singleton check (id = 1)
 );
 
@@ -1013,13 +1013,14 @@ on conflict (code) do update
 
 -- Default scoring + lock config -----------------------------------------------
 -- Panel-agreed model: result 2 + exact +4 (→6) + advancing 4; penalties retired.
-insert into public.app_config (id, points_advance, points_exact, points_tendency, points_penalties)
-values (1, 4, 4, 2, 0)
+insert into public.app_config (id, points_advance, points_exact, points_tendency, points_penalties, lock_minutes_before_kickoff)
+values (1, 4, 4, 2, 0, 1)
 on conflict (id) do update
   set points_advance  = excluded.points_advance,
       points_exact    = excluded.points_exact,
       points_tendency = excluded.points_tendency,
-      points_penalties = excluded.points_penalties;
+      points_penalties = excluded.points_penalties,
+      lock_minutes_before_kickoff = excluded.lock_minutes_before_kickoff;
 
 -- Tournament award predictions (lock when the Round of 32 ends / R16 begins) ---
 insert into public.awards (key, name, description, kind, points, lock_time, sort_order) values

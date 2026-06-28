@@ -33,7 +33,7 @@ export const demoConfig: AppConfig = {
   points_tendency: 2,
   points_penalties: 0,
   points_exact_aet: 0,
-  lock_minutes_before_kickoff: 60,
+  lock_minutes_before_kickoff: 1,
 }
 
 export const demoProfiles: Profile[] = [
@@ -49,6 +49,7 @@ const USERS = [DEMO_USER_ID, 'u2', 'u3', 'u4', 'u5', 'u6']
 
 const HOUR = 3600_000
 const DAY = 24 * HOUR
+const MINUTE = 60_000
 const now = () => Date.now()
 
 interface Result {
@@ -74,7 +75,7 @@ function mk(
     home_team: home,
     away_team: away,
     kickoff_time: kickoff,
-    lock_time: new Date(now() + offsetMs - HOUR).toISOString(),
+    lock_time: new Date(now() + offsetMs - MINUTE).toISOString(),
     home_score: result ? result.hs : null,
     away_score: result ? result.as : null,
     aet_home_score: null,

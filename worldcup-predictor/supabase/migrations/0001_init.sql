@@ -23,7 +23,7 @@ create table if not exists public.app_config (
   points_exact                int not null default 4,   -- exact final score (stacks on the result)
   points_tendency             int not null default 2,   -- correct result (1/X/2)
   points_penalties            int not null default 0,   -- retired (kept for compatibility)
-  lock_minutes_before_kickoff int not null default 60,  -- default lock offset
+  lock_minutes_before_kickoff int not null default 1,   -- default lock offset (mins before kick-off)
   constraint app_config_singleton check (id = 1)
 );
 
