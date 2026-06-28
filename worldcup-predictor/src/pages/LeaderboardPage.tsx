@@ -32,7 +32,11 @@ export default function LeaderboardPage() {
       setError(error.message)
       return
     }
-    const next = (data as LeaderboardRow[]) ?? []
+    // Hide players who haven't finished onboarding (no nickname yet) so a
+    // half-signed-up account never shows as a nameless "?" on the board.
+    const next = ((data as LeaderboardRow[]) ?? []).filter(
+      (r) => (r.nickname ?? '').trim() !== '',
+    )
     setRows(next)
     // Persist the latest ranks so the next visit can show movement.
     const snapshot: Record<string, number> = {}

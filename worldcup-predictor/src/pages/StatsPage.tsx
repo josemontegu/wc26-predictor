@@ -56,8 +56,10 @@ export default function StatsPage() {
       supabase.from('matches').select('*'),
     ]).then(([b, s, p, a, m]) => {
       if (!active) return
-      setBoard((b.data as LeaderboardRow[]) ?? [])
-      setStats((s.data as PlayerStat[]) ?? [])
+      // Exclude players who haven't set a nickname yet (incomplete sign-ups).
+      const named = (n: string | null | undefined) => (n ?? '').trim() !== ''
+      setBoard(((b.data as LeaderboardRow[]) ?? []).filter((r) => named(r.nickname)))
+      setStats(((s.data as PlayerStat[]) ?? []).filter((r) => named(r.nickname)))
       setPicks((p.data as LockedPrediction[]) ?? [])
       setAwardPicks((a.data as LockedAwardPrediction[]) ?? [])
       setMatches((m.data as Match[]) ?? [])
