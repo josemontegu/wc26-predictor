@@ -407,14 +407,15 @@ set search_path = public as $$
 declare
   home_t text;
   away_t text;
+  expected text;
 begin
   if new.home_score <> new.away_score then
     select home_team, away_team into home_t, away_t from public.matches where id = new.match_id;
-    if new.advancing_team <> case when new.home_score > new.away_score then home_t else away_t end then
+    expected := case when new.home_score > new.away_score then home_t else away_t end;
+    if new.advancing_team <> expected then
       raise exception
         'Advancing team must be the side winning the 90-minute score (got %, expected %)',
-        new.advancing_team,
-        case when new.home_score > new.away_score then home_t else away_t end;
+        new.advancing_team, expected;
     end if;
   end if;
   return new;
