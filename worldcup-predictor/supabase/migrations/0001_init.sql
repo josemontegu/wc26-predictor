@@ -19,10 +19,10 @@ create table if not exists public.rounds (
 -- ----------------------------------------------------------------------------
 create table if not exists public.app_config (
   id                          int primary key default 1,
-  points_advance              int not null default 5,   -- correct advancing team
-  points_exact                int not null default 4,   -- exact 90' score
-  points_tendency             int not null default 2,   -- correct 90' result (1/X/2)
-  points_penalties            int not null default 2,    -- correct penalties yes/no
+  points_advance              int not null default 4,   -- correct advancing team
+  points_exact                int not null default 4,   -- exact final score (stacks on the result)
+  points_tendency             int not null default 2,   -- correct result (1/X/2)
+  points_penalties            int not null default 0,   -- retired (kept for compatibility)
   lock_minutes_before_kickoff int not null default 60,  -- default lock offset
   constraint app_config_singleton check (id = 1)
 );

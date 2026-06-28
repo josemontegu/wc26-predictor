@@ -19,20 +19,20 @@ export const DEMO_EMAIL = 'alex@demo.app'
 
 export const demoRounds: Round[] = [
   { code: 'R32', name: 'Round of 32', sort_order: 1, multiplier: 1 },
-  { code: 'R16', name: 'Round of 16', sort_order: 2, multiplier: 1.5 },
-  { code: 'QF', name: 'Quarter-finals', sort_order: 3, multiplier: 2 },
-  { code: 'SF', name: 'Semi-finals', sort_order: 4, multiplier: 3 },
+  { code: 'R16', name: 'Round of 16', sort_order: 2, multiplier: 2 },
+  { code: 'QF', name: 'Quarter-finals', sort_order: 3, multiplier: 3 },
+  { code: 'SF', name: 'Semi-finals', sort_order: 4, multiplier: 4 },
   { code: 'TP', name: 'Third-place play-off', sort_order: 5, multiplier: 2 },
-  { code: 'F', name: 'Final', sort_order: 6, multiplier: 4 },
+  { code: 'F', name: 'Final', sort_order: 6, multiplier: 5 },
 ]
 
 export const demoConfig: AppConfig = {
   id: 1,
-  points_advance: 5,
+  points_advance: 4,
   points_exact: 4,
   points_tendency: 2,
-  points_penalties: 2,
-  points_exact_aet: 3,
+  points_penalties: 0,
+  points_exact_aet: 0,
   lock_minutes_before_kickoff: 60,
 }
 

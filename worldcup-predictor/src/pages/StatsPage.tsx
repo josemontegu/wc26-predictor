@@ -14,8 +14,7 @@ import { useT, type TFn } from '../lib/i18n'
 const CAT_ES: Record<string, string> = {
   Advance: 'Avance',
   Exact: 'Exacto',
-  Tendency: 'Resultado',
-  Pens: 'Penales',
+  Result: 'Resultado',
   Awards: 'Premios',
 }
 function catLabel(label: string, t: TFn) {
@@ -25,8 +24,7 @@ function catLabel(label: string, t: TFn) {
 const CATS = [
   { key: 'pts_advance', label: 'Advance', color: '#07a06a' },
   { key: 'pts_exact', label: 'Exact', color: '#2b4ea8' },
-  { key: 'pts_tendency', label: 'Tendency', color: '#0bbd7e' },
-  { key: 'pts_penalties', label: 'Pens', color: '#e0464a' },
+  { key: 'pts_tendency', label: 'Result', color: '#0bbd7e' },
   { key: 'pts_awards', label: 'Awards', color: '#f5b301' },
 ] as const
 

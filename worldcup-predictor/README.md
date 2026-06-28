@@ -33,10 +33,12 @@ Each match awards, independently:
 
 | Points | For |
 | ------ | --- |
-| 5 | Correct team advancing |
-| 4 | Exact final score |
 | 2 | Correct result (home win / draw / away win) |
-| 2 | Correct penalties (yes/no) |
+| +4 | Exact final score (stacks on the result → 6 in all) |
+| 4 | Correct team advancing |
+
+These components **stack**, so a flawless match (exact score + right team
+through) is worth **10** before the round multiplier.
 
 Predictions capture a single **final score** — after extra time, if the match
 goes there. Penalties and who advances are then **derived** from it (a level
@@ -44,7 +46,7 @@ final score ⇒ a shootout, and you pick the shootout winner), so a prediction c
 never contradict itself.
 
 The match total is then multiplied by a **round multiplier** (later rounds are worth more):
-R32 ×1, R16 ×1.5, QF ×2, SF ×3, Third place ×2, Final ×4.
+R32 ×1, R16 ×2, QF ×3, SF ×4, Third place ×2, Final ×5.
 
 ---
 

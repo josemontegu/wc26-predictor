@@ -27,10 +27,10 @@ create table if not exists public.rounds (
 -- ----------------------------------------------------------------------------
 create table if not exists public.app_config (
   id                          int primary key default 1,
-  points_advance              int not null default 5,   -- correct advancing team
-  points_exact                int not null default 4,   -- exact 90' score
-  points_tendency             int not null default 2,   -- correct 90' result (1/X/2)
-  points_penalties            int not null default 2,    -- correct penalties yes/no
+  points_advance              int not null default 4,   -- correct advancing team
+  points_exact                int not null default 4,   -- exact final score (stacks on the result)
+  points_tendency             int not null default 2,   -- correct result (1/X/2)
+  points_penalties            int not null default 0,   -- retired (kept for compatibility)
   lock_minutes_before_kickoff int not null default 60,  -- default lock offset
   constraint app_config_singleton check (id = 1)
 );
@@ -1001,18 +1001,25 @@ alter table public.matches add constraint matches_pens_derived
 -- Rounds with default multipliers (later rounds worth more) --------------------
 insert into public.rounds (code, name, sort_order, multiplier) values
   ('R32', 'Round of 32',        1, 1.0),
-  ('R16', 'Round of 16',        2, 1.5),
-  ('QF',  'Quarter-finals',     3, 2.0),
-  ('SF',  'Semi-finals',        4, 3.0),
+  ('R16', 'Round of 16',        2, 2.0),
+  ('QF',  'Quarter-finals',     3, 3.0),
+  ('SF',  'Semi-finals',        4, 4.0),
   ('TP',  'Third-place play-off',5, 2.0),
-  ('F',   'Final',              6, 4.0)
+  ('F',   'Final',              6, 5.0)
 on conflict (code) do update
   set name = excluded.name,
-      sort_order = excluded.sort_order;
+      sort_order = excluded.sort_order,
+      multiplier = excluded.multiplier;
 
 -- Default scoring + lock config -----------------------------------------------
-insert into public.app_config (id) values (1)
-on conflict (id) do nothing;
+-- Panel-agreed model: result 2 + exact +4 (→6) + advancing 4; penalties retired.
+insert into public.app_config (id, points_advance, points_exact, points_tendency, points_penalties)
+values (1, 4, 4, 2, 0)
+on conflict (id) do update
+  set points_advance  = excluded.points_advance,
+      points_exact    = excluded.points_exact,
+      points_tendency = excluded.points_tendency,
+      points_penalties = excluded.points_penalties;
 
 -- Tournament award predictions (lock when the Round of 32 kicks off) -----------
 insert into public.awards (key, name, description, kind, points, lock_time, sort_order) values

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { AppConfig, Round } from '../lib/types'
-import { ROUND_ORDER } from '../lib/format'
+import { ROUND_ORDER, roundName } from '../lib/format'
 import { useT } from '../lib/i18n'
 import Spinner from '../components/Spinner'
 
@@ -80,14 +80,6 @@ export default function RulesPage() {
         {c ? (
           <ul className="rules-list">
             <li>
-              <span className="rules-pts">{c.points_advance}</span>{' '}
-              {t('Correct team advancing', 'Equipo que avanza correcto')}
-            </li>
-            <li>
-              <span className="rules-pts">{c.points_exact}</span>{' '}
-              {t('Exact final score', 'Marcador final exacto')}
-            </li>
-            <li>
               <span className="rules-pts">{c.points_tendency}</span>{' '}
               {t(
                 'Correct result (home win / draw / away win)',
@@ -95,11 +87,15 @@ export default function RulesPage() {
               )}
             </li>
             <li>
-              <span className="rules-pts">{c.points_penalties}</span>{' '}
+              <span className="rules-pts">+{c.points_exact}</span>{' '}
               {t(
-                'Correctly predicting penalties (yes / no)',
-                'Acertar los penales (sí / no)',
+                `Exact final score (on top of the result → ${c.points_tendency + c.points_exact} in all)`,
+                `Marcador final exacto (se suma al resultado → ${c.points_tendency + c.points_exact} en total)`,
               )}
+            </li>
+            <li>
+              <span className="rules-pts">{c.points_advance}</span>{' '}
+              {t('Correct team advancing', 'Equipo que avanza correcto')}
             </li>
           </ul>
         ) : (
@@ -107,8 +103,8 @@ export default function RulesPage() {
         )}
         <p className="muted small">
           {t(
-            'The four components are scored independently, so a single match can earn several of them at once.',
-            'Los cuatro componentes se puntúan por separado, así que un solo partido puede sumar varios a la vez.',
+            `These stack, so a flawless match (exact score + right team through) is worth ${c ? c.points_tendency + c.points_exact + c.points_advance : 10} before the round multiplier.`,
+            `Se acumulan, así que un partido perfecto (marcador exacto + equipo correcto que avanza) vale ${c ? c.points_tendency + c.points_exact + c.points_advance : 10} antes del multiplicador de ronda.`,
           )}
         </p>
       </div>
@@ -147,7 +143,7 @@ export default function RulesPage() {
           <tbody>
             {orderedRounds.map((r) => (
               <tr key={r.code}>
-                <td>{r.name}</td>
+                <td>{roundName(r.code)}</td>
                 <td className="num mini-mult">×{r.multiplier}</td>
               </tr>
             ))}
@@ -163,20 +159,16 @@ export default function RulesPage() {
         {c && (
           <p>
             {t('Suppose a Quarter-final (×', 'Supongamos que un cuarto de final (×')}
-            {orderedRounds.find((r) => r.code === 'QF')?.multiplier ?? 2}
+            {orderedRounds.find((r) => r.code === 'QF')?.multiplier ?? 3}
             {t(
-              ') ends 2–1 after penalties, and that team advances. If you predicted exactly 2–1, the right team to advance, and penalties, you\'d earn',
-              ') termina 2–1 tras penales, y ese equipo avanza. Si pronosticaste exactamente 2–1, el equipo correcto que avanza y los penales, ganarías',
+              ') ends 2–1 and that team advances. If you predicted exactly 2–1 and the right team to advance, you\'d earn',
+              ') termina 2–1 y ese equipo avanza. Si pronosticaste exactamente 2–1 y el equipo correcto que avanza, ganarías',
             )}{' '}
             <strong>
-              ({c.points_advance} + {c.points_exact} + {c.points_tendency} +{' '}
-              {c.points_penalties}) ×{' '}
-              {orderedRounds.find((r) => r.code === 'QF')?.multiplier ?? 2} ={' '}
-              {(c.points_advance +
-                c.points_exact +
-                c.points_tendency +
-                c.points_penalties) *
-                Number(orderedRounds.find((r) => r.code === 'QF')?.multiplier ?? 2)}{' '}
+              ({c.points_tendency} + {c.points_exact} + {c.points_advance}) ×{' '}
+              {orderedRounds.find((r) => r.code === 'QF')?.multiplier ?? 3} ={' '}
+              {(c.points_tendency + c.points_exact + c.points_advance) *
+                Number(orderedRounds.find((r) => r.code === 'QF')?.multiplier ?? 3)}{' '}
               {t('points', 'puntos')}
             </strong>
             .

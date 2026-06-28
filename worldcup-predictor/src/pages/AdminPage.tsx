@@ -382,16 +382,6 @@ export default function AdminPage() {
               />
             </label>
             <label>
-              {t('Pts: penalties', 'Pts: penales')}
-              <input
-                type="number"
-                value={cfgDraft.points_penalties}
-                onChange={(e) =>
-                  setCfgDraft({ ...cfgDraft, points_penalties: Number(e.target.value) })
-                }
-              />
-            </label>
-            <label>
               {t('Lock minutes before kick-off', 'Minutos de cierre antes del inicio')}
               <input
                 type="number"
