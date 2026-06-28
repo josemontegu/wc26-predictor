@@ -1426,10 +1426,90 @@ label {
   background: var(--accent);
   transform: scale(1.25);
 }
-.bk-round-body {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 0.6rem;
+.bk-nav-arrow {
+  color: var(--muted);
+  font-weight: 400;
+  margin: 0 0.15rem;
+}
+
+/* two rounds side by side: sources → connector → destination */
+.bk-ties {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.bk-tie {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+.bk-tie-sources {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.bk-tie-conn {
+  flex: 0 0 24px;
+  position: relative;
+}
+.bk-tie-dest {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.bk-line-v {
+  position: absolute;
+  left: 11px;
+  top: 25%;
+  bottom: 25%;
+  width: 2px;
+  background: var(--line);
+}
+.bk-line-top,
+.bk-line-bot,
+.bk-line-mid {
+  position: absolute;
+  height: 2px;
+  background: var(--line);
+}
+.bk-line-top {
+  left: 0;
+  width: 13px;
+  top: 25%;
+}
+.bk-line-bot {
+  left: 0;
+  width: 13px;
+  top: 75%;
+}
+.bk-line-mid {
+  left: 11px;
+  right: 0;
+  top: 50%;
+}
+.bk-thirdplace {
+  margin-top: 0.4rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: center;
+}
+.bk-tp-label {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bk-thirdplace .bk-match {
+  max-width: 240px;
 }
 .bk-match {
   background: var(--card);
