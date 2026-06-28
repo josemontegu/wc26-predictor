@@ -14,7 +14,10 @@ create or replace function public.protect_admin_flag()
 returns trigger language plpgsql security definer
 set search_path = public as $$
 begin
-  if not public.is_admin() then
+  -- Only guard changes made by a logged-in non-admin user. Server-side changes
+  -- (SQL editor, service role — auth.uid() is null) are trusted, so the first
+  -- admin can be set up and admins can manage players.
+  if auth.uid() is not null and not public.is_admin() then
     -- never let a non-admin change their admin flag
     new.is_admin := old.is_admin;
     -- nickname/display_name lock once a nickname exists
