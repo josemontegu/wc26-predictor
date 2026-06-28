@@ -36,8 +36,13 @@ export default function BracketPage() {
     return map
   }, [matches])
 
-  // Order columns so the Final sits in the middle visually: F, then TP, fans out.
-  const columns = ROUND_ORDER.filter((r) => byRound[r]?.length)
+  // Rounds that have matches, in tournament order (R32 → Final).
+  const rounds = ROUND_ORDER.filter((r) => byRound[r]?.length)
+
+  // One round in view at a time; arrows step through them.
+  const [idx, setIdx] = useState(0)
+  const safeIdx = Math.min(idx, Math.max(0, rounds.length - 1))
+  const round = rounds[safeIdx] as RoundCode | undefined
 
   if (loading) {
     return (
@@ -52,23 +57,50 @@ export default function BracketPage() {
     <div className="page">
       <h1>{t('Knockout bracket', 'Llave de eliminación')}</h1>
       <p className="muted small">
-        {t('Swipe across to follow the path to the Final →', 'Desliza para seguir el camino a la Final →')}
+        {t('Use the arrows to move between rounds.', 'Usa las flechas para avanzar de ronda.')}
       </p>
 
-      <div className="bracket-scroll">
-        <div className="bracket">
-          {columns.map((round) => (
-            <div key={round} className={`bk-col bk-col-${round}`}>
-              <div className="bk-col-head">{roundName(round as RoundCode)}</div>
-              <div className="bk-col-body">
-                {byRound[round].map((m) => (
-                  <BracketMatch key={m.id} match={m} onClick={() => navigate(`/match/${m.id}`)} />
+      {round && (
+        <>
+          <div className="bk-nav">
+            <button
+              className="bk-nav-btn"
+              onClick={() => setIdx(safeIdx - 1)}
+              disabled={safeIdx === 0}
+              aria-label={t('Previous round', 'Ronda anterior')}
+            >
+              ←
+            </button>
+            <div className="bk-nav-center">
+              <div className="bk-nav-round">{roundName(round)}</div>
+              <div className="bk-nav-dots">
+                {rounds.map((r, i) => (
+                  <button
+                    key={r}
+                    className={`bk-dot ${i === safeIdx ? 'bk-dot-active' : ''}`}
+                    onClick={() => setIdx(i)}
+                    aria-label={roundName(r as RoundCode)}
+                  />
                 ))}
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+            <button
+              className="bk-nav-btn"
+              onClick={() => setIdx(safeIdx + 1)}
+              disabled={safeIdx === rounds.length - 1}
+              aria-label={t('Next round', 'Ronda siguiente')}
+            >
+              →
+            </button>
+          </div>
+
+          <div className="bk-round-body">
+            {byRound[round].map((m) => (
+              <BracketMatch key={m.id} match={m} onClick={() => navigate(`/match/${m.id}`)} />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }
