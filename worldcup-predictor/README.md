@@ -13,7 +13,7 @@ Built with **React + Vite + TypeScript** on the front end and **Supabase**
 
 - **Email magic-link sign-in** (Supabase Auth) — no passwords to manage.
 - **Profiles** with a unique nickname and a unique emoji avatar (picked from a grid; taken ones are greyed out). Each player sets these **once**; afterwards only an admin can change them (enforced by a DB trigger, not just the UI), via an admin "Players" editor.
-- **Predictions** per match: 90' home/away score, team advancing, penalties yes/no.
+- **Predictions** per match: the final home/away score (after extra time), with the team advancing and penalties **derived** from it.
 - **Self-service editing** until a configurable lock time before kick-off; **read-only** after.
 - **Admin panel**: create/edit fixtures, set kick-off & lock times, enter results, pick the team that advanced, and tune scoring.
 - **Automatic leaderboard** computed in the database from configurable scoring rules.
@@ -34,15 +34,14 @@ Each match awards, independently:
 | Points | For |
 | ------ | --- |
 | 5 | Correct team advancing |
-| 4 | Exact 90-minute score |
-| 2 | Correct 90-minute result (home win / draw / away win) |
-| 3 | Exact extra-time score (when the match goes to extra time) |
+| 4 | Exact final score |
+| 2 | Correct result (home win / draw / away win) |
 | 2 | Correct penalties (yes/no) |
 
-Predictions capture the **90-minute score**, and — when you call a draw — the
-**score after extra time**. Penalties and who advances are then **derived** from
-those scores (still level after extra time ⇒ a shootout, and you pick the shootout
-winner), so a prediction can never contradict itself.
+Predictions capture a single **final score** — after extra time, if the match
+goes there. Penalties and who advances are then **derived** from it (a level
+final score ⇒ a shootout, and you pick the shootout winner), so a prediction can
+never contradict itself.
 
 The match total is then multiplied by a **round multiplier** (later rounds are worth more):
 R32 ×1, R16 ×1.5, QF ×2, SF ×3, Third place ×2, Final ×4.
@@ -96,7 +95,7 @@ admin-entered** to keep the 90-minute scoring rules correct.
 ### 1. Create a Supabase project
 
 1. Go to [supabase.com](https://supabase.com) → **New project** (free tier is fine).
-2. In **SQL Editor**, run these files in order: [`0001_init.sql`](supabase/migrations/0001_init.sql), [`0002_features.sql`](supabase/migrations/0002_features.sql) (reveal-picks view + Realtime), [`0003_consistency.sql`](supabase/migrations/0003_consistency.sql) (outcome constraints), [`0004_extra_time.sql`](supabase/migrations/0004_extra_time.sql) (two-score model + extra-time bonus), [`0005_awards.sql`](supabase/migrations/0005_awards.sql) (tournament award picks), [`0006_champion_squads.sql`](supabase/migrations/0006_champion_squads.sql) (Champion pick + award kinds), [`0007_unique_nickname.sql`](supabase/migrations/0007_unique_nickname.sql) (unique nicknames), [`0008_profile_emoji.sql`](supabase/migrations/0008_profile_emoji.sql) (unique emoji avatars), [`0009_identity_lock.sql`](supabase/migrations/0009_identity_lock.sql) (set-once nickname/emoji, admin override), [`0010_stats.sql`](supabase/migrations/0010_stats.sql) (stats views), then [`supabase/seed.sql`](supabase/seed.sql).
+2. In **SQL Editor**, run these files in order: [`0001_init.sql`](supabase/migrations/0001_init.sql), [`0002_features.sql`](supabase/migrations/0002_features.sql) (reveal-picks view + Realtime), [`0003_consistency.sql`](supabase/migrations/0003_consistency.sql) (outcome constraints), [`0004_extra_time.sql`](supabase/migrations/0004_extra_time.sql) (two-score model + extra-time bonus), [`0005_awards.sql`](supabase/migrations/0005_awards.sql) (tournament award picks), [`0006_champion_squads.sql`](supabase/migrations/0006_champion_squads.sql) (Champion pick + award kinds), [`0007_unique_nickname.sql`](supabase/migrations/0007_unique_nickname.sql) (unique nicknames), [`0008_profile_emoji.sql`](supabase/migrations/0008_profile_emoji.sql) (unique emoji avatars), [`0009_identity_lock.sql`](supabase/migrations/0009_identity_lock.sql) (set-once nickname/emoji, admin override), [`0010_stats.sql`](supabase/migrations/0010_stats.sql) (stats views), [`0011_single_score.sql`](supabase/migrations/0011_single_score.sql) (single final-score model), then [`supabase/seed.sql`](supabase/seed.sql).
 3. In **Authentication → Providers → Email**, make sure **Email** is enabled. Magic links work out of the box on the free tier.
    - The live leaderboard uses **Realtime**; `0002_features.sql` already adds the `matches` and `predictions` tables to the `supabase_realtime` publication, so no extra clicks are needed.
 4. In **Authentication → URL Configuration**, add your local URL (`http://localhost:5173`) and your GitHub Pages URL (e.g. `https://YOURNAME.github.io/REPO/`) to the **Redirect URLs** allow-list.

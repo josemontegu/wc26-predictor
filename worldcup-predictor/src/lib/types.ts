@@ -150,37 +150,25 @@ export interface MyScore {
   total_points: number
 }
 
-export type OutcomePhase = 'reg' | 'aet' | 'shootout'
+export type OutcomePhase = 'reg' | 'shootout'
 
 export interface Outcome {
-  phase: OutcomePhase // settled in 90' / extra time / shootout
+  phase: OutcomePhase // decided in normal/extra time vs a penalty shootout
   winnerSide: 'home' | 'away' | null // null only on a shootout (free pick)
   penalties: boolean
-  aetNeeded: boolean // a 90' draw needs an extra-time score
 }
 
 /**
  * The single source of truth for how a knockout match resolves, given the
- * 90-minute score and (when level) the after-extra-time score.
+ * final score (after extra time, before penalties). A decisive score means the
+ * winner advances; a level score means it goes to a penalty shootout.
  */
-export function resolveOutcome(
-  home: number,
-  away: number,
-  aetHome: number | null,
-  aetAway: number | null,
-): Outcome {
+export function resolveOutcome(home: number, away: number): Outcome {
   if (home !== away) {
-    return { phase: 'reg', winnerSide: home > away ? 'home' : 'away', penalties: false, aetNeeded: false }
+    return { phase: 'reg', winnerSide: home > away ? 'home' : 'away', penalties: false }
   }
-  // Level at 90' → extra time.
-  if (aetHome == null || aetAway == null) {
-    return { phase: 'aet', winnerSide: null, penalties: false, aetNeeded: true }
-  }
-  if (aetHome !== aetAway) {
-    return { phase: 'aet', winnerSide: aetHome > aetAway ? 'home' : 'away', penalties: false, aetNeeded: true }
-  }
-  // Still level after extra time → penalty shootout.
-  return { phase: 'shootout', winnerSide: null, penalties: true, aetNeeded: true }
+  // Level after extra time → penalty shootout.
+  return { phase: 'shootout', winnerSide: null, penalties: true }
 }
 
 /** A match is locked once its lock_time has passed (or it has no lock_time set). */

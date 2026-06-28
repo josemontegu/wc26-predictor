@@ -51,10 +51,9 @@ export default function RulesPage() {
         </div>
         <p>
           Predict every knockout match of the 2026 World Cup, from the Round of 32 to the
-          Final. You call the <strong>score after 90 minutes</strong>; if you make it a
-          draw, you also call the <strong>score after extra time</strong>. Whether it goes
-          to <strong>penalties</strong> and <strong>who advances</strong> then follow
-          automatically — still level after extra time means a shootout, and you pick the
+          Final. You call the <strong>final score</strong> — after extra time, if it goes
+          there. Whether it goes to <strong>penalties</strong> and <strong>who advances</strong>{' '}
+          then follow automatically: a level final score means a shootout, and you pick the
           shootout winner. You can edit any time until the match locks, shortly before
           kick-off.
         </p>
@@ -71,15 +70,11 @@ export default function RulesPage() {
               <span className="rules-pts">{c.points_advance}</span> Correct team advancing
             </li>
             <li>
-              <span className="rules-pts">{c.points_exact}</span> Exact 90-minute score
+              <span className="rules-pts">{c.points_exact}</span> Exact final score
             </li>
             <li>
-              <span className="rules-pts">{c.points_tendency}</span> Correct 90-minute
-              result (home win / draw / away win)
-            </li>
-            <li>
-              <span className="rules-pts">{c.points_exact_aet}</span> Exact extra-time score
-              (when it goes to extra time)
+              <span className="rules-pts">{c.points_tendency}</span> Correct result
+              (home win / draw / away win)
             </li>
             <li>
               <span className="rules-pts">{c.points_penalties}</span> Correctly predicting

@@ -27,12 +27,10 @@ export default function MatchDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const confettiFired = useRef(false)
 
-  // form state. 90' scores start blank ('') so they must be actively chosen,
+  // form state. Scores start blank ('') so they must be actively chosen,
   // rather than defaulting to a 0–0 nobody picked.
   const [home, setHome] = useState('')
   const [away, setAway] = useState('')
-  const [aetHome, setAetHome] = useState('')
-  const [aetAway, setAetAway] = useState('')
   const [advancing, setAdvancing] = useState('')
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -64,28 +62,23 @@ export default function MatchDetailPage() {
       if (p) {
         setHome(String(p.home_score))
         setAway(String(p.away_score))
-        setAetHome(p.aet_home_score != null ? String(p.aet_home_score) : '')
-        setAetAway(p.aet_away_score != null ? String(p.aet_away_score) : '')
         setAdvancing(p.advancing_team)
       } else {
         // No prediction yet — blank slate (don't carry over the last match).
         setHome('')
         setAway('')
-        setAetHome('')
-        setAetAway('')
         setAdvancing('')
       }
       setLoading(false)
 
-      // Confetti for a perfect call once the result is in.
+      // Confetti for a perfect call once the result is in. With a single final
+      // score, an exact score + correct team advancing is a perfect prediction
+      // (penalties are derived from the score, so they always agree).
       if (m && p && hasResult(m) && !confettiFired.current) {
         const perfect =
           p.home_score === m.home_score &&
           p.away_score === m.away_score &&
-          (m.aet_home_score == null ||
-            (p.aet_home_score === m.aet_home_score && p.aet_away_score === m.aet_away_score)) &&
-          m.advancing_team === p.advancing_team &&
-          (m.went_to_penalties === null || m.went_to_penalties === p.penalties)
+          m.advancing_team === p.advancing_team
         if (perfect) {
           confettiFired.current = true
           setTimeout(() => fireConfetti(), 300)
@@ -102,35 +95,19 @@ export default function MatchDetailPage() {
   const played = useMemo(() => (match ? hasResult(match) : false), [match])
 
   // Keep the prediction internally consistent with the laws of knockout football:
-  // a decisive 90' score clears extra time and locks the winner; a 90' draw needs
-  // an extra-time score (defaulting to the 90' score); an extra-time winner is
-  // locked; only a still-level extra time (a shootout) leaves "who advances" free.
+  // a decisive final score locks in the winner; a level score is a shootout and
+  // leaves "who advances" a free pick.
   useEffect(() => {
     if (!match || isLocked(match)) return
     if (match.home_team === 'TBD' || match.away_team === 'TBD') return
-    if (home === '' || away === '') return // wait until both 90' scores are chosen
+    if (home === '' || away === '') return // wait until both scores are chosen
     const h = Number(home)
     const a = Number(away)
     if (h !== a) {
-      if (aetHome !== '') setAetHome('')
-      if (aetAway !== '') setAetAway('')
       const w = h > a ? match.home_team : match.away_team
       if (advancing !== w) setAdvancing(w)
-      return
     }
-    // Draw at 90' → extra time. Default the ET score to the 90' score, and never
-    // let it drop below it (goals only accumulate).
-    if (aetHome === '') return setAetHome(String(h))
-    if (aetAway === '') return setAetAway(String(a))
-    if (Number(aetHome) < h) return setAetHome(String(h))
-    if (Number(aetAway) < a) return setAetAway(String(a))
-    const ah = Number(aetHome)
-    const aa = Number(aetAway)
-    if (ah !== aa) {
-      const w = ah > aa ? match.home_team : match.away_team
-      if (advancing !== w) setAdvancing(w)
-    }
-  }, [match, home, away, aetHome, aetAway, advancing])
+  }, [match, home, away, advancing])
 
   async function handleSave(e: FormEvent) {
     e.preventDefault()
@@ -141,10 +118,7 @@ export default function MatchDetailPage() {
 
     const h = Number(home)
     const a = Number(away)
-    const draw90 = h === a
-    const ah = draw90 ? Number(aetHome === '' ? h : aetHome) : null
-    const aa = draw90 ? Number(aetAway === '' ? a : aetAway) : null
-    const result = resolveOutcome(h, a, ah, aa)
+    const result = resolveOutcome(h, a)
     const adv = result.winnerSide
       ? result.winnerSide === 'home'
         ? match.home_team
@@ -161,8 +135,8 @@ export default function MatchDetailPage() {
       match_id: match.id,
       home_score: h,
       away_score: a,
-      aet_home_score: ah,
-      aet_away_score: aa,
+      aet_home_score: null,
+      aet_away_score: null,
       advancing_team: adv,
       penalties: result.penalties,
     }
@@ -206,20 +180,15 @@ export default function MatchDetailPage() {
   const homeN = home === '' ? null : Number(home)
   const awayN = away === '' ? null : Number(away)
   const bothSet = homeN !== null && awayN !== null
-  const isDraw90 = bothSet && homeN === awayN
-  const aetHomeN = aetHome === '' ? (isDraw90 ? homeN : null) : Number(aetHome)
-  const aetAwayN = aetAway === '' ? (isDraw90 ? awayN : null) : Number(aetAway)
-  const outcome = resolveOutcome(homeN ?? 0, awayN ?? 0, aetHomeN, aetAwayN)
+  const outcome = resolveOutcome(homeN ?? 0, awayN ?? 0)
   const lockedWinner = outcome.winnerSide
     ? outcome.winnerSide === 'home'
       ? match.home_team
       : match.away_team
     : null
   const isShootout = outcome.phase === 'shootout'
-  // Progressive disclosure: reveal extra time + outcome only once both 90'
-  // scores have actually been chosen.
+  // Progressive disclosure: reveal the outcome only once both scores are chosen.
   const showResolution = bothSet
-  const showExtraTime = isDraw90 && bothSet
   // A blank side increments to 0; 0 decrements back to blank.
   const bumpHome = (d: number) =>
     setHome(homeN === null ? (d > 0 ? '0' : '') : homeN + d < 0 ? '' : String(clampScore(homeN + d)))
@@ -267,11 +236,6 @@ export default function MatchDetailPage() {
           <span>
             🔒 Predictions {locked ? 'closed' : 'close'}: {formatLock(match.lock_time)}
           </span>
-          {played && match.aet_home_score !== null && (
-            <span>
-              ⏱️ After extra time: {match.aet_home_score}–{match.aet_away_score}
-            </span>
-          )}
           {played && match.went_to_penalties !== null && (
             <span>🥅 Penalties: {match.went_to_penalties ? 'Yes' : 'No'}</span>
           )}
@@ -293,7 +257,9 @@ export default function MatchDetailPage() {
       <form onSubmit={handleSave} className="form-card">
         <h2>{prediction ? 'Your prediction' : 'Make your prediction'}</h2>
 
-        <label className="field-label">Score after 90 minutes</label>
+        <label className="field-label">
+          Final score <span className="muted small">· after extra time, before penalties</span>
+        </label>
         <div className="stepper-row">
           <ScoreStepper
             flag={teamFlag(match.home_team)}
@@ -318,38 +284,8 @@ export default function MatchDetailPage() {
 
         {canEdit && !bothSet && (
           <p className="muted small hint">
-            Tap + to set each team's 90-minute score and make your prediction.
+            Tap + to set the final score (after extra time, if any) and make your prediction.
           </p>
-        )}
-
-        {showExtraTime && (
-          <>
-            <label className="field-label">
-              Score after extra time{' '}
-              <span className="muted small">· level at 90′</span>
-            </label>
-            <div className="stepper-row">
-              <ScoreStepper
-                flag={teamFlag(match.home_team)}
-                team={match.home_team}
-                value={aetHomeN ?? homeN ?? 0}
-                disabled={!canEdit}
-                atMin={(aetHomeN ?? homeN ?? 0) <= (homeN ?? 0)}
-                onDec={() => setAetHome(String(clampScore((aetHomeN ?? homeN ?? 0) - 1)))}
-                onInc={() => setAetHome(String(clampScore((aetHomeN ?? homeN ?? 0) + 1)))}
-              />
-              <span className="stepper-dash">–</span>
-              <ScoreStepper
-                flag={teamFlag(match.away_team)}
-                team={match.away_team}
-                value={aetAwayN ?? awayN ?? 0}
-                disabled={!canEdit}
-                atMin={(aetAwayN ?? awayN ?? 0) <= (awayN ?? 0)}
-                onDec={() => setAetAway(String(clampScore((aetAwayN ?? awayN ?? 0) - 1)))}
-                onInc={() => setAetAway(String(clampScore((aetAwayN ?? awayN ?? 0) + 1)))}
-              />
-            </div>
-          </>
         )}
 
         {showResolution && (
@@ -371,15 +307,13 @@ export default function MatchDetailPage() {
             </div>
             {canEdit && (
               <p className="muted small hint">
-                {outcome.phase === 'reg' && `${lockedWinner} win in 90′ and advance.`}
-                {outcome.phase === 'aet' && `${lockedWinner} win in extra time and advance.`}
+                {outcome.phase === 'reg' && `${lockedWinner} win and advance.`}
                 {isShootout && 'Level after extra time — pick who wins the shootout.'}
               </p>
             )}
 
             <div className={`outcome-chip outcome-${outcome.phase}`}>
-              {outcome.phase === 'reg' && '✅ Settled in 90 minutes — no penalties'}
-              {outcome.phase === 'aet' && '⏱️ Decided in extra time — no penalties'}
+              {outcome.phase === 'reg' && '✅ Decided in normal or extra time — no penalties'}
               {outcome.phase === 'shootout' && '🥅 Goes to a penalty shootout'}
             </div>
           </>

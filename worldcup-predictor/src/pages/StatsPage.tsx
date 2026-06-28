@@ -15,7 +15,6 @@ const CATS = [
   { key: 'pts_exact', label: 'Exact', color: '#2b4ea8' },
   { key: 'pts_tendency', label: 'Tendency', color: '#0bbd7e' },
   { key: 'pts_penalties', label: 'Pens', color: '#e0464a' },
-  { key: 'pts_exact_aet', label: 'Extra time', color: '#8b5cf6' },
   { key: 'pts_awards', label: 'Awards', color: '#f5b301' },
 ] as const
 

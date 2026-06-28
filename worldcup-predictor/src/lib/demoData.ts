@@ -52,10 +52,8 @@ const DAY = 24 * HOUR
 const now = () => Date.now()
 
 interface Result {
-  hs: number
+  hs: number // final score (after extra time, before penalties)
   as: number
-  aetH?: number
-  aetA?: number
   pens?: boolean
   adv: string
 }
@@ -79,8 +77,8 @@ function mk(
     lock_time: new Date(now() + offsetMs - HOUR).toISOString(),
     home_score: result ? result.hs : null,
     away_score: result ? result.as : null,
-    aet_home_score: result?.aetH ?? null,
-    aet_away_score: result?.aetA ?? null,
+    aet_home_score: null,
+    aet_away_score: null,
     went_to_penalties: result ? !!result.pens : null,
     advancing_team: result ? result.adv : null,
     created_at: '',
@@ -91,9 +89,9 @@ function mk(
 export const demoMatches: Match[] = [
   // Round of 32 — 73–78 played, 79–81 locked (underway/imminent), 82–88 open
   mk(73, 'R32', 'Argentina', 'Australia', -4 * DAY, { hs: 2, as: 1, adv: 'Argentina' }),
-  mk(74, 'R32', 'France', 'Senegal', -4 * DAY + 3 * HOUR, { hs: 1, as: 1, aetH: 1, aetA: 1, pens: true, adv: 'Senegal' }),
+  mk(74, 'R32', 'France', 'Senegal', -4 * DAY + 3 * HOUR, { hs: 1, as: 1, pens: true, adv: 'Senegal' }),
   mk(75, 'R32', 'Brazil', 'South Korea', -3 * DAY, { hs: 4, as: 1, adv: 'Brazil' }),
-  mk(76, 'R32', 'Spain', 'Morocco', -3 * DAY + 3 * HOUR, { hs: 0, as: 0, aetH: 0, aetA: 0, pens: true, adv: 'Morocco' }),
+  mk(76, 'R32', 'Spain', 'Morocco', -3 * DAY + 3 * HOUR, { hs: 0, as: 0, pens: true, adv: 'Morocco' }),
   mk(77, 'R32', 'Germany', 'Japan', -2 * DAY, { hs: 2, as: 0, adv: 'Germany' }),
   mk(78, 'R32', 'Portugal', 'Croatia', -2 * DAY + 3 * HOUR, { hs: 3, as: 2, adv: 'Portugal' }),
   mk(79, 'R32', 'Netherlands', 'Mexico', -0.4 * HOUR),
@@ -125,20 +123,21 @@ export const demoMatches: Match[] = [
 ]
 
 // Per-match predictions for all six players (order = USERS). Tuple:
-// [home, away, advancing, penalties?, aetHome?, aetAway?]
-type Tup = [number, number, string, boolean?, number?, number?]
+// [finalHome, finalAway, advancing]. A level final score means penalties (the
+// advancing team is then the shootout pick); penalties is derived, not stored.
+type Tup = [number, number, string]
 const PREDS: Record<string, Tup[]> = {
   // played
-  m73: [[2, 1, 'Argentina'], [2, 1, 'Argentina'], [1, 0, 'Argentina'], [3, 1, 'Argentina'], [1, 1, 'Argentina', true, 1, 1], [0, 1, 'Australia']],
-  m74: [[1, 1, 'Senegal', true, 1, 1], [2, 0, 'France'], [1, 1, 'France', true, 1, 1], [0, 0, 'Senegal', true, 0, 0], [1, 2, 'Senegal'], [1, 1, 'Senegal', true, 2, 2]],
-  m75: [[3, 0, 'Brazil'], [4, 1, 'Brazil'], [2, 1, 'Brazil'], [2, 0, 'Brazil'], [1, 1, 'Brazil', true, 1, 1], [3, 1, 'Brazil']],
-  m76: [[1, 1, 'Morocco', true, 1, 1], [0, 0, 'Spain', true, 0, 0], [0, 0, 'Morocco', true, 0, 0], [2, 1, 'Spain'], [1, 0, 'Spain'], [0, 0, 'Morocco', true, 0, 0]],
-  m77: [[2, 0, 'Germany'], [1, 0, 'Germany'], [2, 1, 'Germany'], [0, 1, 'Japan'], [3, 1, 'Germany'], [1, 1, 'Germany', true, 1, 1]],
-  m78: [[2, 1, 'Portugal'], [3, 2, 'Portugal'], [1, 0, 'Portugal'], [2, 2, 'Croatia', true, 2, 2], [3, 2, 'Portugal'], [1, 2, 'Croatia']],
+  m73: [[2, 1, 'Argentina'], [2, 1, 'Argentina'], [1, 0, 'Argentina'], [3, 1, 'Argentina'], [1, 1, 'Argentina'], [0, 1, 'Australia']],
+  m74: [[1, 1, 'Senegal'], [2, 0, 'France'], [1, 1, 'France'], [0, 0, 'Senegal'], [1, 2, 'Senegal'], [1, 1, 'Senegal']],
+  m75: [[3, 0, 'Brazil'], [4, 1, 'Brazil'], [2, 1, 'Brazil'], [2, 0, 'Brazil'], [1, 1, 'Brazil'], [3, 1, 'Brazil']],
+  m76: [[1, 1, 'Morocco'], [0, 0, 'Spain'], [0, 0, 'Morocco'], [2, 1, 'Spain'], [1, 0, 'Spain'], [0, 0, 'Morocco']],
+  m77: [[2, 0, 'Germany'], [1, 0, 'Germany'], [2, 1, 'Germany'], [0, 1, 'Japan'], [3, 1, 'Germany'], [1, 1, 'Germany']],
+  m78: [[2, 1, 'Portugal'], [3, 2, 'Portugal'], [1, 0, 'Portugal'], [2, 2, 'Croatia'], [3, 2, 'Portugal'], [1, 2, 'Croatia']],
   // locked, no result yet
-  m79: [[2, 1, 'Netherlands'], [1, 1, 'Netherlands', true, 1, 1], [0, 1, 'Mexico'], [2, 0, 'Netherlands'], [1, 0, 'Netherlands'], [2, 2, 'Mexico', true, 2, 2]],
-  m80: [[2, 0, 'England'], [3, 1, 'England'], [1, 0, 'England'], [1, 1, 'England', true, 1, 1], [2, 1, 'England'], [0, 0, 'Ecuador', true, 0, 0]],
-  m81: [[1, 1, 'United States', true, 1, 1], [2, 1, 'Belgium'], [1, 0, 'Belgium'], [0, 1, 'United States'], [2, 2, 'Belgium', true, 2, 2], [1, 0, 'Belgium']],
+  m79: [[2, 1, 'Netherlands'], [1, 1, 'Netherlands'], [0, 1, 'Mexico'], [2, 0, 'Netherlands'], [1, 0, 'Netherlands'], [2, 2, 'Mexico']],
+  m80: [[2, 0, 'England'], [3, 1, 'England'], [1, 0, 'England'], [1, 1, 'England'], [2, 1, 'England'], [0, 0, 'Ecuador']],
+  m81: [[1, 1, 'United States'], [2, 1, 'Belgium'], [1, 0, 'Belgium'], [0, 1, 'United States'], [2, 2, 'Belgium'], [1, 0, 'Belgium']],
 }
 
 export const demoPredictions: Prediction[] = []
@@ -152,9 +151,9 @@ for (const [mid, rows] of Object.entries(PREDS)) {
       home_score: t[0],
       away_score: t[1],
       advancing_team: t[2],
-      penalties: t[3] ?? false,
-      aet_home_score: t[4] ?? null,
-      aet_away_score: t[5] ?? null,
+      penalties: t[0] === t[1], // a level final score → shootout
+      aet_home_score: null,
+      aet_away_score: null,
       created_at: '',
       updated_at: '',
     }

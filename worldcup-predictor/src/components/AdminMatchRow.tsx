@@ -23,12 +23,6 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
   const [awayScore, setAwayScore] = useState(
     match.away_score === null ? '' : String(match.away_score),
   )
-  const [aetHomeScore, setAetHomeScore] = useState(
-    match.aet_home_score === null ? '' : String(match.aet_home_score),
-  )
-  const [aetAwayScore, setAetAwayScore] = useState(
-    match.aet_away_score === null ? '' : String(match.aet_away_score),
-  )
   const [advancing, setAdvancing] = useState(match.advancing_team ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -40,15 +34,12 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
     setLock(isoToLocalInput(iso))
   }
 
-  // Result consistency, full knockout logic: 90' score, then (if level) extra
-  // time, then penalties — derived, never contradictory.
+  // Result consistency: one final score (after extra time), then penalties and
+  // the advancing team are derived from it — never contradictory.
   const hsN = homeScore === '' ? null : Number(homeScore)
   const asN = awayScore === '' ? null : Number(awayScore)
   const resultIn = hsN !== null && asN !== null
-  const draw90 = resultIn && hsN === asN
-  const ahN = aetHomeScore === '' ? null : Number(aetHomeScore)
-  const aaN = aetAwayScore === '' ? null : Number(aetAwayScore)
-  const outcome = resultIn ? resolveOutcome(hsN!, asN!, draw90 ? (ahN ?? hsN!) : null, draw90 ? (aaN ?? asN!) : null) : null
+  const outcome = resultIn ? resolveOutcome(hsN!, asN!) : null
   const winnerTeam = outcome?.winnerSide
     ? outcome.winnerSide === 'home'
       ? home.trim()
@@ -56,28 +47,19 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
     : ''
   const isShootout = outcome?.phase === 'shootout'
 
-  // Lock the advancing team to the winner; clear extra time when 90' is decisive.
+  // Lock the advancing team to the winner of a decisive score.
   useEffect(() => {
     if (outcome?.winnerSide && advancing !== winnerTeam) setAdvancing(winnerTeam)
   }, [outcome?.winnerSide, winnerTeam, advancing])
-
-  useEffect(() => {
-    if (resultIn && !draw90) {
-      if (aetHomeScore !== '') setAetHomeScore('')
-      if (aetAwayScore !== '') setAetAwayScore('')
-    }
-  }, [resultIn, draw90, aetHomeScore, aetAwayScore])
 
   async function save() {
     setBusy(true)
     setError(null)
     setSavedTick(false)
 
-    // Derive extra time / penalties / advancing from the entered scores so the
-    // stored result can never be self-contradictory.
-    const aetH = resultIn && draw90 ? (ahN ?? hsN!) : null
-    const aetA = resultIn && draw90 ? (aaN ?? asN!) : null
-    const o = resultIn ? resolveOutcome(hsN!, asN!, aetH, aetA) : null
+    // Derive penalties / advancing from the entered final score so the stored
+    // result can never be self-contradictory.
+    const o = resultIn ? resolveOutcome(hsN!, asN!) : null
     const adv = o?.winnerSide
       ? o.winnerSide === 'home'
         ? home.trim()
@@ -91,8 +73,8 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
       lock_time: localInputToIso(lock),
       home_score: hsN,
       away_score: asN,
-      aet_home_score: aetH,
-      aet_away_score: aetA,
+      aet_home_score: null,
+      aet_away_score: null,
       went_to_penalties: o ? o.penalties : null,
       advancing_team: adv,
     }
@@ -168,7 +150,7 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
           </button>
 
           <hr className="divider" />
-          <div className="admin-section-label">Result (90 minutes)</div>
+          <div className="admin-section-label">Result (final score, after extra time)</div>
           <div className="admin-grid">
             <label>
               Home score
@@ -190,32 +172,6 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
             </label>
           </div>
 
-          {draw90 && (
-            <>
-              <div className="admin-section-label">After extra time (120 minutes)</div>
-              <div className="admin-grid">
-                <label>
-                  {home.trim() || 'Home'} score
-                  <input
-                    type="number"
-                    min={hsN ?? 0}
-                    value={aetHomeScore}
-                    onChange={(e) => setAetHomeScore(e.target.value)}
-                  />
-                </label>
-                <label>
-                  {away.trim() || 'Away'} score
-                  <input
-                    type="number"
-                    min={asN ?? 0}
-                    value={aetAwayScore}
-                    onChange={(e) => setAetAwayScore(e.target.value)}
-                  />
-                </label>
-              </div>
-            </>
-          )}
-
           {isShootout && (
             <label>
               Shootout winner advances
@@ -232,9 +188,7 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
 
           {outcome && (
             <p className="muted small">
-              {outcome.phase === 'reg' && `${winnerTeam} won in 90′ — advances, no penalties.`}
-              {outcome.phase === 'aet' &&
-                `${winnerTeam} won in extra time — advances, no penalties.`}
+              {outcome.phase === 'reg' && `${winnerTeam} won — advances, no penalties.`}
               {outcome.phase === 'shootout' && 'Level after extra time → penalty shootout.'}
             </p>
           )}

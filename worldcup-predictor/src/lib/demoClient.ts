@@ -51,19 +51,12 @@ function computeScore(p: Prediction, m: Match, cfg: AppConfig, mult: number) {
       ? cfg.points_tendency
       : 0
   const pens = m.went_to_penalties != null && p.penalties === m.went_to_penalties ? cfg.points_penalties : 0
-  const exactAet =
-    m.aet_home_score != null &&
-    p.aet_home_score != null &&
-    p.aet_home_score === m.aet_home_score &&
-    p.aet_away_score === m.aet_away_score
-      ? cfg.points_exact_aet
-      : 0
   return {
     pts_advance: advance * mult,
     pts_exact: exact * mult,
     pts_tendency: tendency * mult,
     pts_penalties: pens * mult,
-    pts_exact_aet: exactAet * mult,
+    pts_exact_aet: 0, // retired with the single-score model
   }
 }
 

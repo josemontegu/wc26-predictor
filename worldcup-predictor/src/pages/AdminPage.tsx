@@ -170,7 +170,6 @@ export default function AdminPage() {
         points_exact: Number(cfgDraft.points_exact),
         points_tendency: Number(cfgDraft.points_tendency),
         points_penalties: Number(cfgDraft.points_penalties),
-        points_exact_aet: Number(cfgDraft.points_exact_aet),
         lock_minutes_before_kickoff: Number(cfgDraft.lock_minutes_before_kickoff),
       })
       .eq('id', 1)
@@ -357,16 +356,6 @@ export default function AdminPage() {
                 value={cfgDraft.points_penalties}
                 onChange={(e) =>
                   setCfgDraft({ ...cfgDraft, points_penalties: Number(e.target.value) })
-                }
-              />
-            </label>
-            <label>
-              Pts: exact extra-time score
-              <input
-                type="number"
-                value={cfgDraft.points_exact_aet}
-                onChange={(e) =>
-                  setCfgDraft({ ...cfgDraft, points_exact_aet: Number(e.target.value) })
                 }
               />
             </label>
