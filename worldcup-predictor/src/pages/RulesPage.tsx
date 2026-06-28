@@ -120,8 +120,8 @@ export default function RulesPage() {
             'Además de los partidos, elige un jugador para cada premio del torneo: Balón de Oro (mejor jugador), Bota de Oro (máximo goleador) y Guante de Oro (mejor portero).',
           )}{' '}
           {t(
-            'Each is worth a big bonus if you call it right, and picks lock before the knockouts start.',
-            'Cada uno vale un gran bono si aciertas, y las elecciones se cierran antes de que empiece la fase eliminatoria.',
+            'Each is worth a big bonus if you call it right, and picks lock when the Round of 32 ends (just before the Round of 16).',
+            'Cada uno vale un gran bono si aciertas, y las elecciones se cierran cuando termina la fase de 32 (justo antes de los octavos).',
           )}{' '}
           {t('Make yours on the', 'Haz las tuyas en la pestaña')}{' '}
           <strong>{t('Awards', 'Premios')}</strong> {t('tab.', '.')}

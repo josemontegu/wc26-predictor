@@ -28,13 +28,13 @@ on conflict (id) do update
       points_tendency = excluded.points_tendency,
       points_penalties = excluded.points_penalties;
 
--- Tournament award predictions (lock when the Round of 32 kicks off) -----------
+-- Tournament award predictions (lock when the Round of 32 ends / R16 begins) ---
 insert into public.awards (key, name, description, kind, points, lock_time, sort_order) values
-  ('champion',     'Champion',     'Winner of the World Cup',       'team',       15, '2026-06-28 19:00:00+00', 0),
-  ('golden_ball',  'Golden Ball',  'Best player of the tournament', 'player',     10, '2026-06-28 19:00:00+00', 1),
-  ('golden_boot',  'Golden Boot',  'Top scorer',                    'player',     10, '2026-06-28 19:00:00+00', 2),
-  ('golden_glove', 'Golden Glove', 'Best goalkeeper',               'goalkeeper', 10, '2026-06-28 19:00:00+00', 3)
-on conflict (key) do nothing;
+  ('champion',     'Champion',     'Winner of the World Cup',       'team',       15, '2026-07-04 17:00:00+00', 0),
+  ('golden_ball',  'Golden Ball',  'Best player of the tournament', 'player',     10, '2026-07-04 17:00:00+00', 1),
+  ('golden_boot',  'Golden Boot',  'Top scorer',                    'player',     10, '2026-07-04 17:00:00+00', 2),
+  ('golden_glove', 'Golden Glove', 'Best goalkeeper',               'goalkeeper', 10, '2026-07-04 17:00:00+00', 3)
+on conflict (key) do update set lock_time = excluded.lock_time;
 
 -- Knockout matches (FIFA match numbers 73–104) --------------------------------
 -- Real official kick-off times (stored in UTC; the app shows each user their own
