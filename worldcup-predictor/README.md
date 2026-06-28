@@ -88,6 +88,11 @@ admin-entered** to keep the 90-minute scoring rules correct.
 
 ## Setup
 
+> **Going live?** Follow [`LAUNCH.md`](LAUNCH.md) — a 15-minute, step-by-step
+> go-live checklist. The fastest path is to paste [`supabase/setup.sql`](supabase/setup.sql)
+> (all migrations + seed in one file) into the Supabase SQL editor. The
+> step-by-step below explains the same pieces in more detail.
+
 ### 1. Create a Supabase project
 
 1. Go to [supabase.com](https://supabase.com) → **New project** (free tier is fine).
