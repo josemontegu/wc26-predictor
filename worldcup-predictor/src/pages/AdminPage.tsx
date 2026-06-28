@@ -2,16 +2,18 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, DEMO } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { AppConfig, Award, Match, Profile, Round, RoundCode } from '../lib/types'
-import { ROUND_NAMES, ROUND_ORDER } from '../lib/format'
+import { roundName, ROUND_ORDER } from '../lib/format'
 import { buildUpserts, fetchFeed, isRealTeam, type SyncSummary } from '../lib/openfootball'
 import { teamFlag } from '../lib/teamMeta'
 import { isoToLocalInput, localInputToIso } from '../lib/datetime'
+import { useT } from '../lib/i18n'
 import AdminMatchRow from '../components/AdminMatchRow'
 import AdminPlayerRow from '../components/AdminPlayerRow'
 import AwardPicker from '../components/AwardPicker'
 import Spinner from '../components/Spinner'
 
 export default function AdminPage() {
+  const t = useT()
   const { isAdmin } = useAuth()
   const [matches, setMatches] = useState<Match[]>([])
   const [config, setConfig] = useState<AppConfig | null>(null)
@@ -201,7 +203,7 @@ export default function AdminPage() {
   if (!isAdmin) {
     return (
       <div className="page">
-        <div className="notice notice-err">Admins only.</div>
+        <div className="notice notice-err">{t('Admins only.', 'Solo para admins.')}</div>
       </div>
     )
   }
@@ -209,23 +211,26 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div className="page">
-        <Spinner label="Loading admin…" />
+        <Spinner label={t('Loading admin…', 'Cargando admin…')} />
       </div>
     )
   }
 
   return (
     <div className="page">
-      <h1>Admin</h1>
+      <h1>{t('Admin', 'Admin')}</h1>
       {error && <div className="notice notice-err">{error}</div>}
 
       <div className="form-card">
         <div className="rule-card-head">
           <span className="rule-icon">🔄</span>
-          <h2>Auto-fill bracket</h2>
+          <h2>{t('Auto-fill bracket', 'Autocompletar llave')}</h2>
         </div>
         <p className="muted small">
-          Pull live knockout matchups &amp; kick-off times from the free, public-domain{' '}
+          {t(
+            'Pull live knockout matchups & kick-off times from the free, public-domain',
+            'Trae los cruces y horarios de eliminación en vivo desde la fuente gratuita y de dominio público',
+          )}{' '}
           <a
             href="https://github.com/openfootball/worldcup.json"
             target="_blank"
@@ -234,43 +239,70 @@ export default function AdminPage() {
           >
             openfootball
           </a>{' '}
-          dataset. Teams fill in automatically as the group stage finishes. Results stay
-          admin-entered.
+          {t(
+            'dataset. Teams fill in automatically as the group stage finishes. Results stay admin-entered.',
+            'dataset. Los equipos se completan automáticamente a medida que termina la fase de grupos. Los resultados los sigue ingresando el admin.',
+          )}
         </p>
         {!DEMO && (
           <p className="muted small">
-            ↻ Syncs automatically each time you open this page. Tap below to sync again now.
+            {t(
+              '↻ Syncs automatically each time you open this page. Tap below to sync again now.',
+              '↻ Se sincroniza automáticamente cada vez que abres esta página. Toca abajo para sincronizar de nuevo ahora.',
+            )}
           </p>
         )}
         <button className="btn btn-primary" onClick={syncFromOpenfootball} disabled={syncBusy}>
           {syncBusy
             ? autoSynced && !syncSummary
-              ? 'Auto-syncing…'
-              : 'Syncing…'
+              ? t('Auto-syncing…', 'Sincronizando automáticamente…')
+              : t('Syncing…', 'Sincronizando…')
             : DEMO
-              ? 'Preview live feed'
-              : 'Sync again'}
+              ? t('Preview live feed', 'Vista previa del feed en vivo')
+              : t('Sync again', 'Sincronizar de nuevo')}
         </button>
         {syncError && <div className="notice notice-err">{syncError}</div>}
         {syncSummary &&
           (syncSummary.total === 0 ? (
-            <div className="notice notice-ok">Bracket is already up to date ✓</div>
+            <div className="notice notice-ok">
+              {t('Bracket is already up to date ✓', 'La llave ya está actualizada ✓')}
+            </div>
           ) : (
             <div className="notice notice-ok">
-              Synced ✓ {syncSummary.matchupsUpdated} matchup
-              {syncSummary.matchupsUpdated === 1 ? '' : 's'} and {syncSummary.kickoffsUpdated}{' '}
-              kick-off time{syncSummary.kickoffsUpdated === 1 ? '' : 's'} updated
-              {syncSummary.resolvedTeams > 0
-                ? ` · ${syncSummary.resolvedTeams} new team${
-                    syncSummary.resolvedTeams === 1 ? '' : 's'
-                  } confirmed`
-                : ''}
-              .
+              {t(
+                `Synced ✓ ${syncSummary.matchupsUpdated} matchup${
+                  syncSummary.matchupsUpdated === 1 ? '' : 's'
+                } and ${syncSummary.kickoffsUpdated} kick-off time${
+                  syncSummary.kickoffsUpdated === 1 ? '' : 's'
+                } updated${
+                  syncSummary.resolvedTeams > 0
+                    ? ` · ${syncSummary.resolvedTeams} new team${
+                        syncSummary.resolvedTeams === 1 ? '' : 's'
+                      } confirmed`
+                    : ''
+                }.`,
+                `Sincronizado ✓ ${syncSummary.matchupsUpdated} cruce${
+                  syncSummary.matchupsUpdated === 1 ? '' : 's'
+                } y ${syncSummary.kickoffsUpdated} horario${
+                  syncSummary.kickoffsUpdated === 1 ? '' : 's'
+                } actualizados${
+                  syncSummary.resolvedTeams > 0
+                    ? ` · ${syncSummary.resolvedTeams} equipo${
+                        syncSummary.resolvedTeams === 1 ? '' : 's'
+                      } nuevo${syncSummary.resolvedTeams === 1 ? '' : 's'} confirmado${
+                        syncSummary.resolvedTeams === 1 ? '' : 's'
+                      }`
+                    : ''
+                }.`,
+              )}
             </div>
           ))}
         {DEMO && syncPreview && (
           <div className="notice notice-info">
-            <strong>Live feed · {ROUND_NAMES[activeRound]}</strong> (preview only in demo):
+            <strong>
+              {t('Live feed', 'Feed en vivo')} · {roundName(activeRound)}
+            </strong>{' '}
+            {t('(preview only in demo):', '(solo vista previa en demo):')}
             <div className="sync-preview">
               {syncPreview.map((p) => (
                 <div key={p.match_no} className="sync-preview-row">
@@ -286,7 +318,7 @@ export default function AdminPage() {
         )}
       </div>
 
-      <h2>Matches &amp; results</h2>
+      <h2>{t('Matches & results', 'Partidos y resultados')}</h2>
       <div className="round-tabs">
         {ROUND_ORDER.map((r) => (
           <button
@@ -298,10 +330,10 @@ export default function AdminPage() {
           </button>
         ))}
       </div>
-      <h3 className="round-title">{ROUND_NAMES[activeRound]}</h3>
+      <h3 className="round-title">{roundName(activeRound)}</h3>
 
       {visible.length === 0 ? (
-        <p className="muted">No matches in this round.</p>
+        <p className="muted">{t('No matches in this round.', 'No hay partidos en esta ronda.')}</p>
       ) : (
         <div className="admin-list">
           {visible.map((m) => (
@@ -315,12 +347,12 @@ export default function AdminPage() {
         </div>
       )}
 
-      <h2 className="mt-lg">Scoring & lock settings</h2>
+      <h2 className="mt-lg">{t('Scoring & lock settings', 'Puntaje y cierre')}</h2>
       {cfgDraft && (
         <div className="form-card">
           <div className="admin-grid">
             <label>
-              Pts: advancing team
+              {t('Pts: advancing team', 'Pts: equipo que avanza')}
               <input
                 type="number"
                 value={cfgDraft.points_advance}
@@ -330,7 +362,7 @@ export default function AdminPage() {
               />
             </label>
             <label>
-              Pts: exact score
+              {t('Pts: exact score', 'Pts: marcador exacto')}
               <input
                 type="number"
                 value={cfgDraft.points_exact}
@@ -340,7 +372,7 @@ export default function AdminPage() {
               />
             </label>
             <label>
-              Pts: tendency (1/X/2)
+              {t('Pts: tendency (1/X/2)', 'Pts: resultado (1/X/2)')}
               <input
                 type="number"
                 value={cfgDraft.points_tendency}
@@ -350,7 +382,7 @@ export default function AdminPage() {
               />
             </label>
             <label>
-              Pts: penalties
+              {t('Pts: penalties', 'Pts: penales')}
               <input
                 type="number"
                 value={cfgDraft.points_penalties}
@@ -360,7 +392,7 @@ export default function AdminPage() {
               />
             </label>
             <label>
-              Lock minutes before kick-off
+              {t('Lock minutes before kick-off', 'Minutos de cierre antes del inicio')}
               <input
                 type="number"
                 value={cfgDraft.lock_minutes_before_kickoff}
@@ -374,7 +406,9 @@ export default function AdminPage() {
             </label>
           </div>
 
-          <div className="admin-section-label">Round multipliers</div>
+          <div className="admin-section-label">
+            {t('Round multipliers', 'Multiplicadores de ronda')}
+          </div>
           <div className="admin-grid">
             {rounds.map((r) => (
               <label key={r.code}>
@@ -391,23 +425,30 @@ export default function AdminPage() {
             ))}
           </div>
 
-          {cfgSaved && <div className="notice notice-ok">Settings saved ✓</div>}
+          {cfgSaved && (
+            <div className="notice notice-ok">{t('Settings saved ✓', 'Ajustes guardados ✓')}</div>
+          )}
           <button className="btn btn-primary" onClick={saveConfig} disabled={cfgBusy}>
-            {cfgBusy ? 'Saving…' : 'Save settings'}
+            {cfgBusy ? t('Saving…', 'Guardando…') : t('Save settings', 'Guardar ajustes')}
           </button>
         </div>
       )}
 
-      <h2 className="mt-lg">Tournament awards</h2>
+      <h2 className="mt-lg">{t('Tournament awards', 'Premios del torneo')}</h2>
       {awards.length === 0 ? (
-        <p className="muted small">No awards set up. Run the awards migration + seed.</p>
+        <p className="muted small">
+          {t(
+            'No awards set up. Run the awards migration + seed.',
+            'No hay premios configurados. Ejecuta la migración y el seed de premios.',
+          )}
+        </p>
       ) : (
         <div className="form-card">
           {awards.map((a) => (
             <div key={a.id} className="admin-award">
               <div className="admin-section-label">{a.name}</div>
               <label>
-                Winner
+                {t('Winner', 'Ganador')}
                 <AwardPicker
                   kind={a.kind}
                   value={a.winner ?? ''}
@@ -416,7 +457,7 @@ export default function AdminPage() {
               </label>
               <div className="admin-grid">
                 <label>
-                  Points
+                  {t('Points', 'Puntos')}
                   <input
                     type="number"
                     value={a.points}
@@ -424,7 +465,7 @@ export default function AdminPage() {
                   />
                 </label>
                 <label>
-                  Picks lock at
+                  {t('Picks lock at', 'Las elecciones cierran a las')}
                   <input
                     type="datetime-local"
                     value={isoToLocalInput(a.lock_time)}
@@ -434,16 +475,21 @@ export default function AdminPage() {
               </div>
             </div>
           ))}
-          {awardSaved && <div className="notice notice-ok">Awards saved ✓</div>}
+          {awardSaved && (
+            <div className="notice notice-ok">{t('Awards saved ✓', 'Premios guardados ✓')}</div>
+          )}
           <button className="btn btn-primary" onClick={saveAwards} disabled={awardBusy}>
-            {awardBusy ? 'Saving…' : 'Save awards'}
+            {awardBusy ? t('Saving…', 'Guardando…') : t('Save awards', 'Guardar premios')}
           </button>
         </div>
       )}
 
-      <h2 className="mt-lg">Players</h2>
+      <h2 className="mt-lg">{t('Players', 'Jugadores')}</h2>
       <p className="muted small">
-        Nicknames &amp; emojis are set once by each player; edit them here if needed.
+        {t(
+          'Nicknames & emojis are set once by each player; edit them here if needed.',
+          'Cada jugador define su apodo y emoji una sola vez; edítalos aquí si hace falta.',
+        )}
       </p>
       <div className="admin-list">
         {players.map((p) => (

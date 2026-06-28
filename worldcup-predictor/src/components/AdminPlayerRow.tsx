@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Profile } from '../lib/types'
 import EmojiPicker from './EmojiPicker'
+import { useT } from '../lib/i18n'
 
 interface Props {
   profile: Profile
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const [nickname, setNickname] = useState(profile.nickname)
   const [emoji, setEmoji] = useState(profile.emoji)
@@ -20,7 +22,7 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
   async function save() {
     const value = nickname.trim()
     if (!value || !emoji) {
-      setError('Nickname and emoji are required.')
+      setError(t('Nickname and emoji are required.', 'El apodo y el emoji son obligatorios.'))
       return
     }
     setBusy(true)
@@ -35,7 +37,9 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
     setBusy(false)
     if (error) {
       setError(
-        error.code === '23505' ? 'That nickname or emoji is already taken.' : error.message,
+        error.code === '23505'
+          ? t('That nickname or emoji is already taken.', 'Ese apodo o emoji ya está en uso.')
+          : error.message,
       )
       return
     }
@@ -49,8 +53,8 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
         <span className="admin-row-head-l">
           <span className="player-emoji">{profile.emoji || '–'}</span>
           <span className="admin-row-title">
-            {profile.nickname || '(no nickname)'}
-            {profile.is_admin && <span className="you-tag">ADMIN</span>}
+            {profile.nickname || t('(no nickname)', '(sin apodo)')}
+            {profile.is_admin && <span className="you-tag">{t('ADMIN', 'ADMIN')}</span>}
           </span>
         </span>
         <span className="admin-row-meta">{open ? '▲' : '▼'}</span>
@@ -59,7 +63,7 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
       {open && (
         <div className="admin-row-body">
           <label>
-            Nickname
+            {t('Nickname', 'Apodo')}
             <input
               type="text"
               maxLength={24}
@@ -68,14 +72,14 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
             />
           </label>
           <label>
-            Emoji {emoji && <span className="emoji-current">{emoji}</span>}
+            {t('Emoji', 'Emoji')} {emoji && <span className="emoji-current">{emoji}</span>}
           </label>
           <EmojiPicker value={emoji} onChange={setEmoji} taken={takenEmojis} />
 
           {error && <div className="notice notice-err">{error}</div>}
-          {savedTick && <div className="notice notice-ok">Saved ✓</div>}
+          {savedTick && <div className="notice notice-ok">{t('Saved ✓', 'Guardado ✓')}</div>}
           <button className="btn btn-primary" onClick={save} disabled={busy}>
-            {busy ? 'Saving…' : 'Save player'}
+            {busy ? t('Saving…', 'Guardando…') : t('Save player', 'Guardar jugador')}
           </button>
         </div>
       )}

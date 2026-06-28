@@ -4,9 +4,10 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { LockedPrediction, Match, MyScore, Prediction } from '../lib/types'
 import { isLocked, hasResult, resolveOutcome } from '../lib/types'
-import { ROUND_NAMES, formatKickoff, formatLock } from '../lib/format'
+import { roundName, formatKickoff, formatLock } from '../lib/format'
 import { teamFlag, teamColor, avatarGradient } from '../lib/teamMeta'
 import { fireConfetti } from '../lib/confetti'
+import { useT, type TFn } from '../lib/i18n'
 import Spinner from '../components/Spinner'
 
 function clampScore(n: number): number {
@@ -18,6 +19,7 @@ export default function MatchDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { session } = useAuth()
   const navigate = useNavigate()
+  const t = useT()
 
   const [match, setMatch] = useState<Match | null>(null)
   const [prediction, setPrediction] = useState<Prediction | null>(null)
@@ -126,7 +128,7 @@ export default function MatchDetailPage() {
       : advancing
     if (!adv) {
       setBusy(false)
-      setError('Pick which team wins the shootout.')
+      setError(t('Pick which team wins the shootout.', 'Elige qué equipo gana la tanda de penales.'))
       return
     }
 
@@ -159,7 +161,7 @@ export default function MatchDetailPage() {
   if (loading) {
     return (
       <div className="page">
-        <Spinner label="Loading match…" />
+        <Spinner label={t('Loading match…', 'Cargando partido…')} />
       </div>
     )
   }
@@ -167,9 +169,9 @@ export default function MatchDetailPage() {
   if (!match) {
     return (
       <div className="page">
-        <p className="notice notice-err">Match not found.</p>
+        <p className="notice notice-err">{t('Match not found.', 'Partido no encontrado.')}</p>
         <button className="btn btn-ghost" onClick={() => navigate('/')}>
-          ← Back to matches
+          ← {t('Back to matches', 'Volver a los partidos')}
         </button>
       </div>
     )
@@ -198,7 +200,7 @@ export default function MatchDetailPage() {
   return (
     <div className="page">
       <button className="btn btn-ghost back-btn" onClick={() => navigate(-1)}>
-        ← Back
+        ← {t('Back', 'Atrás')}
       </button>
 
       <div
@@ -211,8 +213,8 @@ export default function MatchDetailPage() {
       >
         <span className="detail-scrim" />
         <span className="detail-round">
-          {ROUND_NAMES[match.round]}
-          {match.match_no ? ` · Match ${match.match_no}` : ''}
+          {roundName(match.round)}
+          {match.match_no ? ` · ${t('Match', 'Partido')} ${match.match_no}` : ''}
         </span>
         <div className="detail-fixture">
           <div className="df-team">
@@ -232,36 +234,40 @@ export default function MatchDetailPage() {
           </div>
         </div>
         <div className="detail-meta">
-          <span>🕒 Kick-off: {formatKickoff(match.kickoff_time)}</span>
+          <span>🕒 {t('Kick-off', 'Inicio')}: {formatKickoff(match.kickoff_time)}</span>
           <span>
-            🔒 Predictions {locked ? 'closed' : 'close'}: {formatLock(match.lock_time)}
+            🔒 {locked ? t('Predictions closed', 'Los pronósticos cerrados') : t('Predictions close', 'Los pronósticos cierran')}: {formatLock(match.lock_time)}
           </span>
           {played && match.went_to_penalties !== null && (
-            <span>🥅 Penalties: {match.went_to_penalties ? 'Yes' : 'No'}</span>
+            <span>🥅 {t('Penalties', 'Penales')}: {match.went_to_penalties ? t('Yes', 'Sí') : t('No', 'No')}</span>
           )}
-          {played && match.advancing_team && <span>✅ Advanced: {match.advancing_team}</span>}
+          {played && match.advancing_team && <span>✅ {t('Advanced', 'Avanzó')}: {match.advancing_team}</span>}
         </div>
         {played && score && (
           <div className="detail-pts">
-            🏅 You scored {score.total_points} pts on this match
+            {t(`🏅 You scored ${score.total_points} pts on this match`, `🏅 Sumaste ${score.total_points} pts en este partido`)}
           </div>
         )}
       </div>
 
       {!teamsKnown && (
         <div className="notice notice-info">
-          Teams aren't confirmed yet. You can predict once the matchup is set.
+          {t(
+            "Teams aren't confirmed yet. You can predict once the matchup is set.",
+            'Los equipos aún no están confirmados. Podrás pronosticar cuando se defina el cruce.',
+          )}
         </div>
       )}
 
       <form onSubmit={handleSave} className="form-card">
-        <h2>{prediction ? 'Your prediction' : 'Make your prediction'}</h2>
+        <h2>{prediction ? t('Your prediction', 'Tu pronóstico') : t('Make your prediction', 'Haz tu pronóstico')}</h2>
 
         <label className="field-label">
-          Final score <span className="muted small">· after extra time, before penalties</span>
+          {t('Final score', 'Marcador final')} <span className="muted small">{t('· after extra time, before penalties', '· tras el tiempo extra, antes de los penales')}</span>
         </label>
         <div className="stepper-row">
           <ScoreStepper
+            t={t}
             flag={teamFlag(match.home_team)}
             team={match.home_team}
             value={homeN}
@@ -272,6 +278,7 @@ export default function MatchDetailPage() {
           />
           <span className="stepper-dash">–</span>
           <ScoreStepper
+            t={t}
             flag={teamFlag(match.away_team)}
             team={match.away_team}
             value={awayN}
@@ -284,13 +291,16 @@ export default function MatchDetailPage() {
 
         {canEdit && !bothSet && (
           <p className="muted small hint">
-            Tap + to set the final score (after extra time, if any) and make your prediction.
+            {t(
+              'Tap + to set the final score (after extra time, if any) and make your prediction.',
+              'Toca + para ingresar el marcador final (incluido el tiempo extra, si lo hay) y hacer tu pronóstico.',
+            )}
           </p>
         )}
 
         {showResolution && (
           <>
-            <label className="field-label">Who advances?</label>
+            <label className="field-label">{t('Who advances?', '¿Quién avanza?')}</label>
             <div className="choice-row">
               {[match.home_team, match.away_team].map((team) => (
                 <button
@@ -307,20 +317,20 @@ export default function MatchDetailPage() {
             </div>
             {canEdit && (
               <p className="muted small hint">
-                {outcome.phase === 'reg' && `${lockedWinner} win and advance.`}
-                {isShootout && 'Level after extra time — pick who wins the shootout.'}
+                {outcome.phase === 'reg' && t(`${lockedWinner} win and advance.`, `${lockedWinner} gana y avanza.`)}
+                {isShootout && t('Level after extra time — pick who wins the shootout.', 'Empate tras el tiempo extra: elige quién gana la tanda de penales.')}
               </p>
             )}
 
             <div className={`outcome-chip outcome-${outcome.phase}`}>
-              {outcome.phase === 'reg' && '✅ Decided in normal or extra time — no penalties'}
-              {outcome.phase === 'shootout' && '🥅 Goes to a penalty shootout'}
+              {outcome.phase === 'reg' && t('✅ Decided in normal or extra time — no penalties', '✅ Se define en el tiempo reglamentario o extra: sin penales')}
+              {outcome.phase === 'shootout' && t('🥅 Goes to a penalty shootout', '🥅 Se va a tanda de penales')}
             </div>
           </>
         )}
 
         {error && <div className="notice notice-err">{error}</div>}
-        {saved && <div className="notice notice-ok">Prediction saved ✓</div>}
+        {saved && <div className="notice notice-ok">{t('Prediction saved ✓', 'Pronóstico guardado ✓')}</div>}
 
         {canEdit ? (
           <button
@@ -328,13 +338,13 @@ export default function MatchDetailPage() {
             type="submit"
             disabled={busy || !bothSet || (isShootout && !advancing)}
           >
-            {busy ? 'Saving…' : prediction ? 'Update prediction' : 'Submit prediction'}
+            {busy ? t('Saving…', 'Guardando…') : prediction ? t('Update prediction', 'Actualizar pronóstico') : t('Submit prediction', 'Enviar pronóstico')}
           </button>
         ) : (
           <div className="notice notice-info">
             {locked
-              ? 'Predictions are locked for this match.'
-              : 'Predictions open once the teams are confirmed.'}
+              ? t('Predictions are locked for this match.', 'Los pronósticos están cerrados para este partido.')
+              : t('Predictions open once the teams are confirmed.', 'Los pronósticos se abren cuando se confirmen los equipos.')}
           </div>
         )}
       </form>
@@ -343,7 +353,7 @@ export default function MatchDetailPage() {
         <div className="form-card">
           <div className="rule-card-head">
             <span className="rule-icon">👀</span>
-            <h2>Everyone's picks ({picks.length})</h2>
+            <h2>{t("Everyone's picks", 'Pronósticos de todos')} ({picks.length})</h2>
           </div>
           <div className="picks-list">
             {picks
@@ -365,7 +375,7 @@ export default function MatchDetailPage() {
                     </span>
                     <span className="pick-who">
                       {p.nickname || p.display_name}
-                      {isMe && <span className="you-tag">YOU</span>}
+                      {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
                     </span>
                     <span className={`pick-score ${exactRight ? 'pick-hit' : ''}`}>
                       {p.home_score}–{p.away_score}
@@ -386,6 +396,7 @@ export default function MatchDetailPage() {
 }
 
 function ScoreStepper({
+  t,
   flag,
   team,
   value,
@@ -394,6 +405,7 @@ function ScoreStepper({
   onDec,
   onInc,
 }: {
+  t: TFn
   flag: string
   team: string
   value: number | null
@@ -412,19 +424,19 @@ function ScoreStepper({
           className="step-btn"
           disabled={disabled || atMin}
           onClick={onDec}
-          aria-label={`decrease ${team} score`}
+          aria-label={t(`decrease ${team} score`, `disminuir el marcador de ${team}`)}
         >
           −
         </button>
         <span className="step-val">
-          {value === null ? <span className="step-empty" aria-label="not set" /> : value}
+          {value === null ? <span className="step-empty" aria-label={t('not set', 'sin definir')} /> : value}
         </span>
         <button
           type="button"
           className="step-btn"
           disabled={disabled}
           onClick={onInc}
-          aria-label={`increase ${team} score`}
+          aria-label={t(`increase ${team} score`, `aumentar el marcador de ${team}`)}
         >
           +
         </button>

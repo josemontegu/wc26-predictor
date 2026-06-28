@@ -1,4 +1,5 @@
 import { PROFILE_EMOJIS } from '../lib/emojis'
+import { useT } from '../lib/i18n'
 
 export default function EmojiPicker({
   value,
@@ -9,6 +10,7 @@ export default function EmojiPicker({
   onChange: (emoji: string) => void
   taken: Set<string>
 }) {
+  const t = useT()
   return (
     <div className="emoji-grid">
       {PROFILE_EMOJIS.map((em) => {
@@ -19,7 +21,7 @@ export default function EmojiPicker({
             key={em}
             className={`emoji-opt ${value === em ? 'emoji-selected' : ''}`}
             disabled={isTaken}
-            title={isTaken ? 'Taken' : undefined}
+            title={isTaken ? t('Taken', 'Ocupado') : undefined}
             onClick={() => onChange(em)}
           >
             {em}

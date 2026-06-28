@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Match, RoundCode } from '../lib/types'
 import { hasResult } from '../lib/types'
-import { ROUND_NAMES, ROUND_ORDER } from '../lib/format'
+import { roundName, ROUND_ORDER } from '../lib/format'
 import { teamColor, teamFlag, isTBD } from '../lib/teamMeta'
 import Spinner from '../components/Spinner'
+import { useT } from '../lib/i18n'
 
 export default function BracketPage() {
   const navigate = useNavigate()
+  const t = useT()
   const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -40,22 +42,24 @@ export default function BracketPage() {
   if (loading) {
     return (
       <div className="page">
-        <h1>Bracket</h1>
-        <Spinner label="Building the bracket…" />
+        <h1>{t('Bracket', 'Llave')}</h1>
+        <Spinner label={t('Building the bracket…', 'Construyendo la llave…')} />
       </div>
     )
   }
 
   return (
     <div className="page">
-      <h1>Knockout bracket</h1>
-      <p className="muted small">Swipe across to follow the path to the Final →</p>
+      <h1>{t('Knockout bracket', 'Llave de eliminación')}</h1>
+      <p className="muted small">
+        {t('Swipe across to follow the path to the Final →', 'Desliza para seguir el camino a la Final →')}
+      </p>
 
       <div className="bracket-scroll">
         <div className="bracket">
           {columns.map((round) => (
             <div key={round} className={`bk-col bk-col-${round}`}>
-              <div className="bk-col-head">{ROUND_NAMES[round as RoundCode]}</div>
+              <div className="bk-col-head">{roundName(round as RoundCode)}</div>
               <div className="bk-col-body">
                 {byRound[round].map((m) => (
                   <BracketMatch key={m.id} match={m} onClick={() => navigate(`/match/${m.id}`)} />

@@ -4,6 +4,7 @@ import type { AppConfig, Match } from '../lib/types'
 import { resolveOutcome } from '../lib/types'
 import { teamFlag } from '../lib/teamMeta'
 import { isoToLocalInput, localInputToIso, defaultLockIso } from '../lib/datetime'
+import { useT } from '../lib/i18n'
 
 interface Props {
   match: Match
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function AdminMatchRow({ match, config, onSaved }: Props) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const [home, setHome] = useState(match.home_team)
   const [away, setAway] = useState(match.away_team)
@@ -119,17 +121,17 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
         <div className="admin-row-body">
           <div className="admin-grid">
             <label>
-              Home team
+              {t('Home team', 'Equipo local')}
               <input value={home} onChange={(e) => setHome(e.target.value)} />
             </label>
             <label>
-              Away team
+              {t('Away team', 'Equipo visitante')}
               <input value={away} onChange={(e) => setAway(e.target.value)} />
             </label>
           </div>
 
           <label>
-            Kick-off (local time)
+            {t('Kick-off (local time)', 'Inicio (hora local)')}
             <input
               type="datetime-local"
               value={kickoff}
@@ -138,7 +140,7 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
           </label>
 
           <label>
-            Lock time (predictions close)
+            {t('Lock time (predictions close)', 'Hora de cierre (los pronósticos cierran)')}
             <input
               type="datetime-local"
               value={lock}
@@ -146,14 +148,22 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
             />
           </label>
           <button type="button" className="btn btn-ghost btn-sm" onClick={applyDefaultLock}>
-            Set lock = kick-off − {config?.lock_minutes_before_kickoff ?? 60} min
+            {t(
+              `Set lock = kick-off − ${config?.lock_minutes_before_kickoff ?? 60} min`,
+              `Cierre = inicio − ${config?.lock_minutes_before_kickoff ?? 60} min`,
+            )}
           </button>
 
           <hr className="divider" />
-          <div className="admin-section-label">Result (final score, after extra time)</div>
+          <div className="admin-section-label">
+            {t(
+              'Result (final score, after extra time)',
+              'Resultado (marcador final, tras el tiempo extra)',
+            )}
+          </div>
           <div className="admin-grid">
             <label>
-              Home score
+              {t('Home score', 'Marcador local')}
               <input
                 type="number"
                 min={0}
@@ -162,7 +172,7 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
               />
             </label>
             <label>
-              Away score
+              {t('Away score', 'Marcador visitante')}
               <input
                 type="number"
                 min={0}
@@ -174,9 +184,9 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
 
           {isShootout && (
             <label>
-              Shootout winner advances
+              {t('Shootout winner advances', 'Ganador de la tanda avanza')}
               <select value={advancing} onChange={(e) => setAdvancing(e.target.value)}>
-                <option value="">— pick winner —</option>
+                <option value="">{t('— pick winner —', '— elige ganador —')}</option>
                 {teamOptions.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -188,16 +198,24 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
 
           {outcome && (
             <p className="muted small">
-              {outcome.phase === 'reg' && `${winnerTeam} won — advances, no penalties.`}
-              {outcome.phase === 'shootout' && 'Level after extra time → penalty shootout.'}
+              {outcome.phase === 'reg' &&
+                t(
+                  `${winnerTeam} won — advances, no penalties.`,
+                  `${winnerTeam} ganó: avanza, sin penales.`,
+                )}
+              {outcome.phase === 'shootout' &&
+                t(
+                  'Level after extra time → penalty shootout.',
+                  'Empate tras el tiempo extra → tanda de penales.',
+                )}
             </p>
           )}
 
           {error && <div className="notice notice-err">{error}</div>}
-          {savedTick && <div className="notice notice-ok">Saved ✓</div>}
+          {savedTick && <div className="notice notice-ok">{t('Saved ✓', 'Guardado ✓')}</div>}
 
           <button className="btn btn-primary" onClick={save} disabled={busy}>
-            {busy ? 'Saving…' : 'Save match'}
+            {busy ? t('Saving…', 'Guardando…') : t('Save match', 'Guardar partido')}
           </button>
         </div>
       )}

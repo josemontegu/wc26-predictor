@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { AwardKind } from '../lib/types'
+import { useT } from '../lib/i18n'
 
 interface Opt {
   value: string
@@ -44,6 +45,7 @@ export default function AwardPicker({
   onChange: (v: string) => void
   disabled?: boolean
 }) {
+  const t = useT()
   const [options, setOptions] = useState<Opt[]>([])
   const [query, setQuery] = useState(value)
   const [open, setOpen] = useState(false)
@@ -83,7 +85,11 @@ export default function AwardPicker({
   }, [options, query])
 
   const placeholder =
-    kind === 'team' ? 'Search teams…' : kind === 'goalkeeper' ? 'Search goalkeepers…' : 'Search players…'
+    kind === 'team'
+      ? t('Search teams…', 'Buscar equipos…')
+      : kind === 'goalkeeper'
+        ? t('Search goalkeepers…', 'Buscar arqueros…')
+        : t('Search players…', 'Buscar jugadores…')
 
   return (
     <div className="picker">

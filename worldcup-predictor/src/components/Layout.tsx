@@ -2,19 +2,22 @@ import { type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { DEMO } from '../lib/supabase'
+import { useT } from '../lib/i18n'
 import ThemeToggle from './ThemeToggle'
-
-const tabs = [
-  { to: '/', label: 'Matches', icon: '⚽', end: true },
-  { to: '/bracket', label: 'Bracket', icon: '🗺️', end: false },
-  { to: '/awards', label: 'Awards', icon: '🏅', end: false },
-  { to: '/leaderboard', label: 'Table', icon: '🏆', end: false },
-  { to: '/stats', label: 'Stats', icon: '📊', end: false },
-  { to: '/profile', label: 'You', icon: '👤', end: false },
-]
+import LangToggle from './LangToggle'
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { isAdmin, profile } = useAuth()
+  const t = useT()
+
+  const tabs = [
+    { to: '/', label: t('Matches', 'Partidos'), icon: '⚽', end: true },
+    { to: '/bracket', label: t('Bracket', 'Llave'), icon: '🗺️', end: false },
+    { to: '/awards', label: t('Awards', 'Premios'), icon: '🏅', end: false },
+    { to: '/leaderboard', label: t('Table', 'Tabla'), icon: '🏆', end: false },
+    { to: '/stats', label: t('Stats', 'Stats'), icon: '📊', end: false },
+    { to: '/profile', label: t('You', 'Perfil'), icon: '👤', end: false },
+  ]
 
   return (
     <div className="app-shell">
@@ -34,6 +37,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 {profile.nickname}
               </span>
             )}
+            <LangToggle />
             <ThemeToggle />
           </span>
         </div>
@@ -59,7 +63,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             className={({ isActive }) => `tab ${isActive ? 'tab-active' : ''}`}
           >
             <span className="tab-icon">🛠️</span>
-            <span className="tab-label">Admin</span>
+            <span className="tab-label">{t('Admin', 'Admin')}</span>
           </NavLink>
         )}
       </nav>

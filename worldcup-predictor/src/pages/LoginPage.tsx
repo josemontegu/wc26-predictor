@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
+import { useT } from '../lib/i18n'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const t = useT()
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -30,23 +32,25 @@ export default function LoginPage() {
         <h1 className="login-title">
           Polla <span className="brand-accent">LDF</span>
         </h1>
-        <p className="login-tag">La polla del Mundial 2026 🏆</p>
+        <p className="login-tag">{t('La polla del Mundial 2026 🏆', 'La polla del Mundial 2026 🏆')}</p>
         <p className="muted">
-          Private knockout-stage prediction pool. Sign in with your email — we'll send
-          you a one-tap magic link.
+          {t(
+            "Private knockout-stage prediction pool. Sign in with your email — we'll send you a one-tap magic link.",
+            'Polla privada de la fase de eliminación. Inicia sesión con tu correo electrónico y te enviaremos un enlace de acceso de un toque.',
+          )}
         </p>
 
         {sent ? (
           <div className="notice notice-ok">
-            <strong>Check your email.</strong>
-            <p>We sent a sign-in link to {email}. Open it on this device.</p>
+            <strong>{t('Check your email.', 'Revisa tu correo.')}</strong>
+            <p>{t(`We sent a sign-in link to ${email}. Open it on this device.`, `Enviamos un enlace de acceso a ${email}. Ábrelo en este dispositivo.`)}</p>
             <button className="btn btn-ghost" onClick={() => setSent(false)}>
-              Use a different email
+              {t('Use a different email', 'Usar otro correo electrónico')}
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="login-form">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('Email', 'Correo electrónico')}</label>
             <input
               id="email"
               type="email"
@@ -58,7 +62,7 @@ export default function LoginPage() {
             />
             {error && <div className="notice notice-err">{error}</div>}
             <button className="btn btn-primary" type="submit" disabled={busy}>
-              {busy ? 'Sending…' : 'Send magic link'}
+              {busy ? t('Sending…', 'Enviando…') : t('Send magic link', 'Enviar enlace de acceso')}
             </button>
           </form>
         )}

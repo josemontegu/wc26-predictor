@@ -9,6 +9,18 @@ import type {
 } from '../lib/types'
 import { teamFlag } from '../lib/teamMeta'
 import Spinner from '../components/Spinner'
+import { useT, type TFn } from '../lib/i18n'
+
+const CAT_ES: Record<string, string> = {
+  Advance: 'Avance',
+  Exact: 'Exacto',
+  Tendency: 'Resultado',
+  Pens: 'Penales',
+  Awards: 'Premios',
+}
+function catLabel(label: string, t: TFn) {
+  return t(label, CAT_ES[label] ?? label)
+}
 
 const CATS = [
   { key: 'pts_advance', label: 'Advance', color: '#07a06a' },
@@ -28,6 +40,7 @@ function topPick(list: LockedAwardPrediction[]) {
 }
 
 export default function StatsPage() {
+  const t = useT()
   const [board, setBoard] = useState<LeaderboardRow[]>([])
   const [stats, setStats] = useState<PlayerStat[]>([])
   const [picks, setPicks] = useState<LockedPrediction[]>([])
@@ -174,23 +187,23 @@ export default function StatsPage() {
     const crowdQ = (r: Rec) => r.crowdN >= crowdThresh
 
     return [
-      { icon: '🎯', title: 'Sniper', desc: 'Highest exact-score rate', win: winner(skillQ, (r) => r.exactRate, 'max', true), fmt: (r: Rec) => `${r.exact} exact` },
-      { icon: '🔮', title: 'Oracle', desc: 'Best advance accuracy (correct ÷ scored)', win: winner(skillQ, (r) => r.advanceAcc, 'max', true), fmt: (r: Rec) => `${Math.round((r.advanceAcc ?? 0) * 100)}% right` },
-      { icon: '💀', title: 'Cursed', desc: 'Most blank (zero-point) matches', win: winner(skillQ, (r) => r.zero, 'max', true), fmt: (r: Rec) => `${r.zero} blanks` },
-      { icon: '🌋', title: 'Optimist', desc: 'Most goals predicted per game', win: winner(crowdQ, (r) => r.goalsAvg, 'max', false), fmt: (r: Rec) => `${(r.goalsAvg ?? 0).toFixed(1)} g/game` },
-      { icon: '🧱', title: 'The Wall', desc: 'Fewest goals predicted per game', win: winner(crowdQ, (r) => r.goalsAvg, 'min', false), fmt: (r: Rec) => `${(r.goalsAvg ?? 0).toFixed(1)} g/game` },
-      { icon: '🎲', title: 'Chaos Agent', desc: 'Highest share of picks calling penalties', win: winner(crowdQ, (r) => r.pensShare, 'max', true), fmt: (r: Rec) => `${Math.round((r.pensShare ?? 0) * 100)}% pens` },
-      { icon: '🐑', title: 'The Sheep', desc: "Most often with the pool's pick", win: winner(crowdQ, (r) => r.sheep, 'max', true), fmt: (r: Rec) => `${Math.round((r.sheep ?? 0) * 100)}% consensus` },
-      { icon: '🤠', title: 'Maverick', desc: 'Most often against the consensus', win: winner(crowdQ, (r) => r.maverick, 'max', true), fmt: (r: Rec) => `${Math.round((r.maverick ?? 0) * 100)}% contrarian` },
-      { icon: '🦄', title: 'Lone Wolf', desc: 'Most scorelines no one else picked', win: winner(crowdQ, (r) => r.unique, 'max', true), fmt: (r: Rec) => `${r.unique} unique` },
+      { icon: '🎯', title: t('Sniper', 'Francotirador'), desc: t('Highest exact-score rate', 'Mayor tasa de marcadores exactos'), win: winner(skillQ, (r) => r.exactRate, 'max', true), fmt: (r: Rec) => t(`${r.exact} exact`, `${r.exact} exactos`) },
+      { icon: '🔮', title: t('Oracle', 'Oráculo'), desc: t('Best advance accuracy (correct ÷ scored)', 'Mejor precisión de avance (aciertos ÷ puntuados)'), win: winner(skillQ, (r) => r.advanceAcc, 'max', true), fmt: (r: Rec) => t(`${Math.round((r.advanceAcc ?? 0) * 100)}% right`, `${Math.round((r.advanceAcc ?? 0) * 100)}% acertados`) },
+      { icon: '💀', title: t('Cursed', 'Maldito'), desc: t('Most blank (zero-point) matches', 'Más partidos en blanco (cero puntos)'), win: winner(skillQ, (r) => r.zero, 'max', true), fmt: (r: Rec) => t(`${r.zero} blanks`, `${r.zero} en blanco`) },
+      { icon: '🌋', title: t('Optimist', 'Optimista'), desc: t('Most goals predicted per game', 'Más goles pronosticados por partido'), win: winner(crowdQ, (r) => r.goalsAvg, 'max', false), fmt: (r: Rec) => t(`${(r.goalsAvg ?? 0).toFixed(1)} g/game`, `${(r.goalsAvg ?? 0).toFixed(1)} g/partido`) },
+      { icon: '🧱', title: t('The Wall', 'El Muro'), desc: t('Fewest goals predicted per game', 'Menos goles pronosticados por partido'), win: winner(crowdQ, (r) => r.goalsAvg, 'min', false), fmt: (r: Rec) => t(`${(r.goalsAvg ?? 0).toFixed(1)} g/game`, `${(r.goalsAvg ?? 0).toFixed(1)} g/partido`) },
+      { icon: '🎲', title: t('Chaos Agent', 'Agente del Caos'), desc: t('Highest share of picks calling penalties', 'Mayor proporción de pronósticos con penales'), win: winner(crowdQ, (r) => r.pensShare, 'max', true), fmt: (r: Rec) => t(`${Math.round((r.pensShare ?? 0) * 100)}% pens`, `${Math.round((r.pensShare ?? 0) * 100)}% penales`) },
+      { icon: '🐑', title: t('The Sheep', 'La Oveja'), desc: t("Most often with the pool's pick", 'Más veces con la elección del grupo'), win: winner(crowdQ, (r) => r.sheep, 'max', true), fmt: (r: Rec) => t(`${Math.round((r.sheep ?? 0) * 100)}% consensus`, `${Math.round((r.sheep ?? 0) * 100)}% consenso`) },
+      { icon: '🤠', title: t('Maverick', 'Inconforme'), desc: t('Most often against the consensus', 'Más veces contra el consenso'), win: winner(crowdQ, (r) => r.maverick, 'max', true), fmt: (r: Rec) => t(`${Math.round((r.maverick ?? 0) * 100)}% contrarian`, `${Math.round((r.maverick ?? 0) * 100)}% contrario`) },
+      { icon: '🦄', title: t('Lone Wolf', 'Lobo Solitario'), desc: t('Most scorelines no one else picked', 'Más marcadores que nadie más eligió'), win: winner(crowdQ, (r) => r.unique, 'max', true), fmt: (r: Rec) => t(`${r.unique} unique`, `${r.unique} únicos`) },
     ].map((a) => ({ ...a, res: a.win }))
-  }, [picks, stats, matches])
+  }, [picks, stats, matches, t])
 
   if (loading) {
     return (
       <div className="page">
-        <h1>Stats</h1>
-        <Spinner label="Crunching the numbers…" />
+        <h1>{t('Stats', 'Estadísticas')}</h1>
+        <Spinner label={t('Crunching the numbers…', 'Procesando los números…')} />
       </div>
     )
   }
@@ -202,19 +215,22 @@ export default function StatsPage() {
 
   return (
     <div className="page">
-      <h1>📊 Stats</h1>
+      <h1>📊 {t('Stats', 'Estadísticas')}</h1>
 
       {/* ---------------- Pool Pulse ---------------- */}
-      <h2 className="stat-h">🔮 Pool Pulse</h2>
+      <h2 className="stat-h">🔮 {t('Pool Pulse', 'Pulso del grupo')}</h2>
       {!hasPulse ? (
         <p className="muted small">
-          Pool stats appear as matches lock and award picks close — nothing revealed yet.
+          {t(
+            'Pool stats appear as matches lock and award picks close — nothing revealed yet.',
+            'Las estadísticas del grupo aparecen cuando los partidos se bloquean y cierran los pronósticos de premios — aún no hay nada revelado.',
+          )}
         </p>
       ) : (
         <>
           {pulse.champBars.length > 0 && (
             <div className="form-card">
-              <div className="stat-title">Who the pool backs to win it</div>
+              <div className="stat-title">{t('Who the pool backs to win it', 'A quién apuesta el grupo para ganar')}</div>
               {pulse.champBars.map((b) => (
                 <div key={b.team} className="cbar-row">
                   <span className="cbar-label">
@@ -230,28 +246,28 @@ export default function StatsPage() {
           )}
 
           <div className="stat-tiles">
-            <AwardTile icon="⚽" label="Golden Ball" pick={pulse.ball} />
-            <AwardTile icon="👟" label="Golden Boot" pick={pulse.boot} />
-            <AwardTile icon="🧤" label="Golden Glove" pick={pulse.glove} />
+            <AwardTile icon="⚽" label={t('Golden Ball', 'Balón de Oro')} pick={pulse.ball} t={t} />
+            <AwardTile icon="👟" label={t('Golden Boot', 'Bota de Oro')} pick={pulse.boot} t={t} />
+            <AwardTile icon="🧤" label={t('Golden Glove', 'Guante de Oro')} pick={pulse.glove} t={t} />
           </div>
 
           <div className="stat-tiles">
             <div className="stat-tile">
               <div className="stat-big">{pulse.pensPct}%</div>
-              <div className="stat-cap">🥅 of picks call penalties</div>
+              <div className="stat-cap">🥅 {t('of picks call penalties', 'de los pronósticos predicen penales')}</div>
             </div>
             <div className="stat-tile">
               <div className="stat-big">{pulse.avgGoals.toFixed(1)}</div>
-              <div className="stat-cap">⚽ goals/game the pool expects</div>
+              <div className="stat-cap">⚽ {t('goals/game the pool expects', 'goles/partido que espera el grupo')}</div>
             </div>
           </div>
         </>
       )}
 
       {/* ---------------- Superlatives ---------------- */}
-      <h2 className="stat-h mt-lg">🏅 Superlatives</h2>
+      <h2 className="stat-h mt-lg">🏅 {t('Superlatives', 'Superlativos')}</h2>
       {!hasSupers ? (
-        <p className="muted small">Titles are awarded once there are enough picks &amp; results.</p>
+        <p className="muted small">{t('Titles are awarded once there are enough picks & results.', 'Los títulos se otorgan cuando hay suficientes pronósticos y resultados.')}</p>
       ) : (
         <div className="super-grid">
           {supers.map((a) => (
@@ -266,12 +282,12 @@ export default function StatsPage() {
                   <>
                     <div className="super-winner">
                       {a.res.map((w) => w.emoji).join(' ')}{' '}
-                      {a.res.length === 1 ? a.res[0].nick : 'Tied'}
+                      {a.res.length === 1 ? a.res[0].nick : t('Tied', 'Empate')}
                     </div>
                     <div className="super-val">{a.fmt(a.res[0])}</div>
                   </>
                 ) : (
-                  <div className="super-pending-txt">Not yet</div>
+                  <div className="super-pending-txt">{t('Not yet', 'Aún no')}</div>
                 )}
               </div>
             </div>
@@ -280,9 +296,9 @@ export default function StatsPage() {
       )}
 
       {/* ---------------- Per-player breakdown ---------------- */}
-      <h2 className="stat-h mt-lg">📈 By player</h2>
+      <h2 className="stat-h mt-lg">📈 {t('By player', 'Por jugador')}</h2>
       {!hasResults ? (
-        <p className="muted small">Player stats appear once results are in.</p>
+        <p className="muted small">{t('Player stats appear once results are in.', 'Las estadísticas de jugadores aparecen cuando hay resultados.')}</p>
       ) : (
         <div className="pstat-list">
           {[...stats]
@@ -311,7 +327,7 @@ export default function StatsPage() {
                     <span className="pstat-emoji">{s.emoji || '🏳️'}</span>
                     <span className="pstat-nick">{s.nickname}</span>
                     <span className="pstat-meta">
-                      {acc}% advance · {s.exact_scores} exact
+                      {t(`${acc}% advance`, `${acc}% avance`)} · {t(`${s.exact_scores} exact`, `${s.exact_scores} exactos`)}
                     </span>
                   </div>
                   <div className="cat-bar">
@@ -323,7 +339,7 @@ export default function StatsPage() {
                           key={c.key}
                           className="cat-seg"
                           style={{ width: `${(v / total) * 100}%`, background: c.color }}
-                          title={`${c.label}: ${v}`}
+                          title={`${catLabel(c.label, t)}: ${v}`}
                         />
                       )
                     })}
@@ -334,7 +350,7 @@ export default function StatsPage() {
           <div className="cat-legend">
             {CATS.map((c) => (
               <span key={c.key} className="cat-key">
-                <span className="cat-dot" style={{ background: c.color }} /> {c.label}
+                <span className="cat-dot" style={{ background: c.color }} /> {catLabel(c.label, t)}
               </span>
             ))}
           </div>
@@ -342,13 +358,13 @@ export default function StatsPage() {
       )}
 
       {/* ---------------- Charts & figures ---------------- */}
-      <h2 className="stat-h mt-lg">🎛️ Figures</h2>
+      <h2 className="stat-h mt-lg">🎛️ {t('Figures', 'Gráficos')}</h2>
       {board.length === 0 ? (
-        <p className="muted small">No players yet.</p>
+        <p className="muted small">{t('No players yet.', 'Aún no hay jugadores.')}</p>
       ) : (
         <>
           <div className="form-card">
-            <div className="stat-title">Points distribution</div>
+            <div className="stat-title">{t('Points distribution', 'Distribución de puntos')}</div>
             {board.map((r) => (
               <div key={r.user_id} className="cbar-row">
                 <span className="cbar-label">
@@ -369,11 +385,11 @@ export default function StatsPage() {
             <div className="stat-tiles">
               <div className="stat-tile">
                 <div className="stat-big">{goals.predicted.toFixed(1)}</div>
-                <div className="stat-cap">🔮 pool predicted goals/game</div>
+                <div className="stat-cap">🔮 {t('pool predicted goals/game', 'goles/partido pronosticados por el grupo')}</div>
               </div>
               <div className="stat-tile">
                 <div className="stat-big">{goals.actual.toFixed(1)}</div>
-                <div className="stat-cap">✅ actual goals/game</div>
+                <div className="stat-cap">✅ {t('actual goals/game', 'goles/partido reales')}</div>
               </div>
             </div>
           )}
@@ -387,10 +403,12 @@ function AwardTile({
   icon,
   label,
   pick,
+  t,
 }: {
   icon: string
   label: string
   pick: { pick: string; n: number; total: number }
+  t: TFn
 }) {
   const pct = pick.total ? Math.round((pick.n / pick.total) * 100) : 0
   return (
@@ -399,7 +417,7 @@ function AwardTile({
         {icon} {label}
       </div>
       <div className="award-tile-pick">{pick.pick || '—'}</div>
-      {pick.pick && <div className="stat-cap">{pct}% of the pool</div>}
+      {pick.pick && <div className="stat-cap">{t(`${pct}% of the pool`, `${pct}% del grupo`)}</div>}
     </div>
   )
 }

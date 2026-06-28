@@ -3,6 +3,7 @@ import type { Match, Prediction } from '../lib/types'
 import { isLocked, hasResult } from '../lib/types'
 import { formatKickoff, timeUntilLock } from '../lib/format'
 import { teamFlag, isTBD, teamColor } from '../lib/teamMeta'
+import { useT } from '../lib/i18n'
 
 interface Props {
   match: Match
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function MatchCard({ match, prediction, points }: Props) {
+  const t = useT()
   const locked = isLocked(match)
   const played = hasResult(match)
   const kickedOff =
@@ -30,15 +32,15 @@ export default function MatchCard({ match, prediction, points }: Props) {
       <div className="mcard-head">
         <span className="mcard-time">{formatKickoff(match.kickoff_time)}</span>
         {played ? (
-          <span className="status status-done">FT</span>
+          <span className="status status-done">{t('FT', 'Final')}</span>
         ) : live ? (
           <span className="status status-live">
-            <span className="dot" /> Live
+            <span className="dot" /> {t('Live', 'En vivo')}
           </span>
         ) : locked ? (
-          <span className="status status-locked">Locked</span>
+          <span className="status status-locked">{t('Locked', 'Cerrado')}</span>
         ) : (
-          <span className="status status-open">Closes in {timeUntilLock(match.lock_time)}</span>
+          <span className="status status-open">{t(`Closes in ${timeUntilLock(match.lock_time)}`, `Cierra en ${timeUntilLock(match.lock_time)}`)}</span>
         )}
       </div>
 
@@ -50,7 +52,7 @@ export default function MatchCard({ match, prediction, points }: Props) {
           </span>
         </div>
         <span className={`mscore ${played ? '' : 'mscore-vs'}`}>
-          {played ? `${match.home_score} – ${match.away_score}` : 'vs'}
+          {played ? `${match.home_score} – ${match.away_score}` : t('vs', 'vs')}
         </span>
         <div className="mteam mteam-r">
           <span className={`mteam-name ${isTBD(match.away_team) ? 'mteam-tbd' : ''}`}>
@@ -62,26 +64,26 @@ export default function MatchCard({ match, prediction, points }: Props) {
 
       {played && match.went_to_penalties && (
         <div className="mcard-pens">
-          🥅 Penalties{match.advancing_team ? ` · ${match.advancing_team} advanced` : ''}
+          🥅 {t('Penalties', 'Penales')}{match.advancing_team ? t(` · ${match.advancing_team} advanced`, ` · ${match.advancing_team} avanzó`) : ''}
         </div>
       )}
 
       <div className="mcard-foot">
         {prediction ? (
           <span className="pick">
-            <span className="pick-label">Your pick:</span> {prediction.home_score}–
+            <span className="pick-label">{t('Your pick:', 'Tu elección:')}</span> {prediction.home_score}–
             {prediction.away_score} · {prediction.advancing_team}
-            {prediction.penalties ? ' (pens)' : ''}
+            {prediction.penalties ? t(' (pens)', ' (penales)') : ''}
           </span>
         ) : (
           <span className={`pick ${locked ? 'pick-muted' : 'pick-cta'}`}>
-            {locked ? 'No prediction' : 'Tap to predict →'}
+            {locked ? t('No prediction', 'Sin pronóstico') : t('Tap to predict →', 'Toca para pronosticar →')}
           </span>
         )}
 
         {played && prediction && points != null && (
           <span className={`pts-badge ${points === 0 ? 'pts-badge-zero' : ''}`}>
-            +{points} pts
+            +{points} {t('pts', 'pts')}
           </span>
         )}
       </div>

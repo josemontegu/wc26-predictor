@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Match, MyScore, Prediction, RoundCode } from '../lib/types'
-import { ROUND_NAMES, ROUND_ORDER } from '../lib/format'
+import { roundName, ROUND_ORDER } from '../lib/format'
+import { useT } from '../lib/i18n'
 import MatchCard from '../components/MatchCard'
 
 export default function MatchesPage() {
   const { session } = useAuth()
+  const t = useT()
   const [matches, setMatches] = useState<Match[]>([])
   const [predictions, setPredictions] = useState<Record<string, Prediction>>({})
   const [points, setPoints] = useState<Record<string, number>>({})
@@ -55,7 +57,7 @@ export default function MatchesPage() {
   if (loading) {
     return (
       <div className="page">
-        <h1>Knockout matches</h1>
+        <h1>{t('Knockout matches', 'Partidos de eliminación')}</h1>
         <div className="skeleton-list">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="skel" />
@@ -67,7 +69,7 @@ export default function MatchesPage() {
 
   return (
     <div className="page">
-      <h1>Knockout matches</h1>
+      <h1>{t('Knockout matches', 'Partidos de eliminación')}</h1>
       {error && <div className="notice notice-err">{error}</div>}
 
       <div className="round-tabs">
@@ -83,14 +85,14 @@ export default function MatchesPage() {
       </div>
 
       <h2 className="round-title">
-        {ROUND_NAMES[activeRound]}
+        {roundName(activeRound)}
         <span className="count">
-          {visible.length} {visible.length === 1 ? 'match' : 'matches'}
+          {visible.length} {visible.length === 1 ? t('match', 'partido') : t('matches', 'partidos')}
         </span>
       </h2>
 
       {visible.length === 0 ? (
-        <p className="muted">No matches in this round yet.</p>
+        <p className="muted">{t('No matches in this round yet.', 'Aún no hay partidos en esta ronda.')}</p>
       ) : (
         <div className="match-list">
           {visible.map((m) => (

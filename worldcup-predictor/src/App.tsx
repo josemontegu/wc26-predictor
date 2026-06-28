@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import { supabaseConfigured } from './lib/supabase'
+import { useT } from './lib/i18n'
 import Layout from './components/Layout'
 import Spinner from './components/Spinner'
 import LoginPage from './pages/LoginPage'
@@ -16,15 +17,17 @@ import StatsPage from './pages/StatsPage'
 
 export default function App() {
   const { session, profile, loading } = useAuth()
+  const t = useT()
 
   if (!supabaseConfigured) {
     return (
       <div className="config-error">
-        <h1>⚙️ Configuration needed</h1>
+        <h1>{t('⚙️ Configuration needed', '⚙️ Configuración necesaria')}</h1>
         <p>
-          This app needs Supabase credentials. Set <code>VITE_SUPABASE_URL</code> and{' '}
-          <code>VITE_SUPABASE_ANON_KEY</code> in a <code>.env</code> file (local) or as
-          repository secrets (GitHub Pages), then rebuild.
+          {t('This app needs Supabase credentials. Set ', 'Esta app necesita credenciales de Supabase. Define ')}
+          <code>VITE_SUPABASE_URL</code>{t(' and ', ' y ')}
+          <code>VITE_SUPABASE_ANON_KEY</code>{t(' in a ', ' en un archivo ')}
+          <code>.env</code>{t(' file (local) or as repository secrets (GitHub Pages), then rebuild.', ' (local) o como secretos del repositorio (GitHub Pages), y luego reconstruye.')}
         </p>
       </div>
     )

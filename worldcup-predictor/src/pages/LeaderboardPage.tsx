@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import type { LeaderboardRow } from '../lib/types'
 import { avatarGradient } from '../lib/teamMeta'
 import Spinner from '../components/Spinner'
+import { useT } from '../lib/i18n'
 
 const RANK_KEY = 'wc26_ranks'
 
@@ -16,6 +17,7 @@ function loadPrevRanks(): Record<string, number> {
 }
 
 export default function LeaderboardPage() {
+  const t = useT()
   const { session } = useAuth()
   const [rows, setRows] = useState<LeaderboardRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -70,8 +72,8 @@ export default function LeaderboardPage() {
   if (loading) {
     return (
       <div className="page">
-        <h1>Leaderboard</h1>
-        <Spinner label="Loading leaderboard…" />
+        <h1>{t('Leaderboard', 'Tabla de posiciones')}</h1>
+        <Spinner label={t('Loading leaderboard…', 'Cargando tabla de posiciones…')} />
       </div>
     )
   }
@@ -104,17 +106,17 @@ export default function LeaderboardPage() {
   return (
     <div className="page">
       <div className="lb-head">
-        <h1>Leaderboard</h1>
+        <h1>{t('Leaderboard', 'Tabla de posiciones')}</h1>
         {live && (
           <span className="live-chip">
-            <span className="dot" /> Live
+            <span className="dot" /> {t('Live', 'En vivo')}
           </span>
         )}
       </div>
       {error && <div className="notice notice-err">{error}</div>}
 
       {rows.length === 0 ? (
-        <p className="muted">No players yet.</p>
+        <p className="muted">{t('No players yet.', 'Aún no hay jugadores.')}</p>
       ) : (
         <>
           {hasScores && podiumOrder.length >= 2 && (
@@ -166,10 +168,13 @@ export default function LeaderboardPage() {
                   <div className="lb-id">
                     <div className="lb-nick">
                       {r.nickname || r.display_name}
-                      {isMe && <span className="you-tag">YOU</span>}
+                      {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
                     </div>
                     <div className="lb-sub">
-                      {r.correct_advances} adv · {r.exact_scores} exact
+                      {t(
+                        `${r.correct_advances} adv · ${r.exact_scores} exact`,
+                        `${r.correct_advances} avances · ${r.exact_scores} exactos`,
+                      )}
                     </div>
                   </div>
                   <div className="lb-stats">
@@ -183,8 +188,14 @@ export default function LeaderboardPage() {
       )}
       <p className="muted small" style={{ marginTop: '1rem' }}>
         {live
-          ? 'Updating live as results come in.'
-          : 'Points update automatically as the admin enters results.'}
+          ? t(
+              'Updating live as results come in.',
+              'Se actualiza en vivo a medida que llegan los resultados.',
+            )
+          : t(
+              'Points update automatically as the admin enters results.',
+              'Los puntos se actualizan automáticamente cuando el admin ingresa los resultados.',
+            )}
       </p>
     </div>
   )

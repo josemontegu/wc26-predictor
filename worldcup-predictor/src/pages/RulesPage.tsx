@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { AppConfig, Round } from '../lib/types'
 import { ROUND_ORDER } from '../lib/format'
+import { useT } from '../lib/i18n'
 import Spinner from '../components/Spinner'
 
 export default function RulesPage() {
+  const t = useT()
   const [config, setConfig] = useState<AppConfig | null>(null)
   const [rounds, setRounds] = useState<Round[]>([])
   const [loading, setLoading] = useState(true)
@@ -30,7 +32,7 @@ export default function RulesPage() {
   if (loading) {
     return (
       <div className="page">
-        <Spinner label="Loading rules…" />
+        <Spinner label={t('Loading rules…', 'Cargando reglas…')} />
       </div>
     )
   }
@@ -42,73 +44,105 @@ export default function RulesPage() {
 
   return (
     <div className="page">
-      <h1>How it works</h1>
+      <h1>{t('How it works', 'Cómo funciona')}</h1>
 
       <div className="form-card">
         <div className="rule-card-head">
           <span className="rule-icon">🎯</span>
-          <h2>The game</h2>
+          <h2>{t('The game', 'El juego')}</h2>
         </div>
         <p>
-          Predict every knockout match of the 2026 World Cup, from the Round of 32 to the
-          Final. You call the <strong>final score</strong> — after extra time, if it goes
-          there. Whether it goes to <strong>penalties</strong> and <strong>who advances</strong>{' '}
-          then follow automatically: a level final score means a shootout, and you pick the
-          shootout winner. You can edit any time until the match locks, shortly before
-          kick-off.
+          {t(
+            'Predict every knockout match of the 2026 World Cup, from the Round of 32 to the Final.',
+            'Pronostica cada partido de eliminación del Mundial 2026, desde los dieciseisavos hasta la final.',
+          )}{' '}
+          {t('You call the', 'Tú defines el')}{' '}
+          <strong>{t('final score', 'marcador final')}</strong>{' '}
+          {t('— after extra time, if it goes there. Whether it goes to', '— tras el tiempo extra, si llega a eso. Si va a')}{' '}
+          <strong>{t('penalties', 'penales')}</strong> {t('and', 'y')}{' '}
+          <strong>{t('who advances', 'quién avanza')}</strong>{' '}
+          {t(
+            'then follow automatically: a level final score means a shootout, and you pick the shootout winner.',
+            'se determinan automáticamente: un marcador final igualado significa tanda de penales, y tú eliges quién gana la tanda.',
+          )}{' '}
+          {t(
+            'You can edit any time until the match locks, shortly before kick-off.',
+            'Puedes editar en cualquier momento hasta que el partido se cierre, poco antes del inicio.',
+          )}
         </p>
       </div>
 
       <div className="form-card">
         <div className="rule-card-head">
           <span className="rule-icon">⚽</span>
-          <h2>Points per match</h2>
+          <h2>{t('Points per match', 'Puntos por partido')}</h2>
         </div>
         {c ? (
           <ul className="rules-list">
             <li>
-              <span className="rules-pts">{c.points_advance}</span> Correct team advancing
+              <span className="rules-pts">{c.points_advance}</span>{' '}
+              {t('Correct team advancing', 'Equipo que avanza correcto')}
             </li>
             <li>
-              <span className="rules-pts">{c.points_exact}</span> Exact final score
+              <span className="rules-pts">{c.points_exact}</span>{' '}
+              {t('Exact final score', 'Marcador final exacto')}
             </li>
             <li>
-              <span className="rules-pts">{c.points_tendency}</span> Correct result
-              (home win / draw / away win)
+              <span className="rules-pts">{c.points_tendency}</span>{' '}
+              {t(
+                'Correct result (home win / draw / away win)',
+                'Resultado correcto (gana local / empate / gana visitante)',
+              )}
             </li>
             <li>
-              <span className="rules-pts">{c.points_penalties}</span> Correctly predicting
-              penalties (yes / no)
+              <span className="rules-pts">{c.points_penalties}</span>{' '}
+              {t(
+                'Correctly predicting penalties (yes / no)',
+                'Acertar los penales (sí / no)',
+              )}
             </li>
           </ul>
         ) : (
-          <p className="muted">Scoring not configured yet.</p>
+          <p className="muted">{t('Scoring not configured yet.', 'El puntaje aún no está configurado.')}</p>
         )}
         <p className="muted small">
-          The four components are scored independently, so a single match can earn several
-          of them at once.
+          {t(
+            'The four components are scored independently, so a single match can earn several of them at once.',
+            'Los cuatro componentes se puntúan por separado, así que un solo partido puede sumar varios a la vez.',
+          )}
         </p>
       </div>
 
       <div className="form-card">
         <div className="rule-card-head">
           <span className="rule-icon">🏅</span>
-          <h2>Tournament awards</h2>
+          <h2>{t('Tournament awards', 'Premios del torneo')}</h2>
         </div>
         <p>
-          On top of the matches, pick a player for each tournament award — Golden Ball
-          (best player), Golden Boot (top scorer) and Golden Glove (best goalkeeper). Each
-          is worth a big bonus if you call it right, and picks lock before the knockouts
-          start. Make yours on the <strong>Awards</strong> tab.
+          {t(
+            'On top of the matches, pick a player for each tournament award — Golden Ball (best player), Golden Boot (top scorer) and Golden Glove (best goalkeeper).',
+            'Además de los partidos, elige un jugador para cada premio del torneo: Balón de Oro (mejor jugador), Bota de Oro (máximo goleador) y Guante de Oro (mejor portero).',
+          )}{' '}
+          {t(
+            'Each is worth a big bonus if you call it right, and picks lock before the knockouts start.',
+            'Cada uno vale un gran bono si aciertas, y las elecciones se cierran antes de que empiece la fase eliminatoria.',
+          )}{' '}
+          {t('Make yours on the', 'Haz las tuyas en la pestaña')}{' '}
+          <strong>{t('Awards', 'Premios')}</strong> {t('tab.', '.')}
         </p>
       </div>
 
       <div className="form-card">
         <div className="rule-card-head">
           <span className="rule-icon">📈</span>
-          <h2>Round multipliers</h2>
+          <h2>{t('Round multipliers', 'Multiplicadores de ronda')}</h2>
         </div>
-        <p>Later rounds are worth more. Each match's points are multiplied by:</p>
+        <p>
+          {t(
+            "Later rounds are worth more. Each match's points are multiplied by:",
+            'Las rondas posteriores valen más. Los puntos de cada partido se multiplican por:',
+          )}
+        </p>
         <table className="mini-table">
           <tbody>
             {orderedRounds.map((r) => (
@@ -124,14 +158,16 @@ export default function RulesPage() {
       <div className="form-card">
         <div className="rule-card-head">
           <span className="rule-icon">🧮</span>
-          <h2>Worked example</h2>
+          <h2>{t('Worked example', 'Ejemplo resuelto')}</h2>
         </div>
         {c && (
           <p>
-            Suppose a Quarter-final (×
-            {orderedRounds.find((r) => r.code === 'QF')?.multiplier ?? 2}) ends 2–1 after
-            penalties, and that team advances. If you predicted exactly 2–1, the right
-            team to advance, and penalties, you'd earn{' '}
+            {t('Suppose a Quarter-final (×', 'Supongamos que un cuarto de final (×')}
+            {orderedRounds.find((r) => r.code === 'QF')?.multiplier ?? 2}
+            {t(
+              ') ends 2–1 after penalties, and that team advances. If you predicted exactly 2–1, the right team to advance, and penalties, you\'d earn',
+              ') termina 2–1 tras penales, y ese equipo avanza. Si pronosticaste exactamente 2–1, el equipo correcto que avanza y los penales, ganarías',
+            )}{' '}
             <strong>
               ({c.points_advance} + {c.points_exact} + {c.points_tendency} +{' '}
               {c.points_penalties}) ×{' '}
@@ -141,7 +177,7 @@ export default function RulesPage() {
                 c.points_tendency +
                 c.points_penalties) *
                 Number(orderedRounds.find((r) => r.code === 'QF')?.multiplier ?? 2)}{' '}
-              points
+              {t('points', 'puntos')}
             </strong>
             .
           </p>
@@ -151,12 +187,12 @@ export default function RulesPage() {
       <div className="form-card">
         <div className="rule-card-head">
           <span className="rule-icon">🤝</span>
-          <h2>Fair play</h2>
+          <h2>{t('Fair play', 'Juego limpio')}</h2>
         </div>
         <ul className="rules-list-plain">
-          <li>You can only see and edit your own predictions.</li>
-          <li>Predictions lock automatically before kick-off — no late changes.</li>
-          <li>The admin enters official results; the table updates instantly.</li>
+          <li>{t('You can only see and edit your own predictions.', 'Solo puedes ver y editar tus propios pronósticos.')}</li>
+          <li>{t('Predictions lock automatically before kick-off — no late changes.', 'Los pronósticos se cierran automáticamente antes del inicio: nada de cambios tardíos.')}</li>
+          <li>{t('The admin enters official results; the table updates instantly.', 'El administrador ingresa los resultados oficiales; la tabla se actualiza al instante.')}</li>
         </ul>
       </div>
     </div>
