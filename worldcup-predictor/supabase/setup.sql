@@ -405,16 +405,16 @@ create or replace function public.validate_prediction_outcome()
 returns trigger language plpgsql
 set search_path = public as $$
 declare
-  ht text;
-  at text;
+  home_t text;
+  away_t text;
 begin
   if new.home_score <> new.away_score then
-    select home_team, away_team into ht, at from public.matches where id = new.match_id;
-    if new.advancing_team <> case when new.home_score > new.away_score then ht else at end then
+    select home_team, away_team into home_t, away_t from public.matches where id = new.match_id;
+    if new.advancing_team <> case when new.home_score > new.away_score then home_t else away_t end then
       raise exception
         'Advancing team must be the side winning the 90-minute score (got %, expected %)',
         new.advancing_team,
-        case when new.home_score > new.away_score then ht else at end;
+        case when new.home_score > new.away_score then home_t else away_t end;
     end if;
   end if;
   return new;
@@ -521,16 +521,16 @@ create or replace function public.validate_prediction_outcome()
 returns trigger language plpgsql
 set search_path = public as $$
 declare
-  ht text;
-  at text;
+  home_t text;
+  away_t text;
   expected text;
 begin
   if new.home_score <> new.away_score then
-    select home_team, away_team into ht, at from public.matches where id = new.match_id;
-    expected := case when new.home_score > new.away_score then ht else at end;
+    select home_team, away_team into home_t, away_t from public.matches where id = new.match_id;
+    expected := case when new.home_score > new.away_score then home_t else away_t end;
   elsif new.aet_home_score is not null and new.aet_home_score <> new.aet_away_score then
-    select home_team, away_team into ht, at from public.matches where id = new.match_id;
-    expected := case when new.aet_home_score > new.aet_away_score then ht else at end;
+    select home_team, away_team into home_t, away_t from public.matches where id = new.match_id;
+    expected := case when new.aet_home_score > new.aet_away_score then home_t else away_t end;
   else
     return new; -- shootout (or incomplete): advancing is a free choice
   end if;
