@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { Match, Prediction } from '../lib/types'
 import { isLocked, hasResult } from '../lib/types'
-import { formatKickoff, timeUntilLock } from '../lib/format'
+import { formatTime, timeUntilLock } from '../lib/format'
 import { teamFlag, isTBD, teamColor } from '../lib/teamMeta'
 import { useT } from '../lib/i18n'
 import Scoreline from './Scoreline'
@@ -31,7 +31,7 @@ export default function MatchCard({ match, prediction, points }: Props) {
         }}
       />
       <div className="mcard-head">
-        <span className="mcard-time">{formatKickoff(match.kickoff_time)}</span>
+        <span className="mcard-time">{formatTime(match.kickoff_time)}</span>
         {played ? (
           <span className="status status-done">{t('FT', 'Final')}</span>
         ) : live ? (

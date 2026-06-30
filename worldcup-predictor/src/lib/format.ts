@@ -41,6 +41,15 @@ export function formatKickoff(iso: string | null): string {
   })
 }
 
+/** Just the kick-off time, e.g. "21:00" (the day is shown as a section header). */
+export function formatTime(iso: string | null): string {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleTimeString(dateLocale(), {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 /** A day heading, e.g. "Sunday, 28 June" / "domingo, 28 de junio". */
 export function formatDay(iso: string | null): string {
   if (!iso) return getLang() === 'es' ? 'Fecha por definir' : 'Date TBD'
