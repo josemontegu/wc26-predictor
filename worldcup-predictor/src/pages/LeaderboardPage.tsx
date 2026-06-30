@@ -16,6 +16,28 @@ function loadPrevRanks(): Record<string, number> {
   }
 }
 
+/**
+ * Standing per row. Rows must already be sorted (points → exact → advances).
+ * Players who match on all three share a rank ("1, 2, 2, 4" style) — the name
+ * only keeps the row order stable, it never changes a position.
+ */
+function computeRanks(rows: LeaderboardRow[]): Record<string, number> {
+  const out: Record<string, number> = {}
+  let lastRank = 0
+  rows.forEach((r, i) => {
+    const prev = rows[i - 1]
+    const tied =
+      prev &&
+      prev.total_points === r.total_points &&
+      prev.exact_scores === r.exact_scores &&
+      prev.correct_advances === r.correct_advances
+    const rank = tied ? lastRank : i + 1
+    out[r.user_id] = rank
+    lastRank = rank
+  })
+  return out
+}
+
 export default function LeaderboardPage() {
   const t = useT()
   const { session } = useAuth()
@@ -34,13 +56,20 @@ export default function LeaderboardPage() {
     }
     // Hide players who haven't finished onboarding (no nickname yet) so a
     // half-signed-up account never shows as a nameless "?" on the board.
-    const next = ((data as LeaderboardRow[]) ?? []).filter(
-      (r) => (r.nickname ?? '').trim() !== '',
-    )
+    // Sort here too (not just in the DB view) so ranking is correct regardless
+    // of what order the API returns: points → exact → advances, name last.
+    const next = ((data as LeaderboardRow[]) ?? [])
+      .filter((r) => (r.nickname ?? '').trim() !== '')
+      .sort(
+        (a, b) =>
+          b.total_points - a.total_points ||
+          b.exact_scores - a.exact_scores ||
+          b.correct_advances - a.correct_advances ||
+          (a.nickname || a.display_name || '').localeCompare(b.nickname || b.display_name || ''),
+      )
     setRows(next)
-    // Persist the latest ranks so the next visit can show movement.
-    const snapshot: Record<string, number> = {}
-    next.forEach((r, i) => (snapshot[r.user_id] = i + 1))
+    // Persist the latest (shared) ranks so the next visit can show movement.
+    const snapshot = computeRanks(next)
     try {
       localStorage.setItem(RANK_KEY, JSON.stringify(snapshot))
     } catch {
@@ -98,11 +127,10 @@ export default function LeaderboardPage() {
     return { dir: delta > 0 ? ('up' as const) : ('down' as const), n: Math.abs(delta) }
   }
 
+  const ranks = computeRanks(rows)
   const top = rows.slice(0, 3)
   const rest = rows.slice(3)
   const podiumOrder = [top[1], top[0], top[2]].filter(Boolean)
-  const podiumRank: Record<string, number> = {}
-  top.forEach((r, i) => r && (podiumRank[r.user_id] = i + 1))
   const barHeights: Record<number, number> = { 1: 52, 2: 38, 3: 28 }
   const medals: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
   const hasScores = (rows[0]?.total_points || 0) > 0
@@ -126,7 +154,7 @@ export default function LeaderboardPage() {
           {hasScores && podiumOrder.length >= 2 && (
             <div className="podium">
               {podiumOrder.map((r) => {
-                const rank = podiumRank[r.user_id]
+                const rank = ranks[r.user_id]
                 return (
                   <div key={r.user_id} className={`podium-col podium-${rank}`}>
                     <span className="podium-medal">{medals[rank]}</span>
@@ -148,9 +176,9 @@ export default function LeaderboardPage() {
           )}
 
           <div className="lb-list">
-            {(hasScores ? rest : rows).map((r, i) => {
+            {(hasScores ? rest : rows).map((r) => {
               const isMe = r.user_id === session?.user.id
-              const rank = hasScores ? i + 4 : i + 1
+              const rank = ranks[r.user_id]
               const mv = movement(r, rank)
               return (
                 <div key={r.user_id} className={`lb-row ${isMe ? 'lb-row-me' : ''}`}>

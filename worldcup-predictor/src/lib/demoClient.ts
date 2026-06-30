@@ -153,7 +153,13 @@ function leaderboard(): LeaderboardRow[] {
       exact_scores: exacts,
     }
   })
-  rows.sort((a, b) => b.total_points - a.total_points || b.exact_scores - a.exact_scores)
+  rows.sort(
+    (a, b) =>
+      b.total_points - a.total_points ||
+      b.exact_scores - a.exact_scores ||
+      b.correct_advances - a.correct_advances ||
+      (a.nickname || a.display_name).localeCompare(b.nickname || b.display_name),
+  )
   return rows
 }
 
