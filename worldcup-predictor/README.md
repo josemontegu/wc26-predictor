@@ -82,10 +82,25 @@ Two ways to run it, pick either or both:
    `SUPABASE_SERVICE_ROLE_KEY` (the service key is **server-side only**, never in
    the client). Delete the workflow file if you only want the manual button.
 
-**Scope on purpose:** the sync only fills **matchups and kick-off times**, never
-scores. openfootball's full-time score can't distinguish a 90-minute result from
-one after extra time and carries no penalty data, so **results stay
-admin-entered** to keep the 90-minute scoring rules correct.
+## Automatic results (openfootball)
+
+Results can post themselves too. openfootball publishes each finished knockout
+match with full detail — full-time (`ft`), after-extra-time (`et`) and the
+penalty shootout tally (`p`) — which is exactly what the single "final score"
+model needs, and it maps by match number (no team-name matching). The included
+[`.github/workflows/sync-results.yml`](../.github/workflows/sync-results.yml)
+runs [`scripts/sync-results.ts`](scripts/sync-results.ts) every 15 minutes (same
+two secrets as above), so matches update automatically — even overnight.
+
+- **Fill-only by default:** a result you've already entered or corrected is never
+  overwritten; the sync only fills matches with no result yet. Set
+  `RESULTS_OVERWRITE=true` to always take the feed's result.
+- **Safe:** only complete, finished matches are written, and the DB constraints
+  reject anything inconsistent. The leaderboard and stats recompute instantly.
+- **Manual entry still works** in the Admin panel as an override.
+- **Caveat:** results appear when openfootball's volunteers commit them — usually
+  within a reasonable window of full-time, but not guaranteed within minutes. For
+  near-instant updates, swap in a paid live-score API behind the same script.
 
 ## Setup
 

@@ -25,6 +25,13 @@ const ROUND_MAP: Record<string, RoundCode> = {
   Final: 'F',
 }
 
+interface RawScore {
+  ft?: number[] // full time (90 min)
+  ht?: number[] // half time
+  et?: number[] // after extra time (when played)
+  p?: number[] // penalty shootout tally
+}
+
 interface RawMatch {
   num?: number
   round?: string
@@ -32,6 +39,7 @@ interface RawMatch {
   time?: string
   team1?: string
   team2?: string
+  score?: RawScore
 }
 
 export interface FeedFixture {
@@ -40,6 +48,7 @@ export interface FeedFixture {
   team1: string | null
   team2: string | null
   kickoff_time: string | null
+  score: RawScore | null
 }
 
 export interface UpsertRow {
@@ -98,6 +107,7 @@ export function parseFeed(raw: unknown): FeedFixture[] {
       team1: m.team1 ?? null,
       team2: m.team2 ?? null,
       kickoff_time: parseKickoff(m.date, m.time),
+      score: m.score ?? null,
     })
   }
   return out
@@ -163,4 +173,89 @@ export function buildUpserts(
   }
 
   return { rows, summary }
+}
+
+export interface MatchResultRow {
+  match_no: number
+  home_team: string
+  away_team: string
+  home_score: number
+  away_score: number
+  went_to_penalties: boolean
+  pen_home_score: number | null
+  pen_away_score: number | null
+  advancing_team: string
+}
+
+/**
+ * Derive a finished knockout result from an openfootball score, in our single
+ * "final score" model: the score after extra time when played (`et`), else full
+ * time (`ft`). A level final score means a shootout, taken from `p`. Returns
+ * null when the match isn't finished/complete or the teams aren't confirmed —
+ * so we never write a half-finished or ambiguous result.
+ */
+export function deriveResult(f: FeedFixture): MatchResultRow | null {
+  const s = f.score
+  if (!s?.ft || s.ft.length < 2) return null
+  const home = f.team1?.trim()
+  const away = f.team2?.trim()
+  if (!isRealTeam(home) || !isRealTeam(away)) return null
+
+  const final = s.et && s.et.length >= 2 ? s.et : s.ft
+  const fh = final[0]
+  const fa = final[1]
+  if (fh == null || fa == null) return null
+
+  const draw = fh === fa
+  let penH: number | null = null
+  let penA: number | null = null
+  let advancing: string
+
+  if (draw) {
+    // A finished level match must carry a decisive shootout; otherwise it's
+    // still in progress / incomplete in the feed, so skip it.
+    if (!s.p || s.p.length < 2 || s.p[0] == null || s.p[1] == null || s.p[0] === s.p[1]) {
+      return null
+    }
+    penH = s.p[0]
+    penA = s.p[1]
+    advancing = penH > penA ? home! : away!
+  } else {
+    advancing = fh > fa ? home! : away!
+  }
+
+  return {
+    match_no: f.match_no,
+    home_team: home!,
+    away_team: away!,
+    home_score: fh,
+    away_score: fa,
+    went_to_penalties: draw,
+    pen_home_score: penH,
+    pen_away_score: penA,
+    advancing_team: advancing,
+  }
+}
+
+/**
+ * Build result-update rows from the feed. Fill-only by default: skips matches
+ * that already have a result, so a manually entered or corrected result is
+ * never overwritten. Pass overwrite=true to always take the feed's result.
+ */
+export function buildResultUpserts(
+  existing: Pick<Match, 'match_no' | 'home_score' | 'away_score'>[],
+  feed: FeedFixture[],
+  opts: { overwrite?: boolean } = {},
+): MatchResultRow[] {
+  const byNo = new Map(existing.map((m) => [m.match_no, m]))
+  const rows: MatchResultRow[] = []
+  for (const f of feed) {
+    const cur = byNo.get(f.match_no)
+    if (!cur) continue
+    const alreadyScored = cur.home_score != null && cur.away_score != null
+    if (alreadyScored && !opts.overwrite) continue
+    const res = deriveResult(f)
+    if (res) rows.push(res)
+  }
+  return rows
 }
