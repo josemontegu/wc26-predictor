@@ -30,6 +30,30 @@ const TRANSITIONS: [RoundCode, RoundCode][] = [
   ['SF', 'F'],
 ]
 
+// Match numbers are assigned by SCHEDULE, not bracket position, so listing a
+// round by match_no scrambles the tree (e.g. R16 #91/#92 actually sit below
+// #93/#94). Derive the true top-to-bottom order for each round by walking the
+// tree down from the Final via FEEDS, so the branches line up like a real
+// bracket.
+const expand = (nos: number[]): number[] => nos.flatMap((n) => FEEDS[n] ?? [])
+const ORDER_SF = expand([104])
+const ORDER_QF = expand(ORDER_SF)
+const ORDER_R16 = expand(ORDER_QF)
+const ORDER_R32 = expand(ORDER_R16)
+const BRACKET_ORDER: Record<RoundCode, number[]> = {
+  F: [104],
+  SF: ORDER_SF,
+  QF: ORDER_QF,
+  R16: ORDER_R16,
+  R32: ORDER_R32,
+  TP: [103],
+}
+const orderRank = (round: RoundCode, no: number | null): number => {
+  if (no == null) return 999
+  const i = BRACKET_ORDER[round].indexOf(no)
+  return i === -1 ? 999 : i
+}
+
 export default function BracketPage() {
   const navigate = useNavigate()
   const t = useT()
@@ -90,7 +114,9 @@ export default function BracketPage() {
   }
 
   const [from, to] = page
-  const dests = byRound[to] ?? []
+  const dests = (byRound[to] ?? [])
+    .slice()
+    .sort((a, b) => orderRank(to, a.match_no) - orderRank(to, b.match_no))
 
   return (
     <div className="page">
