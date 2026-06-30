@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Match, MyScore, Prediction, RoundCode } from '../lib/types'
-import { roundName, ROUND_ORDER } from '../lib/format'
+import { roundName, ROUND_ORDER, formatDay } from '../lib/format'
 import { useT } from '../lib/i18n'
 import MatchCard from '../components/MatchCard'
 
@@ -54,6 +54,22 @@ export default function MatchesPage() {
     [matches, activeRound],
   )
 
+  // Chronological, grouped into calendar days (undated matches go last).
+  const dayGroups = useMemo(() => {
+    const ms = (n: string | null) => (n ? new Date(n).getTime() : Infinity)
+    const sorted = [...visible].sort(
+      (a, b) => ms(a.kickoff_time) - ms(b.kickoff_time) || (a.match_no ?? 0) - (b.match_no ?? 0),
+    )
+    const groups: { key: string; items: Match[] }[] = []
+    for (const m of sorted) {
+      const key = m.kickoff_time ? new Date(m.kickoff_time).toDateString() : 'tbd'
+      const last = groups[groups.length - 1]
+      if (last && last.key === key) last.items.push(m)
+      else groups.push({ key, items: [m] })
+    }
+    return groups
+  }, [visible])
+
   if (loading) {
     return (
       <div className="page">
@@ -95,13 +111,18 @@ export default function MatchesPage() {
         <p className="muted">{t('No matches in this round yet.', 'Aún no hay partidos en esta ronda.')}</p>
       ) : (
         <div className="match-list">
-          {visible.map((m) => (
-            <MatchCard
-              key={m.id}
-              match={m}
-              prediction={predictions[m.id]}
-              points={points[m.id]}
-            />
+          {dayGroups.map((g) => (
+            <div key={g.key} className="match-day-group">
+              <div className="match-day">{formatDay(g.items[0].kickoff_time)}</div>
+              {g.items.map((m) => (
+                <MatchCard
+                  key={m.id}
+                  match={m}
+                  prediction={predictions[m.id]}
+                  points={points[m.id]}
+                />
+              ))}
+            </div>
           ))}
         </div>
       )}

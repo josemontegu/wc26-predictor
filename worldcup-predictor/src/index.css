@@ -420,6 +420,26 @@ label {
   flex-direction: column;
   gap: 0.8rem;
 }
+.match-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.match-day {
+  position: sticky;
+  top: -1px;
+  z-index: 3;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 0.5rem 0 0.45rem;
+}
+.match-day::first-letter {
+  text-transform: uppercase;
+}
 .mcard {
   background: var(--card);
   border-radius: var(--radius);

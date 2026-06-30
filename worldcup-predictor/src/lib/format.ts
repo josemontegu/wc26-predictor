@@ -41,6 +41,16 @@ export function formatKickoff(iso: string | null): string {
   })
 }
 
+/** A day heading, e.g. "Sunday, 28 June" / "domingo, 28 de junio". */
+export function formatDay(iso: string | null): string {
+  if (!iso) return getLang() === 'es' ? 'Fecha por definir' : 'Date TBD'
+  return new Date(iso).toLocaleDateString(dateLocale(), {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
+}
+
 export function formatLock(iso: string | null): string {
   if (!iso) return getLang() === 'es' ? 'Sin hora de cierre' : 'No lock time set'
   return new Date(iso).toLocaleString(dateLocale(), {
