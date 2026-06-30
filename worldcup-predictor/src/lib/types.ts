@@ -39,6 +39,8 @@ export interface Match {
   aet_home_score: number | null
   aet_away_score: number | null
   went_to_penalties: boolean | null
+  pen_home_score: number | null
+  pen_away_score: number | null
   advancing_team: string | null
   created_at: string
   updated_at: string

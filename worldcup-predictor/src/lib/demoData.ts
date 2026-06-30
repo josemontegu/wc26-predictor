@@ -56,6 +56,8 @@ interface Result {
   hs: number // final score (after extra time, before penalties)
   as: number
   pens?: boolean
+  penH?: number // shootout tally (when it went to penalties)
+  penA?: number
   adv: string
 }
 
@@ -81,6 +83,8 @@ function mk(
     aet_home_score: null,
     aet_away_score: null,
     went_to_penalties: result ? !!result.pens : null,
+    pen_home_score: result?.penH ?? null,
+    pen_away_score: result?.penA ?? null,
     advancing_team: result ? result.adv : null,
     created_at: '',
     updated_at: '',
@@ -90,9 +94,9 @@ function mk(
 export const demoMatches: Match[] = [
   // Round of 32 — 73–78 played, 79–81 locked (underway/imminent), 82–88 open
   mk(73, 'R32', 'Argentina', 'Australia', -4 * DAY, { hs: 2, as: 1, adv: 'Argentina' }),
-  mk(74, 'R32', 'France', 'Senegal', -4 * DAY + 3 * HOUR, { hs: 1, as: 1, pens: true, adv: 'Senegal' }),
+  mk(74, 'R32', 'France', 'Senegal', -4 * DAY + 3 * HOUR, { hs: 1, as: 1, pens: true, penH: 3, penA: 4, adv: 'Senegal' }),
   mk(75, 'R32', 'Brazil', 'South Korea', -3 * DAY, { hs: 4, as: 1, adv: 'Brazil' }),
-  mk(76, 'R32', 'Spain', 'Morocco', -3 * DAY + 3 * HOUR, { hs: 0, as: 0, pens: true, adv: 'Morocco' }),
+  mk(76, 'R32', 'Spain', 'Morocco', -3 * DAY + 3 * HOUR, { hs: 0, as: 0, pens: true, penH: 2, penA: 4, adv: 'Morocco' }),
   mk(77, 'R32', 'Germany', 'Japan', -2 * DAY, { hs: 2, as: 0, adv: 'Germany' }),
   mk(78, 'R32', 'Portugal', 'Croatia', -2 * DAY + 3 * HOUR, { hs: 3, as: 2, adv: 'Portugal' }),
   mk(79, 'R32', 'Netherlands', 'Mexico', -0.4 * HOUR),

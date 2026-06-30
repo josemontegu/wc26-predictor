@@ -538,6 +538,21 @@ label {
   color: var(--muted);
   font-size: 0.85rem;
 }
+
+/* penalty-shootout tally shown as a superscript on a finished score (1³ – 1⁴) */
+.pen-sup {
+  font-size: 0.56em;
+  font-weight: 700;
+  margin-left: 1px;
+  opacity: 0.65;
+}
+.pen-sup-win {
+  opacity: 1;
+  color: var(--accent);
+}
+.score-dash {
+  margin: 0 0.16em;
+}
 .mcard-pens {
   margin-top: 0.6rem;
   font-size: 0.76rem;

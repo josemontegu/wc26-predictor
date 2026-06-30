@@ -4,6 +4,7 @@ import { isLocked, hasResult } from '../lib/types'
 import { formatKickoff, timeUntilLock } from '../lib/format'
 import { teamFlag, isTBD, teamColor } from '../lib/teamMeta'
 import { useT } from '../lib/i18n'
+import Scoreline from './Scoreline'
 
 interface Props {
   match: Match
@@ -51,9 +52,11 @@ export default function MatchCard({ match, prediction, points }: Props) {
             {match.home_team}
           </span>
         </div>
-        <span className={`mscore ${played ? '' : 'mscore-vs'}`}>
-          {played ? `${match.home_score} – ${match.away_score}` : t('vs', 'vs')}
-        </span>
+        {played ? (
+          <Scoreline match={match} className="mscore" />
+        ) : (
+          <span className="mscore mscore-vs">{t('vs', 'vs')}</span>
+        )}
         <div className="mteam mteam-r">
           <span className={`mteam-name ${isTBD(match.away_team) ? 'mteam-tbd' : ''}`}>
             {match.away_team}

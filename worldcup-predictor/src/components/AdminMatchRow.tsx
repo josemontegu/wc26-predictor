@@ -26,6 +26,12 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
     match.away_score === null ? '' : String(match.away_score),
   )
   const [advancing, setAdvancing] = useState(match.advancing_team ?? '')
+  const [penHome, setPenHome] = useState(
+    match.pen_home_score === null ? '' : String(match.pen_home_score),
+  )
+  const [penAway, setPenAway] = useState(
+    match.pen_away_score === null ? '' : String(match.pen_away_score),
+  )
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [savedTick, setSavedTick] = useState(false)
@@ -49,24 +55,55 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
     : ''
   const isShootout = outcome?.phase === 'shootout'
 
-  // Lock the advancing team to the winner of a decisive score.
+  // Optional penalty-shootout tally (display only). When entered, it decides who
+  // advances; without it, the admin picks the shootout winner manually.
+  const penHN = penHome === '' ? null : Number(penHome)
+  const penAN = penAway === '' ? null : Number(penAway)
+  const pensIn = isShootout && penHN !== null && penAN !== null && penHN !== penAN
+  const penWinner = pensIn ? (penHN! > penAN! ? home.trim() : away.trim()) : ''
+
+  // Lock the advancing team to whoever won: the decisive score, or the shootout.
   useEffect(() => {
-    if (outcome?.winnerSide && advancing !== winnerTeam) setAdvancing(winnerTeam)
-  }, [outcome?.winnerSide, winnerTeam, advancing])
+    if (outcome?.winnerSide) {
+      if (advancing !== winnerTeam) setAdvancing(winnerTeam)
+    } else if (pensIn && advancing !== penWinner) {
+      setAdvancing(penWinner)
+    }
+  }, [outcome?.winnerSide, winnerTeam, pensIn, penWinner, advancing])
+
+  // Clear the penalty tally if the score is no longer a shootout.
+  useEffect(() => {
+    if (!isShootout) {
+      if (penHome !== '') setPenHome('')
+      if (penAway !== '') setPenAway('')
+    }
+  }, [isShootout, penHome, penAway])
 
   async function save() {
     setBusy(true)
     setError(null)
     setSavedTick(false)
 
-    // Derive penalties / advancing from the entered final score so the stored
-    // result can never be self-contradictory.
+    // Derive penalties / advancing from the entered scores so the stored result
+    // can never be self-contradictory.
     const o = resultIn ? resolveOutcome(hsN!, asN!) : null
+    const isPens = o?.phase === 'shootout'
+    const penH = isPens && penHN !== null ? penHN : null
+    const penA = isPens && penAN !== null ? penAN : null
+    if (penH !== null && penA !== null && penH === penA) {
+      setBusy(false)
+      setError(t('A penalty shootout needs a winner — the tallies can’t be equal.', 'Una tanda de penales necesita ganador: los marcadores no pueden ser iguales.'))
+      return
+    }
     const adv = o?.winnerSide
       ? o.winnerSide === 'home'
         ? home.trim()
         : away.trim()
-      : advancing || null
+      : penH !== null && penA !== null
+        ? penH > penA
+          ? home.trim()
+          : away.trim()
+        : advancing || null
 
     const update = {
       home_team: home.trim() || 'TBD',
@@ -78,6 +115,8 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
       aet_home_score: null,
       aet_away_score: null,
       went_to_penalties: o ? o.penalties : null,
+      pen_home_score: penH,
+      pen_away_score: penA,
       advancing_team: adv,
     }
 
@@ -183,17 +222,46 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
           </div>
 
           {isShootout && (
-            <label>
-              {t('Shootout winner advances', 'Ganador de la tanda avanza')}
-              <select value={advancing} onChange={(e) => setAdvancing(e.target.value)}>
-                <option value="">{t('— pick winner —', '— elige ganador —')}</option>
-                {teamOptions.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <>
+              <div className="admin-section-label">
+                {t('Penalty shootout (optional)', 'Tanda de penales (opcional)')}
+              </div>
+              <div className="admin-grid">
+                <label>
+                  {home.trim() || 'Home'}
+                  <input
+                    type="number"
+                    min={0}
+                    value={penHome}
+                    onChange={(e) => setPenHome(e.target.value)}
+                  />
+                </label>
+                <label>
+                  {away.trim() || 'Away'}
+                  <input
+                    type="number"
+                    min={0}
+                    value={penAway}
+                    onChange={(e) => setPenAway(e.target.value)}
+                  />
+                </label>
+              </div>
+              <label>
+                {t('Shootout winner advances', 'Ganador de la tanda avanza')}
+                <select
+                  value={advancing}
+                  disabled={pensIn}
+                  onChange={(e) => setAdvancing(e.target.value)}
+                >
+                  <option value="">{t('— pick winner —', '— elige ganador —')}</option>
+                  {teamOptions.map((tm) => (
+                    <option key={tm} value={tm}>
+                      {tm}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </>
           )}
 
           {outcome && (

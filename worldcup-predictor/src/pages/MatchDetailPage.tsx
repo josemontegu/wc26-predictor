@@ -9,6 +9,7 @@ import { teamFlag, teamColor, avatarGradient } from '../lib/teamMeta'
 import { fireConfetti } from '../lib/confetti'
 import { useT, type TFn } from '../lib/i18n'
 import Spinner from '../components/Spinner'
+import Scoreline from '../components/Scoreline'
 
 function clampScore(n: number): number {
   if (Number.isNaN(n)) return 0
@@ -222,9 +223,7 @@ export default function MatchDetailPage() {
             <span className="df-name">{match.home_team}</span>
           </div>
           {played ? (
-            <span className="df-score">
-              {match.home_score}–{match.away_score}
-            </span>
+            <Scoreline match={match} className="df-score" />
           ) : (
             <span className="df-vs">VS</span>
           )}
