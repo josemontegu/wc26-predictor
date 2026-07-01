@@ -378,11 +378,10 @@ export default function MatchDetailPage() {
                     </span>
                     <span className={`pick-score ${exactRight ? 'pick-hit' : ''}`}>
                       {exactRight && <span className="pick-check">✓</span>}
-                      {p.home_score}
                       {p.penalties && p.advancing_team === match.home_team && (
                         <sup className="pick-pen">p</sup>
                       )}
-                      –{p.away_score}
+                      {p.home_score}–{p.away_score}
                       {p.penalties && p.advancing_team === match.away_team && (
                         <sup className="pick-pen pick-pen-after">p</sup>
                       )}
