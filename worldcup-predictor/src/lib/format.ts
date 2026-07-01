@@ -38,15 +38,18 @@ export function formatKickoff(iso: string | null): string {
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
+    timeZoneName: 'short',
   })
 }
 
-/** Just the kick-off time, e.g. "21:00" (the day is shown as a section header). */
+/** Just the kick-off time in the viewer's zone, e.g. "21:00 CET" (the day is a
+ * section header). The short zone label is whatever the device reports. */
 export function formatTime(iso: string | null): string {
   if (!iso) return '—'
   return new Date(iso).toLocaleTimeString(dateLocale(), {
     hour: '2-digit',
     minute: '2-digit',
+    timeZoneName: 'short',
   })
 }
 
@@ -67,6 +70,7 @@ export function formatLock(iso: string | null): string {
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
+    timeZoneName: 'short',
   })
 }
 
