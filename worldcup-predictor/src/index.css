@@ -1430,6 +1430,13 @@ label {
 .pick-hit {
   color: var(--accent-dark);
 }
+/* penalties marker on a pick: a small "p" next to the team that advances */
+.pick-pen {
+  font-size: 0.62em;
+  font-weight: 800;
+  color: var(--muted);
+  margin: 0 1px;
+}
 
 /* bracket — one round at a time, stepped with arrows */
 .bk-nav {

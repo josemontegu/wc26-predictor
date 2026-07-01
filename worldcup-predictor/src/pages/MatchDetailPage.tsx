@@ -377,12 +377,18 @@ export default function MatchDetailPage() {
                       {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
                     </span>
                     <span className={`pick-score ${exactRight ? 'pick-hit' : ''}`}>
-                      {p.home_score}–{p.away_score}
+                      {p.home_score}
+                      {p.penalties && p.advancing_team === match.home_team && (
+                        <sup className="pick-pen">p</sup>
+                      )}
+                      –{p.away_score}
+                      {p.penalties && p.advancing_team === match.away_team && (
+                        <sup className="pick-pen">p</sup>
+                      )}
                       {exactRight && ' ✓'}
                     </span>
                     <span className={`pick-adv ${advRight ? 'pick-hit' : ''}`}>
                       {teamFlag(p.advancing_team)}
-                      {p.penalties ? ' 🥅' : ''}
                     </span>
                   </div>
                 )
