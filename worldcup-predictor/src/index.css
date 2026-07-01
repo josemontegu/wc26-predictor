@@ -1441,6 +1441,13 @@ label {
 .pick-check {
   margin-right: 0.3rem;
 }
+/* a trailing (away-team) penalties "p" overflows to the right with no layout
+ * width, so the score digits stay aligned regardless of it */
+.pick-pen-after {
+  display: inline-block;
+  width: 0;
+  margin: 0;
+}
 
 /* bracket — one round at a time, stepped with arrows */
 .bk-nav {

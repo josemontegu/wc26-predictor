@@ -384,7 +384,7 @@ export default function MatchDetailPage() {
                       )}
                       –{p.away_score}
                       {p.penalties && p.advancing_team === match.away_team && (
-                        <sup className="pick-pen">p</sup>
+                        <sup className="pick-pen pick-pen-after">p</sup>
                       )}
                     </span>
                     <span className={`pick-adv ${advRight ? 'pick-hit' : ''}`}>
