@@ -440,6 +440,22 @@ label {
 .match-day::first-letter {
   text-transform: uppercase;
 }
+.match-day-today {
+  color: var(--ink);
+}
+.today-chip {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.42rem;
+  border-radius: 999px;
+  margin-right: 0.45rem;
+  vertical-align: middle;
+}
 .mcard {
   background: var(--card);
   border-radius: var(--radius);

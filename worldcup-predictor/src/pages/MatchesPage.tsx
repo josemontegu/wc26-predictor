@@ -54,20 +54,39 @@ export default function MatchesPage() {
     [matches, activeRound],
   )
 
-  // Chronological, grouped into calendar days (undated matches go last).
+  // Group into calendar days, then order for a live tournament: today first
+  // (pinned), then upcoming days soonest-first, then past days most-recent-first,
+  // undated last. Matches within a day stay in kick-off order.
   const dayGroups = useMemo(() => {
     const ms = (n: string | null) => (n ? new Date(n).getTime() : Infinity)
+    const start = new Date()
+    start.setHours(0, 0, 0, 0)
+    const todayStart = start.getTime()
+    const todayEnd = todayStart + 24 * 3600_000
+
     const sorted = [...visible].sort(
       (a, b) => ms(a.kickoff_time) - ms(b.kickoff_time) || (a.match_no ?? 0) - (b.match_no ?? 0),
     )
-    const groups: { key: string; items: Match[] }[] = []
+    const groups: { key: string; items: Match[]; ts: number; isToday: boolean }[] = []
     for (const m of sorted) {
       const key = m.kickoff_time ? new Date(m.kickoff_time).toDateString() : 'tbd'
       const last = groups[groups.length - 1]
       if (last && last.key === key) last.items.push(m)
-      else groups.push({ key, items: [m] })
+      else {
+        const ts = ms(m.kickoff_time)
+        groups.push({ key, items: [m], ts, isToday: ts >= todayStart && ts < todayEnd })
+      }
     }
-    return groups
+
+    // 0 = today, 1 = upcoming, 2 = past, 3 = undated
+    const rank = (g: { ts: number; isToday: boolean }) =>
+      g.ts === Infinity ? 3 : g.isToday ? 0 : g.ts < todayStart ? 2 : 1
+    return groups.sort((a, b) => {
+      const ra = rank(a)
+      const rb = rank(b)
+      if (ra !== rb) return ra - rb
+      return ra === 2 ? b.ts - a.ts : a.ts - b.ts // past: newest first; else soonest first
+    })
   }, [visible])
 
   if (loading) {
@@ -113,7 +132,10 @@ export default function MatchesPage() {
         <div className="match-list">
           {dayGroups.map((g) => (
             <div key={g.key} className="match-day-group">
-              <div className="match-day">{formatDay(g.items[0].kickoff_time)}</div>
+              <div className={`match-day ${g.isToday ? 'match-day-today' : ''}`}>
+                {g.isToday && <span className="today-chip">{t('Today', 'Hoy')}</span>}
+                {formatDay(g.items[0].kickoff_time)}
+              </div>
               {g.items.map((m) => (
                 <MatchCard
                   key={m.id}
