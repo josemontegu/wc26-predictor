@@ -1922,15 +1922,33 @@ label {
   margin-left: 0.3rem;
 }
 .emoji-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
-  gap: 0.4rem;
   margin-top: 0.4rem;
-  max-height: 340px;
+  max-height: 360px;
   overflow-y: auto;
   padding: 0.15rem;
   scrollbar-width: thin;
   overscroll-behavior: contain;
+}
+.emoji-cat + .emoji-cat {
+  margin-top: 0.55rem;
+}
+.emoji-cat-label {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--card);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  padding: 0.35rem 0.15rem 0.3rem;
+}
+.emoji-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 0.4rem;
 }
 .emoji-opt {
   aspect-ratio: 1;
