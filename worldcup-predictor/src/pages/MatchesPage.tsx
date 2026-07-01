@@ -67,26 +67,22 @@ export default function MatchesPage() {
     const sorted = [...visible].sort(
       (a, b) => ms(a.kickoff_time) - ms(b.kickoff_time) || (a.match_no ?? 0) - (b.match_no ?? 0),
     )
-    const groups: { key: string; items: Match[]; ts: number; isToday: boolean }[] = []
+    // zone: 0 = today, 1 = upcoming, 2 = past, 3 = undated
+    const zoneOf = (ts: number) =>
+      ts === Infinity ? 3 : ts >= todayStart && ts < todayEnd ? 0 : ts < todayStart ? 2 : 1
+    const groups: { key: string; items: Match[]; ts: number; zone: number }[] = []
     for (const m of sorted) {
       const key = m.kickoff_time ? new Date(m.kickoff_time).toDateString() : 'tbd'
       const last = groups[groups.length - 1]
       if (last && last.key === key) last.items.push(m)
       else {
         const ts = ms(m.kickoff_time)
-        groups.push({ key, items: [m], ts, isToday: ts >= todayStart && ts < todayEnd })
+        groups.push({ key, items: [m], ts, zone: zoneOf(ts) })
       }
     }
-
-    // 0 = today, 1 = upcoming, 2 = past, 3 = undated
-    const rank = (g: { ts: number; isToday: boolean }) =>
-      g.ts === Infinity ? 3 : g.isToday ? 0 : g.ts < todayStart ? 2 : 1
-    return groups.sort((a, b) => {
-      const ra = rank(a)
-      const rb = rank(b)
-      if (ra !== rb) return ra - rb
-      return ra === 2 ? b.ts - a.ts : a.ts - b.ts // past: newest first; else soonest first
-    })
+    return groups.sort((a, b) =>
+      a.zone !== b.zone ? a.zone - b.zone : a.zone === 2 ? b.ts - a.ts : a.ts - b.ts,
+    )
   }, [visible])
 
   if (loading) {
@@ -130,22 +126,36 @@ export default function MatchesPage() {
         <p className="muted">{t('No matches in this round yet.', 'Aún no hay partidos en esta ronda.')}</p>
       ) : (
         <div className="match-list">
-          {dayGroups.map((g) => (
-            <div key={g.key} className="match-day-group">
-              <div className={`match-day ${g.isToday ? 'match-day-today' : ''}`}>
-                {g.isToday && <span className="today-chip">{t('Today', 'Hoy')}</span>}
-                {formatDay(g.items[0].kickoff_time)}
+          {dayGroups.map((g, i) => {
+            const zoneLabels: Record<number, string> = {
+              0: t('Today', 'Hoy'),
+              1: t('Upcoming', 'Próximos'),
+              2: t('Played', 'Jugados'),
+              3: t('To be scheduled', 'Por definir'),
+            }
+            const zoneNames = ['today', 'future', 'past', 'tbd']
+            const newZone = i === 0 || dayGroups[i - 1].zone !== g.zone
+            return (
+              <div key={g.key} className="match-day-group">
+                {newZone && (
+                  <div className={`match-zone match-zone-${zoneNames[g.zone]}`}>
+                    <span className="match-zone-line" />
+                    <span className="match-zone-label">{zoneLabels[g.zone]}</span>
+                    <span className="match-zone-line" />
+                  </div>
+                )}
+                <div className="match-day">{formatDay(g.items[0].kickoff_time)}</div>
+                {g.items.map((m) => (
+                  <MatchCard
+                    key={m.id}
+                    match={m}
+                    prediction={predictions[m.id]}
+                    points={points[m.id]}
+                  />
+                ))}
               </div>
-              {g.items.map((m) => (
-                <MatchCard
-                  key={m.id}
-                  match={m}
-                  prediction={predictions[m.id]}
-                  points={points[m.id]}
-                />
-              ))}
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
