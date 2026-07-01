@@ -11,6 +11,11 @@ on:
   schedule:
     - cron: '*/15 * * * *' # every 15 minutes
   workflow_dispatch: # manual "Run workflow" button
+    inputs:
+      overwrite:
+        description: 'Force re-sync: overwrite existing results with the feed'
+        type: boolean
+        default: false
 
 concurrency:
   group: sync-results
@@ -32,3 +37,4 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESULTS_OVERWRITE: ${{ inputs.overwrite }}
