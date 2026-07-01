@@ -41,9 +41,20 @@ async function main() {
   let written = 0
   for (const r of rows) {
     const { match_no, ...fields } = r
-    const { error } = await supabase.from('matches').update(fields).eq('match_no', match_no)
+    const { data, error } = await supabase
+      .from('matches')
+      .update(fields)
+      .eq('match_no', match_no)
+      .select('match_no')
     if (error) {
       console.error(`Match ${match_no}: ${error.message}`)
+      continue
+    }
+    if (!data || data.length === 0) {
+      console.error(
+        `Match ${match_no}: update changed 0 rows — the key is likely not the ` +
+          `service_role/secret key, so RLS blocked the write. Check SUPABASE_SERVICE_ROLE_KEY.`,
+      )
       continue
     }
     written++
