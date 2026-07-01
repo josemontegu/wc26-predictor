@@ -19,6 +19,8 @@ const FLAGS: Record<string, string> = {
   Paraguay: '🇵🇾', Venezuela: '🇻🇪', 'South Africa': '🇿🇦', Mali: '🇲🇱',
   'DR Congo': '🇨🇩', Uzbekistan: '🇺🇿', Jordan: '🇯🇴', Iraq: '🇮🇶',
   'Cape Verde': '🇨🇻', Curacao: '🇨🇼', Haiti: '🇭🇹', Honduras: '🇭🇳',
+  'Bosnia & Herzegovina': '🇧🇦', 'Bosnia and Herzegovina': '🇧🇦',
+  'Bosnia-Herzegovina': '🇧🇦', Bosnia: '🇧🇦',
 }
 
 // A bracket slot ("2A", "3A/B/C/D/F", "Winner M74") rather than a real nation.
@@ -48,6 +50,8 @@ const COLORS: Record<string, string> = {
   Jamaica: '#0b8a3d', Norway: '#1f4ea1', Sweden: '#1f6fb0', Austria: '#c8102e',
   Serbia: '#c8102e', Turkey: '#c8102e', Greece: '#0b4ea2', Ukraine: '#1f6fb0',
   'New Zealand': '#222730', Wales: '#c8102e', Scotland: '#10489c', Paraguay: '#c8102e',
+  'Bosnia & Herzegovina': '#1a4c9e', 'Bosnia and Herzegovina': '#1a4c9e',
+  'Bosnia-Herzegovina': '#1a4c9e', Bosnia: '#1a4c9e',
 }
 
 export function teamColor(name: string | null | undefined): string {
