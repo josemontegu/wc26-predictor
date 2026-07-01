@@ -990,6 +990,44 @@ label {
   font-size: 0.7rem;
   color: var(--muted);
 }
+/* leaderboard caption + tie-break stat chips */
+.lb-caption {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin: -0.35rem 0 0.9rem;
+}
+.lb-statline {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+.podium-statline {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: center;
+  margin: 0.2rem 0 0.05rem;
+}
+.lb-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: var(--ink);
+  background: var(--bg-2);
+  border-radius: 999px;
+  padding: 0.05rem 0.42rem;
+  line-height: 1.5;
+}
+.lb-stat-ico {
+  font-size: 0.72rem;
+}
+.podium-pts-lbl {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+}
 .you-tag {
   font-size: 0.6rem;
   font-weight: 700;

@@ -135,6 +135,21 @@ export default function LeaderboardPage() {
   const medals: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
   const hasScores = (rows[0]?.total_points || 0) > 0
 
+  // The tie-break criteria, in priority order, shown as subtle chips so it's
+  // clear why players on equal points are ordered the way they are.
+  const statChips = (r: LeaderboardRow) => (
+    <>
+      <span className="lb-stat" title={t('Exact scores', 'Marcadores exactos')}>
+        <span className="lb-stat-ico">🎯</span>
+        {r.exact_scores}
+      </span>
+      <span className="lb-stat" title={t('Correct advancing picks', 'Aciertos de avance')}>
+        <span className="lb-stat-ico">✅</span>
+        {r.correct_advances}
+      </span>
+    </>
+  )
+
   return (
     <div className="page">
       <div className="lb-head">
@@ -145,6 +160,14 @@ export default function LeaderboardPage() {
           </span>
         )}
       </div>
+      {hasScores && (
+        <p className="lb-caption">
+          {t(
+            'Points, then 🎯 exact scores, then ✅ correct picks',
+            'Puntos, luego 🎯 marcadores exactos y ✅ aciertos',
+          )}
+        </p>
+      )}
       {error && <div className="notice notice-err">{error}</div>}
 
       {rows.length === 0 ? (
@@ -165,7 +188,11 @@ export default function LeaderboardPage() {
                       {r.emoji || initials(r)}
                     </div>
                     <div className="podium-nick">{r.nickname || r.display_name}</div>
-                    <div className="podium-pts">{r.total_points}</div>
+                    <div className="podium-pts">
+                      {r.total_points}
+                      <span className="podium-pts-lbl"> {t('pts', 'pts')}</span>
+                    </div>
+                    <div className="podium-statline">{statChips(r)}</div>
                     <div className="podium-bar" style={{ height: barHeights[rank] }}>
                       {rank}
                     </div>
@@ -202,12 +229,7 @@ export default function LeaderboardPage() {
                       {r.nickname || r.display_name}
                       {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
                     </div>
-                    <div className="lb-sub">
-                      {t(
-                        `${r.correct_advances} adv · ${r.exact_scores} exact`,
-                        `${r.correct_advances} avances · ${r.exact_scores} exactos`,
-                      )}
-                    </div>
+                    <div className="lb-statline">{statChips(r)}</div>
                   </div>
                   <div className="lb-stats">
                     <div className="lb-points">{r.total_points}</div>
