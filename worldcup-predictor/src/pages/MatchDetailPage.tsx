@@ -377,6 +377,7 @@ export default function MatchDetailPage() {
                       {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
                     </span>
                     <span className={`pick-score ${exactRight ? 'pick-hit' : ''}`}>
+                      {exactRight && <span className="pick-check">✓</span>}
                       {p.home_score}
                       {p.penalties && p.advancing_team === match.home_team && (
                         <sup className="pick-pen">p</sup>
@@ -385,7 +386,6 @@ export default function MatchDetailPage() {
                       {p.penalties && p.advancing_team === match.away_team && (
                         <sup className="pick-pen">p</sup>
                       )}
-                      {exactRight && ' ✓'}
                     </span>
                     <span className={`pick-adv ${advRight ? 'pick-hit' : ''}`}>
                       {teamFlag(p.advancing_team)}

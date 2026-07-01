@@ -1437,6 +1437,10 @@ label {
   color: var(--muted);
   margin: 0 1px;
 }
+/* exact-score tick, kept to the LEFT so the scores stay right-aligned */
+.pick-check {
+  margin-right: 0.3rem;
+}
 
 /* bracket — one round at a time, stepped with arrows */
 .bk-nav {
