@@ -141,6 +141,16 @@ export default function StatsPage() {
     const skillThresh = Math.max(2, Math.ceil(scoredTotal * 0.5))
     const crowdThresh = Math.max(2, Math.ceil(lockedTotal * 0.5))
 
+    // Who actually advanced in each match, plus match order — for streaks.
+    const resultByMatch = new Map<string, { advancing: string | null; no: number; scored: boolean }>()
+    for (const m of matches) {
+      resultByMatch.set(m.id, {
+        advancing: m.advancing_team,
+        no: m.match_no ?? 0,
+        scored: m.home_score != null && m.away_score != null,
+      })
+    }
+
     const recs = stats.map((s) => {
       const ps = byUser.get(s.user_id) ?? []
       const n = ps.length
@@ -149,6 +159,24 @@ export default function StatsPage() {
       for (const p of ps) {
         if (plurality.get(p.match_id) === p.advancing_team) withCrowd++
         if (scoreCounts.get(p.match_id)?.get(`${p.home_score}-${p.away_score}`) === 1) unique++
+      }
+      // Longest run of correct advancing picks, walking matches in order.
+      const scoredSeq = ps
+        .filter((p) => resultByMatch.get(p.match_id)?.scored)
+        .sort(
+          (a, b) =>
+            (resultByMatch.get(a.match_id)?.no ?? 0) - (resultByMatch.get(b.match_id)?.no ?? 0),
+        )
+      let run = 0
+      let bestRun = 0
+      for (const p of scoredSeq) {
+        const actual = resultByMatch.get(p.match_id)?.advancing
+        if (actual && p.advancing_team === actual) {
+          run += 1
+          if (run > bestRun) bestRun = run
+        } else {
+          run = 0
+        }
       }
       return {
         nick: s.nickname,
@@ -164,6 +192,8 @@ export default function StatsPage() {
         sheep: n ? withCrowd / n : null,
         maverick: n ? (n - withCrowd) / n : null,
         unique,
+        streak: bestRun,
+        reliable: s.scored ? (s.scored - s.zero_points) / s.scored : null,
       }
     })
     type Rec = (typeof recs)[number]
@@ -189,7 +219,9 @@ export default function StatsPage() {
     return [
       { icon: '🎯', title: t('Sniper', 'Francotirador'), desc: t('Highest exact-score rate', 'Mayor tasa de marcadores exactos'), win: winner(skillQ, (r) => r.exactRate, 'max', true), fmt: (r: Rec) => t(`${r.exact} exact`, `${r.exact} exactos`) },
       { icon: '🔮', title: t('Oracle', 'Oráculo'), desc: t('Best advance accuracy (correct ÷ scored)', 'Mejor precisión de avance (aciertos ÷ puntuados)'), win: winner(skillQ, (r) => r.advanceAcc, 'max', true), fmt: (r: Rec) => t(`${Math.round((r.advanceAcc ?? 0) * 100)}% right`, `${Math.round((r.advanceAcc ?? 0) * 100)}% acertados`) },
+      { icon: '🔥', title: t('On Fire', 'En Racha'), desc: t('Longest streak of correct advancing picks', 'Mayor racha de aciertos de avance seguidos'), win: winner(skillQ, (r) => r.streak, 'max', true), fmt: (r: Rec) => t(`${r.streak} in a row`, `${r.streak} seguidos`) },
       { icon: '💀', title: t('Cursed', 'Maldito'), desc: t('Most blank (zero-point) matches', 'Más partidos en blanco (cero puntos)'), win: winner(skillQ, (r) => r.zero, 'max', true), fmt: (r: Rec) => t(`${r.zero} blanks`, `${r.zero} en blanco`) },
+      { icon: '🪨', title: t('The Rock', 'La Roca'), desc: t('Banks points in the highest share of matches', 'Suma puntos en la mayor proporción de partidos'), win: winner(skillQ, (r) => r.reliable, 'max', true), fmt: (r: Rec) => t(`${Math.round((r.reliable ?? 0) * 100)}% on the board`, `${Math.round((r.reliable ?? 0) * 100)}% con puntos`) },
       { icon: '📈', title: t('Optimist', 'Optimista'), desc: t('Most goals predicted per game', 'Más goles pronosticados por partido'), win: winner(crowdQ, (r) => r.goalsAvg, 'max', false), fmt: (r: Rec) => t(`${(r.goalsAvg ?? 0).toFixed(1)} g/game`, `${(r.goalsAvg ?? 0).toFixed(1)} g/partido`) },
       { icon: '🧱', title: t('The Wall', 'El Muro'), desc: t('Fewest goals predicted per game', 'Menos goles pronosticados por partido'), win: winner(crowdQ, (r) => r.goalsAvg, 'min', false), fmt: (r: Rec) => t(`${(r.goalsAvg ?? 0).toFixed(1)} g/game`, `${(r.goalsAvg ?? 0).toFixed(1)} g/partido`) },
       { icon: '🃏', title: t('Chaos Agent', 'Agente del Caos'), desc: t('Highest share of picks calling penalties', 'Mayor proporción de pronósticos con penales'), win: winner(crowdQ, (r) => r.pensShare, 'max', true), fmt: (r: Rec) => t(`${Math.round((r.pensShare ?? 0) * 100)}% pens`, `${Math.round((r.pensShare ?? 0) * 100)}% penales`) },
