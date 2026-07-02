@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Match, MyScore, Prediction, RoundCode } from '../lib/types'
@@ -15,34 +15,48 @@ export default function MatchesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeRound, setActiveRound] = useState<RoundCode>('R32')
+  const [live, setLive] = useState(false)
+
+  const load = useCallback(async () => {
+    const [matchRes, predRes, scoreRes] = await Promise.all([
+      supabase.from('matches').select('*').order('match_no', { ascending: true }),
+      supabase.from('predictions').select('*').eq('user_id', session!.user.id),
+      supabase.from('my_scores').select('*'),
+    ])
+    if (matchRes.error) setError(matchRes.error.message)
+    else setMatches((matchRes.data as Match[]) ?? [])
+
+    const byMatch: Record<string, Prediction> = {}
+    for (const p of (predRes.data as Prediction[]) ?? []) byMatch[p.match_id] = p
+    setPredictions(byMatch)
+
+    const ptsByMatch: Record<string, number> = {}
+    for (const s of (scoreRes.data as MyScore[]) ?? []) ptsByMatch[s.match_id] = s.total_points
+    setPoints(ptsByMatch)
+  }, [session])
 
   useEffect(() => {
     let active = true
-    async function load() {
+    ;(async () => {
       setLoading(true)
-      const [matchRes, predRes, scoreRes] = await Promise.all([
-        supabase.from('matches').select('*').order('match_no', { ascending: true }),
-        supabase.from('predictions').select('*').eq('user_id', session!.user.id),
-        supabase.from('my_scores').select('*'),
-      ])
-      if (!active) return
-      if (matchRes.error) setError(matchRes.error.message)
-      else setMatches((matchRes.data as Match[]) ?? [])
+      await load()
+      if (active) setLoading(false)
+    })()
 
-      const byMatch: Record<string, Prediction> = {}
-      for (const p of (predRes.data as Prediction[]) ?? []) byMatch[p.match_id] = p
-      setPredictions(byMatch)
+    // Live-update as results come in, so friends watching while the admin
+    // sleeps see scores (and their points) flip in real time — no reload.
+    const channel = supabase
+      .channel('matches-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, () => load())
+      .subscribe((status: string) => {
+        if (status === 'SUBSCRIBED') setLive(true)
+      })
 
-      const ptsByMatch: Record<string, number> = {}
-      for (const s of (scoreRes.data as MyScore[]) ?? []) ptsByMatch[s.match_id] = s.total_points
-      setPoints(ptsByMatch)
-      setLoading(false)
-    }
-    load()
     return () => {
       active = false
+      supabase.removeChannel(channel)
     }
-  }, [session])
+  }, [load])
 
   const roundsPresent = useMemo(() => {
     const set = new Set(matches.map((m) => m.round))
@@ -100,7 +114,14 @@ export default function MatchesPage() {
 
   return (
     <div className="page">
-      <h1>{t('Knockout matches', 'Partidos de eliminación')}</h1>
+      <div className="lb-head">
+        <h1>{t('Knockout matches', 'Partidos de eliminación')}</h1>
+        {live && (
+          <span className="live-chip">
+            <span className="dot" /> {t('Live', 'En vivo')}
+          </span>
+        )}
+      </div>
       {error && <div className="notice notice-err">{error}</div>}
 
       <div className="round-tabs">
