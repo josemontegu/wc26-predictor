@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext'
 import type { AppConfig, Award, Match, Profile, Round, RoundCode } from '../lib/types'
 import { roundName, ROUND_ORDER } from '../lib/format'
 import { buildUpserts, fetchFeed, isRealTeam, type SyncSummary } from '../lib/openfootball'
+import { fetchEspnResults } from '../lib/espn'
+import { buildResultUpsertsFromFd } from '../lib/footballdata'
 import { teamFlag } from '../lib/teamMeta'
 import { isoToLocalInput, localInputToIso } from '../lib/datetime'
 import { useT } from '../lib/i18n'
@@ -41,6 +43,10 @@ export default function AdminPage() {
     { match_no: number; home: string; away: string; resolved: boolean }[] | null
   >(null)
   const didAutoSync = useRef(false)
+
+  // live results sync (ESPN)
+  const [resBusy, setResBusy] = useState(false)
+  const [resMsg, setResMsg] = useState<{ ok: boolean; text: string } | null>(null)
 
   useEffect(() => {
     let active = true
@@ -156,6 +162,56 @@ export default function AdminPage() {
       setSyncError(e instanceof Error ? e.message : String(e))
     } finally {
       setSyncBusy(false)
+    }
+  }
+
+  // Pull finished knockout results from ESPN's live feed and fill them in now —
+  // the same source and matcher the overnight auto-sync uses, but on demand.
+  // Fill-only: a result already entered is never overwritten. Runs entirely in
+  // the browser via the admin session (ESPN is CORS-open, no key needed).
+  async function syncResults() {
+    setResBusy(true)
+    setResMsg(null)
+    try {
+      const espn = await fetchEspnResults()
+      const { rows } = buildResultUpsertsFromFd(matches, espn, { overwrite: false })
+
+      if (DEMO) {
+        setResMsg({
+          ok: true,
+          text: t(
+            `Live feed: ${espn.length} finished result(s); ${rows.length} new to fill (demo — not saved).`,
+            `Feed en vivo: ${espn.length} resultado(s) terminado(s); ${rows.length} nuevo(s) por completar (demo — no se guarda).`,
+          ),
+        })
+        return
+      }
+
+      let written = 0
+      for (const r of rows) {
+        const { match_no, ...fields } = r
+        const { error } = await supabase.from('matches').update(fields).eq('match_no', match_no)
+        if (error) throw new Error(error.message)
+        written++
+      }
+      if (written > 0) {
+        const { data } = await supabase.from('matches').select('*').order('match_no')
+        setMatches((data as Match[]) ?? matches)
+      }
+      setResMsg({
+        ok: true,
+        text:
+          written > 0
+            ? t(
+                `Updated ${written} result${written === 1 ? '' : 's'} ✓`,
+                `${written} resultado${written === 1 ? '' : 's'} actualizado${written === 1 ? '' : 's'} ✓`,
+              )
+            : t('Results already up to date ✓', 'Los resultados ya están al día ✓'),
+      })
+    } catch (e) {
+      setResMsg({ ok: false, text: e instanceof Error ? e.message : String(e) })
+    } finally {
+      setResBusy(false)
     }
   }
 
@@ -315,6 +371,27 @@ export default function AdminPage() {
               ))}
             </div>
           </div>
+        )}
+      </div>
+
+      <div className="form-card">
+        <div className="rule-card-head">
+          <span className="rule-icon">⚽</span>
+          <h2>{t('Fetch live results', 'Traer resultados en vivo')}</h2>
+        </div>
+        <p className="muted small">
+          {t(
+            'Pull finished knockout scores — including extra time & penalties — from the live feed and fill them in right now. Fill-only: never overwrites a result you entered by hand. Results also sync automatically in the background around each match.',
+            'Trae los marcadores terminados —incluyendo prórroga y penales— del feed en vivo y complétalos ahora mismo. Solo completa: nunca sobrescribe un resultado que ingresaste a mano. Los resultados también se sincronizan automáticamente en segundo plano alrededor de cada partido.',
+          )}
+        </p>
+        <button className="btn btn-primary" onClick={syncResults} disabled={resBusy}>
+          {resBusy
+            ? t('Syncing results…', 'Sincronizando resultados…')
+            : t('Sync results now', 'Sincronizar resultados ahora')}
+        </button>
+        {resMsg && (
+          <div className={`notice ${resMsg.ok ? 'notice-ok' : 'notice-err'}`}>{resMsg.text}</div>
         )}
       </div>
 

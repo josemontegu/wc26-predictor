@@ -182,7 +182,7 @@ function dbKey(name: string): string {
 }
 
 type DbMatch = {
-  match_no: number
+  match_no: number | null
   round: RoundCode | string
   home_team: string | null
   away_team: string | null
@@ -219,6 +219,7 @@ export function buildResultUpsertsFromFd(
   // absent rows end up in `unmatched`, so the warning means a real name/code gap.
   const matched = new Set<FdKnockout>()
   for (const m of existing) {
+    if (m.match_no == null) continue
     const home = m.home_team?.trim()
     const away = m.away_team?.trim()
     if (!home || !away) continue // matchup not resolved yet
