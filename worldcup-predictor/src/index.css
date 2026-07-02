@@ -923,6 +923,69 @@ label {
   color: #5a3d00;
 }
 
+/* ---- podium flair: gold/silver/bronze + glowing, shimmering winner ---- */
+.podium-1 {
+  background: linear-gradient(180deg, #fff6dd, #fffdf7);
+  box-shadow: 0 0 0 1px rgba(224, 164, 28, 0.45), 0 12px 30px -8px rgba(224, 164, 28, 0.5);
+}
+[data-theme='dark'] .podium-1 {
+  background: linear-gradient(180deg, #2c2512, #1a2030);
+  box-shadow: 0 0 0 1px rgba(247, 201, 72, 0.38), 0 12px 30px -8px rgba(247, 201, 72, 0.25);
+}
+.podium-1::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.42) 50%, transparent 60%);
+  background-size: 250% 100%;
+  background-position: 150% 0;
+  animation: podiumShine 4.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes podiumShine {
+  0%, 55% { background-position: 150% 0; }
+  85%, 100% { background-position: -60% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .podium-1::after { animation: none; opacity: 0; }
+}
+.podium-1 .podium-pts {
+  font-size: 1.3rem;
+}
+/* rank-coloured avatar rings */
+.podium-1 .podium-avatar {
+  box-shadow: 0 0 0 3px rgba(224, 164, 28, 0.6), 0 5px 14px -3px rgba(224, 164, 28, 0.55);
+}
+.podium-2 .podium-avatar {
+  background: linear-gradient(135deg, #eef2f7, #b4bfce);
+  color: #3a4658;
+  box-shadow: 0 0 0 3px rgba(150, 165, 190, 0.5);
+}
+.podium-3 .podium-avatar {
+  background: linear-gradient(135deg, #eab98c, #b5722f);
+  color: #4a2a10;
+  box-shadow: 0 0 0 3px rgba(181, 114, 47, 0.5);
+}
+/* rank-coloured pedestals */
+.podium-1 .podium-bar {
+  background: linear-gradient(180deg, #ffd54a, #e0a41c);
+  color: #5a3d00;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+.podium-2 .podium-bar {
+  background: linear-gradient(180deg, #e6ecf3, #a9b5c5);
+  color: #3a4658;
+}
+.podium-3 .podium-bar {
+  background: linear-gradient(180deg, #e4ab7c, #b5722f);
+  color: #fff;
+}
+.podium-medal {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.28));
+}
+
 .lb-list {
   display: flex;
   flex-direction: column;
