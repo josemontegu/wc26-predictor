@@ -21,11 +21,13 @@ function catLabel(label: string, t: TFn) {
   return t(label, CAT_ES[label] ?? label)
 }
 
+// Four clearly-separated hues (green / blue / purple / gold) so the stacked
+// bars stay legible — the old palette used two near-identical greens.
 const CATS = [
-  { key: 'pts_advance', label: 'Advance', color: '#07a06a' },
-  { key: 'pts_exact', label: 'Exact', color: '#2b4ea8' },
-  { key: 'pts_tendency', label: 'Result', color: '#0bbd7e' },
-  { key: 'pts_awards', label: 'Awards', color: '#f5b301' },
+  { key: 'pts_advance', label: 'Advance', color: '#12b886' },
+  { key: 'pts_exact', label: 'Exact', color: '#4c6ef5' },
+  { key: 'pts_tendency', label: 'Result', color: '#cc5de8' },
+  { key: 'pts_awards', label: 'Awards', color: '#f59f00' },
 ] as const
 
 function topPick(list: LockedAwardPrediction[]) {
