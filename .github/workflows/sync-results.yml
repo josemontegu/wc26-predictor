@@ -1,11 +1,14 @@
 name: Sync results (openfootball)
 
 # Hands-off result entry. Pulls finished knockout scores (final score, extra
-# time, penalties) from the public-domain openfootball dataset into Supabase on a
-# schedule, so matches update automatically — even overnight. Fill-only: a result
-# already entered by the admin is never overwritten. Requires repo secrets
-# SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (service key — server-side only).
-# Disable by deleting this file if you'd rather enter results from the Admin panel.
+# time, penalties) into Supabase on a schedule, so matches update automatically —
+# even overnight. Source: football-data.org live feed when FOOTBALL_DATA_TOKEN is
+# set (near-instant), otherwise the public-domain openfootball dataset. Fill-only:
+# a result already entered by the admin is never overwritten. Requires repo
+# secrets SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (service key — server-side
+# only); FOOTBALL_DATA_TOKEN is optional. This workflow is best driven by an
+# external ping to its workflow_dispatch (GitHub's own cron is throttled); the
+# built-in schedule below is a backup. Delete this file to go back to manual entry.
 
 on:
   schedule:
@@ -37,4 +40,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Optional: when set, results come from the football-data.org live feed
+          # (near-instant, with penalty tallies). Without it, falls back to openfootball.
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
           RESULTS_OVERWRITE: ${{ inputs.overwrite }}

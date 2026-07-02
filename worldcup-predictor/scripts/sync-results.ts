@@ -10,10 +10,12 @@
 // Env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, optional RESULTS_OVERWRITE.
 
 import { createClient } from '@supabase/supabase-js'
-import { buildResultUpserts, fetchFeed } from '../src/lib/openfootball'
+import { buildResultUpserts, fetchFeed, type MatchResultRow } from '../src/lib/openfootball'
+import { buildResultUpsertsFromFd, fetchFootballData } from '../src/lib/footballdata'
 
 const url = process.env.SUPABASE_URL
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+const fdToken = process.env.FOOTBALL_DATA_TOKEN
 const overwrite = process.env.RESULTS_OVERWRITE === 'true'
 
 if (!url || !key) {
@@ -23,16 +25,42 @@ if (!url || !key) {
 
 const supabase = createClient(url, key, { auth: { persistSession: false } })
 
-async function main() {
+/**
+ * Get the result-update rows. When a football-data.org token is configured we
+ * use that live feed (near-instant, with penalty tallies); otherwise we fall
+ * back to the openfootball dataset. Either way, writing is fill-only unless
+ * RESULTS_OVERWRITE is set.
+ */
+async function computeRows(): Promise<MatchResultRow[]> {
+  if (fdToken) {
+    const fd = await fetchFootballData(fdToken)
+    console.log(`Fetched ${fd.length} finished knockout match(es) from football-data.org.`)
+    const { data: existing, error } = await supabase
+      .from('matches')
+      .select('match_no, round, home_team, away_team, home_score, away_score')
+      .gte('match_no', 73)
+    if (error) throw new Error(error.message)
+    const { rows, unmatched } = buildResultUpsertsFromFd(existing ?? [], fd, { overwrite })
+    for (const u of unmatched) {
+      console.warn(
+        `Unmatched (no DB row): ${u.homeName} [${u.homeTla}] vs ${u.awayName} [${u.awayTla}] ` +
+          `(${u.round}) — check TEAM_TLA / team-name spelling.`,
+      )
+    }
+    return rows
+  }
+
   const feed = await fetchFeed()
   console.log(`Fetched ${feed.length} knockout fixtures from openfootball.`)
-
-  const { data: existing, error: readErr } = await supabase
+  const { data: existing, error } = await supabase
     .from('matches')
     .select('match_no, home_score, away_score')
-  if (readErr) throw new Error(readErr.message)
+  if (error) throw new Error(error.message)
+  return buildResultUpserts(existing ?? [], feed, { overwrite })
+}
 
-  const rows = buildResultUpserts(existing ?? [], feed, { overwrite })
+async function main() {
+  const rows = await computeRows()
   if (rows.length === 0) {
     console.log('No new finished results to write.')
     return
