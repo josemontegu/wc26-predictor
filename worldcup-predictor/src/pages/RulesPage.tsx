@@ -187,6 +187,75 @@ export default function RulesPage() {
           <li>{t('The admin enters official results; the table updates instantly.', 'El administrador ingresa los resultados oficiales; la tabla se actualiza al instante.')}</li>
         </ul>
       </div>
+
+      <div className="form-card">
+        <div className="rule-card-head">
+          <span className="rule-icon">❓</span>
+          <h2>{t('FAQ', 'Preguntas frecuentes')}</h2>
+        </div>
+        <div className="faq">
+          <p className="faq-q">{t('Can I change a pick after making it?', '¿Puedo cambiar un pronóstico después de hacerlo?')}</p>
+          <p className="faq-a">
+            {t(
+              'Yes — edit as many times as you like until that match locks, shortly before kick-off. After it locks, it\'s final.',
+              'Sí — edítalo las veces que quieras hasta que ese partido se cierre, poco antes del inicio. Una vez cerrado, es definitivo.',
+            )}
+          </p>
+
+          <p className="faq-q">{t('When exactly do picks lock?', '¿Cuándo se cierran exactamente los pronósticos?')}</p>
+          <p className="faq-a">
+            {t(
+              'Each match locks a minute before kick-off — its card shows a live "closes in…" countdown. The tournament award picks lock when the Round of 32 ends.',
+              'Cada partido se cierra un minuto antes del inicio — su tarjeta muestra una cuenta regresiva "cierra en…". Las elecciones de premios se cierran cuando termina la fase de 32.',
+            )}
+          </p>
+
+          <p className="faq-q">{t('What if a match goes to extra time or penalties?', '¿Y si un partido va a prórroga o penales?')}</p>
+          <p className="faq-a">
+            {t(
+              'You predict the final score after extra time. A level score means a shootout, and you pick who wins it — getting that right earns the "advancing" points.',
+              'Pronosticas el marcador final tras la prórroga. Un marcador igualado significa tanda de penales, y eliges quién la gana — acertar eso otorga los puntos de "avance".',
+            )}
+          </p>
+
+          <p className="faq-q">{t('How are ties in the table broken?', '¿Cómo se desempata en la tabla?')}</p>
+          <p className="faq-a">
+            {t(
+              'Points first, then most exact scores, then most correct advancing picks. If players are still level, they share the same position.',
+              'Primero los puntos, luego más marcadores exactos, luego más aciertos de avance. Si siguen igualados, comparten la misma posición.',
+            )}
+          </p>
+
+          <p className="faq-q">{t('Can others see my picks before a match?', '¿Otros pueden ver mis pronósticos antes de un partido?')}</p>
+          <p className="faq-a">
+            {t(
+              'No. Your picks stay private until the match locks; then everyone\'s are revealed together on the match page.',
+              'No. Tus pronósticos son privados hasta que el partido se cierra; entonces se revelan los de todos en la página del partido.',
+            )}
+          </p>
+
+          <p className="faq-q">{t('Do results update on their own?', '¿Los resultados se actualizan solos?')}</p>
+          <p className="faq-a">
+            {t(
+              'Yes — scores sync from a live feed within minutes of full-time, day or night. The admin can also enter or correct any result.',
+              'Sí — los marcadores se sincronizan desde un feed en vivo a los pocos minutos del final, de día o de noche. El admin también puede ingresar o corregir cualquier resultado.',
+            )}
+          </p>
+        </div>
+      </div>
+
+      <div className="form-card">
+        <div className="rule-card-head">
+          <span className="rule-icon">📌</span>
+          <h2>{t('Good to know', 'Para tener en cuenta')}</h2>
+        </div>
+        <ul className="rules-list-plain">
+          <li>{t('This is a private game among friends, just for fun — no real money is involved.', 'Este es un juego privado entre amigos, solo por diversión — no hay dinero real de por medio.')}</li>
+          <li>{t('Not affiliated with, or endorsed by, FIFA or the World Cup.', 'No está afiliado ni respaldado por la FIFA ni el Mundial.')}</li>
+          <li>{t('Match results come from public data and can occasionally lag or need a fix — the admin\'s entry is final.', 'Los resultados provienen de datos públicos y ocasionalmente pueden demorarse o requerir una corrección — la decisión del admin es definitiva.')}</li>
+          <li>{t('Your nickname and emoji are shown to the group; your predictions are yours alone until they lock.', 'Tu apodo y emoji se muestran al grupo; tus pronósticos son solo tuyos hasta que se cierran.')}</li>
+        </ul>
+      </div>
     </div>
   )
 }

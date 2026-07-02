@@ -132,12 +132,20 @@ a {
   gap: 0.4rem;
 }
 .brand-nick {
+  display: inline-flex;
+  align-items: center;
   font-size: 0.78rem;
   font-weight: 600;
+  color: inherit;
+  text-decoration: none;
   background: rgba(255, 255, 255, 0.16);
   border: 1px solid rgba(255, 255, 255, 0.18);
   padding: 0.22rem 0.65rem;
   border-radius: 999px;
+  transition: background 0.15s;
+}
+.brand-nick:hover {
+  background: rgba(255, 255, 255, 0.26);
 }
 .demo-badge {
   font-size: 0.62rem;
@@ -1214,6 +1222,18 @@ label {
   flex-direction: column;
   gap: 0.4rem;
   font-size: 0.92rem;
+}
+.faq-q {
+  font-weight: 700;
+  margin: 0.95rem 0 0.15rem;
+}
+.faq-q:first-child {
+  margin-top: 0;
+}
+.faq-a {
+  margin: 0 0 0.2rem;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 .mini-table {
   width: 100%;

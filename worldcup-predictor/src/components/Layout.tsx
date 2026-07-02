@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { DEMO } from '../lib/supabase'
 import { useT } from '../lib/i18n'
@@ -16,7 +16,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     { to: '/awards', label: t('Awards', 'Premios'), icon: '🏅', end: false },
     { to: '/leaderboard', label: t('Table', 'Tabla'), icon: '🏆', end: false },
     { to: '/stats', label: t('Stats', 'Stats'), icon: '📊', end: false },
-    { to: '/profile', label: t('You', 'Perfil'), icon: '👤', end: false },
+    { to: '/rules', label: t('Info', 'Info'), icon: 'ℹ️', end: false },
   ]
 
   return (
@@ -32,10 +32,10 @@ export default function Layout({ children }: { children: ReactNode }) {
           <span className="brand-right">
             {DEMO && <span className="demo-badge">Demo</span>}
             {profile?.nickname && (
-              <span className="brand-nick">
+              <Link to="/profile" className="brand-nick" aria-label={t('Your profile', 'Tu perfil')}>
                 {profile.emoji && <span className="brand-nick-emoji">{profile.emoji}</span>}
                 {profile.nickname}
-              </span>
+              </Link>
             )}
             <LangToggle />
             <ThemeToggle />
