@@ -47,6 +47,8 @@ export default function StatsPage() {
   const [awardPicks, setAwardPicks] = useState<LockedAwardPrediction[]>([])
   const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(true)
+  // Points-distribution colouring: solid total vs. split by where points came from.
+  const [showSource, setShowSource] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -243,6 +245,7 @@ export default function StatsPage() {
   }
 
   const maxPts = Math.max(1, ...board.map((r) => r.total_points))
+  const statByUser = new Map(stats.map((s) => [s.user_id, s]))
   const hasSupers = supers.some((a) => a.res)
   const hasPulse = pulse.champTotal > 0 || picks.length > 0
   const hasResults = stats.some((s) => s.scored > 0)
@@ -253,21 +256,73 @@ export default function StatsPage() {
 
       {board.length > 0 && (
         <div className="form-card">
-          <div className="stat-title">{t('Points distribution', 'Distribución de puntos')}</div>
-          {board.map((r) => (
-            <div key={r.user_id} className="cbar-row">
-              <span className="cbar-label">
-                {r.emoji || '🏳️'} {r.nickname}
-              </span>
-              <div className="cbar-track">
-                <div
-                  className="cbar-fill cbar-gold"
-                  style={{ width: `${Math.round((r.total_points / maxPts) * 100)}%` }}
-                />
+          <div className="pdist-head">
+            <div className="stat-title">{t('Points distribution', 'Distribución de puntos')}</div>
+            {hasResults && (
+              <div className="pdist-toggle">
+                <button
+                  type="button"
+                  className={`pdist-chip ${!showSource ? 'pdist-chip-on' : ''}`}
+                  onClick={() => setShowSource(false)}
+                >
+                  {t('Total', 'Total')}
+                </button>
+                <button
+                  type="button"
+                  className={`pdist-chip ${showSource ? 'pdist-chip-on' : ''}`}
+                  onClick={() => setShowSource(true)}
+                >
+                  {t('By source', 'Por origen')}
+                </button>
               </div>
-              <span className="cbar-pct">{r.total_points}</span>
+            )}
+          </div>
+          {board.map((r) => {
+            const st = statByUser.get(r.user_id)
+            const catSum = st
+              ? CATS.reduce((a, c) => a + (st[c.key] as number), 0)
+              : 0
+            return (
+              <div key={r.user_id} className="cbar-row">
+                <span className="cbar-label">
+                  {r.emoji || '🏳️'} {r.nickname}
+                </span>
+                <div className={`cbar-track ${showSource ? 'cbar-track-split' : ''}`}>
+                  {showSource && catSum > 0 ? (
+                    CATS.map((c) => {
+                      const v = st![c.key] as number
+                      if (!v) return null
+                      // Scale so the segments fill exactly the total-points bar.
+                      const w = (v / catSum) * (r.total_points / maxPts) * 100
+                      return (
+                        <div
+                          key={c.key}
+                          className="cat-seg"
+                          style={{ width: `${w}%`, background: c.color }}
+                          title={`${catLabel(c.label, t)}: ${v}`}
+                        />
+                      )
+                    })
+                  ) : (
+                    <div
+                      className="cbar-fill cbar-gold"
+                      style={{ width: `${Math.round((r.total_points / maxPts) * 100)}%` }}
+                    />
+                  )}
+                </div>
+                <span className="cbar-pct">{r.total_points}</span>
+              </div>
+            )
+          })}
+          {showSource && (
+            <div className="cat-legend">
+              {CATS.map((c) => (
+                <span key={c.key} className="cat-key">
+                  <span className="cat-dot" style={{ background: c.color }} /> {catLabel(c.label, t)}
+                </span>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
 
@@ -335,68 +390,6 @@ export default function StatsPage() {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* ---------------- Per-player breakdown ---------------- */}
-      <h2 className="stat-h mt-lg">📈 {t('By player', 'Por jugador')}</h2>
-      {!hasResults ? (
-        <p className="muted small">{t('Player stats appear once results are in.', 'Las estadísticas de jugadores aparecen cuando hay resultados.')}</p>
-      ) : (
-        <div className="pstat-list">
-          {[...stats]
-            .sort(
-              (a, b) =>
-                b.pts_advance +
-                b.pts_exact +
-                b.pts_tendency +
-                b.pts_penalties +
-                b.pts_exact_aet +
-                b.pts_awards -
-                (a.pts_advance +
-                  a.pts_exact +
-                  a.pts_tendency +
-                  a.pts_penalties +
-                  a.pts_exact_aet +
-                  a.pts_awards),
-            )
-            .map((s) => {
-              const total =
-                s.pts_advance + s.pts_exact + s.pts_tendency + s.pts_penalties + s.pts_exact_aet + s.pts_awards
-              const acc = s.scored ? Math.round((s.correct_advances / s.scored) * 100) : 0
-              return (
-                <div key={s.user_id} className="pstat">
-                  <div className="pstat-head">
-                    <span className="pstat-emoji">{s.emoji || '🏳️'}</span>
-                    <span className="pstat-nick">{s.nickname}</span>
-                    <span className="pstat-meta">
-                      {t(`${acc}% advance`, `${acc}% avance`)} · {t(`${s.exact_scores} exact`, `${s.exact_scores} exactos`)}
-                    </span>
-                  </div>
-                  <div className="cat-bar">
-                    {CATS.map((c) => {
-                      const v = s[c.key] as number
-                      if (!v || !total) return null
-                      return (
-                        <div
-                          key={c.key}
-                          className="cat-seg"
-                          style={{ width: `${(v / total) * 100}%`, background: c.color }}
-                          title={`${catLabel(c.label, t)}: ${v}`}
-                        />
-                      )
-                    })}
-                  </div>
-                </div>
-              )
-            })}
-          <div className="cat-legend">
-            {CATS.map((c) => (
-              <span key={c.key} className="cat-key">
-                <span className="cat-dot" style={{ background: c.color }} /> {catLabel(c.label, t)}
-              </span>
-            ))}
-          </div>
         </div>
       )}
 
