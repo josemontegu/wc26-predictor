@@ -382,6 +382,8 @@ label {
 }
 .round-tab {
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
   border: 1.5px solid var(--line);
   background: var(--card);
   border-radius: 999px;
@@ -394,6 +396,44 @@ label {
 }
 .round-tab:active {
   transform: scale(0.96);
+}
+/* Amber count badge on tabs whose round has unpicked, still-open matches. */
+.round-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.28rem;
+  margin-left: 0.35rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #3a2b00;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+}
+/* "You still have N to predict" nudge banner. */
+.pick-nudge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--gold-soft);
+  border: 1px solid rgba(245, 179, 1, 0.45);
+  border-left: 4px solid var(--gold);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0.2rem 0 0.9rem;
+}
+.pick-nudge-ico {
+  flex: 0 0 auto;
+  font-size: 1rem;
+}
+.pick-nudge-when {
+  opacity: 0.8;
 }
 .round-tab-active {
   background: linear-gradient(135deg, var(--navy), var(--indigo));
@@ -490,6 +530,11 @@ label {
 }
 .mcard-played {
   background: linear-gradient(180deg, #fff, #fbfcff);
+}
+/* Still open and not yet predicted — amber edge so it stands out at a glance. */
+.mcard-unpicked {
+  border-color: rgba(245, 179, 1, 0.5);
+  box-shadow: var(--shadow-sm), inset 3px 0 0 var(--gold);
 }
 .mcard-head {
   display: flex;

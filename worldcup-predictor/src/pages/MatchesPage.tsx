@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Match, MyScore, Prediction, RoundCode } from '../lib/types'
-import { roundName, ROUND_ORDER, formatDay } from '../lib/format'
+import { isLocked, hasResult } from '../lib/types'
+import { isTBD } from '../lib/teamMeta'
+import { roundName, ROUND_ORDER, formatDay, timeUntilLock } from '../lib/format'
 import { useT } from '../lib/i18n'
 import MatchCard from '../components/MatchCard'
 
@@ -54,6 +56,33 @@ export default function MatchesPage() {
       supabase.removeChannel(channel)
     }
   }, [load])
+
+  // Matches still open (not locked, not played) with resolved teams that the
+  // viewer hasn't predicted — so we can nudge them before they lock. Soonest to
+  // close first.
+  const needsPick = useMemo(
+    () =>
+      matches
+        .filter(
+          (m) =>
+            !hasResult(m) &&
+            !isLocked(m) &&
+            !isTBD(m.home_team) &&
+            !isTBD(m.away_team) &&
+            !predictions[m.id],
+        )
+        .sort((a, b) => {
+          const la = a.lock_time ? new Date(a.lock_time).getTime() : Infinity
+          const lb = b.lock_time ? new Date(b.lock_time).getTime() : Infinity
+          return la - lb
+        }),
+    [matches, predictions],
+  )
+  const needsByRound = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const x of needsPick) m.set(x.round, (m.get(x.round) ?? 0) + 1)
+    return m
+  }, [needsPick])
 
   const roundsPresent = useMemo(() => {
     const set = new Set(matches.map((m) => m.round))
@@ -114,16 +143,41 @@ export default function MatchesPage() {
       <h1>{t('Knockout matches', 'Partidos de eliminación')}</h1>
       {error && <div className="notice notice-err">{error}</div>}
 
+      {needsPick.length > 0 && (
+        <div className="pick-nudge">
+          <span className="pick-nudge-ico">⚠️</span>
+          <span>
+            {t(
+              `You still have ${needsPick.length} match${needsPick.length === 1 ? '' : 'es'} to predict`,
+              `Te ${needsPick.length === 1 ? 'queda' : 'quedan'} ${needsPick.length} partido${needsPick.length === 1 ? '' : 's'} por pronosticar`,
+            )}
+            {needsPick[0].lock_time && (
+              <span className="pick-nudge-when">
+                {' · '}
+                {t(
+                  `next closes in ${timeUntilLock(needsPick[0].lock_time)}`,
+                  `el próximo cierra en ${timeUntilLock(needsPick[0].lock_time)}`,
+                )}
+              </span>
+            )}
+          </span>
+        </div>
+      )}
+
       <div className="round-tabs">
-        {(roundsPresent.length ? roundsPresent : ROUND_ORDER).map((r) => (
-          <button
-            key={r}
-            className={`round-tab ${activeRound === r ? 'round-tab-active' : ''}`}
-            onClick={() => setActiveRound(r)}
-          >
-            {r}
-          </button>
-        ))}
+        {(roundsPresent.length ? roundsPresent : ROUND_ORDER).map((r) => {
+          const need = needsByRound.get(r) ?? 0
+          return (
+            <button
+              key={r}
+              className={`round-tab ${activeRound === r ? 'round-tab-active' : ''}`}
+              onClick={() => setActiveRound(r)}
+            >
+              {r}
+              {need > 0 && <span className="round-tab-badge">{need}</span>}
+            </button>
+          )
+        })}
       </div>
 
       <h2 className="round-title">

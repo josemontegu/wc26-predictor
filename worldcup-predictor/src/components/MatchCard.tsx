@@ -19,9 +19,15 @@ export default function MatchCard({ match, prediction, points }: Props) {
   const kickedOff =
     !!match.kickoff_time && Date.now() >= new Date(match.kickoff_time).getTime()
   const live = locked && !played && kickedOff
+  // Still open, teams known, and the viewer hasn't predicted it yet.
+  const needsPick =
+    !locked && !played && !prediction && !isTBD(match.home_team) && !isTBD(match.away_team)
 
   return (
-    <Link to={`/match/${match.id}`} className={`mcard ${played ? 'mcard-played' : ''}`}>
+    <Link
+      to={`/match/${match.id}`}
+      className={`mcard ${played ? 'mcard-played' : ''} ${needsPick ? 'mcard-unpicked' : ''}`}
+    >
       <span
         className="mcard-stripe"
         style={{
