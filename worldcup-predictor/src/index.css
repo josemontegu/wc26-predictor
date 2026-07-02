@@ -2161,6 +2161,13 @@ label {
 }
 
 /* ---------- profile emoji picker ---------- */
+.btn-emoji-change {
+  display: inline-flex;
+  width: auto;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+}
 .emoji-current {
   font-size: 1.2rem;
   margin-left: 0.3rem;

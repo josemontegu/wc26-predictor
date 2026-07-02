@@ -9,8 +9,10 @@ import { useT } from '../lib/i18n'
 export default function ProfilePage({ forced = false }: { forced?: boolean }) {
   const t = useT()
   const { session, profile, isAdmin, refreshProfile, signOut } = useAuth()
-  const [nickname, setNickname] = useState('')
-  const [emoji, setEmoji] = useState('')
+  const [nickname, setNickname] = useState(profile?.nickname ?? '')
+  const [emoji, setEmoji] = useState(profile?.emoji ?? '')
+  // Keep the emoji grid collapsed once one is chosen — open it on request.
+  const [pickerOpen, setPickerOpen] = useState(false)
   const [others, setOthers] = useState<Pick<Profile, 'id' | 'nickname' | 'emoji'>[]>([])
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -115,7 +117,24 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
               <label>
                 {t('Your emoji', 'Tu emoji')} {emoji && <span className="emoji-current">{emoji}</span>}
               </label>
-              <EmojiPicker value={emoji} onChange={setEmoji} taken={takenEmojis} />
+              {pickerOpen || !emoji ? (
+                <EmojiPicker
+                  value={emoji}
+                  onChange={(e) => {
+                    setEmoji(e)
+                    setPickerOpen(false)
+                  }}
+                  taken={takenEmojis}
+                />
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-emoji-change"
+                  onClick={() => setPickerOpen(true)}
+                >
+                  ✏️ {t('Change emoji', 'Cambiar emoji')}
+                </button>
+              )}
             </div>
 
             {error && <div className="notice notice-err">{error}</div>}
