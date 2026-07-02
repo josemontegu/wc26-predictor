@@ -83,6 +83,12 @@ export default function MatchesPage() {
     for (const x of needsPick) m.set(x.round, (m.get(x.round) ?? 0) + 1)
     return m
   }, [needsPick])
+  // Rounds (in order) that still have unpicked matches — so the nudge can name
+  // where they are, instead of implying the current round is incomplete.
+  const needRounds = useMemo(
+    () => ROUND_ORDER.filter((r) => (needsByRound.get(r) ?? 0) > 0),
+    [needsByRound],
+  )
 
   const roundsPresent = useMemo(() => {
     const set = new Set(matches.map((m) => m.round))
@@ -147,10 +153,15 @@ export default function MatchesPage() {
         <div className="pick-nudge">
           <span className="pick-nudge-ico">⚠️</span>
           <span>
-            {t(
-              `You still have ${needsPick.length} match${needsPick.length === 1 ? '' : 'es'} to predict`,
-              `Te ${needsPick.length === 1 ? 'queda' : 'quedan'} ${needsPick.length} partido${needsPick.length === 1 ? '' : 's'} por pronosticar`,
-            )}
+            {needRounds.length === 1
+              ? t(
+                  `You still have ${needsPick.length} match${needsPick.length === 1 ? '' : 'es'} to predict in the ${roundName(needRounds[0])}`,
+                  `Te ${needsPick.length === 1 ? 'queda' : 'quedan'} ${needsPick.length} partido${needsPick.length === 1 ? '' : 's'} por pronosticar en ${roundName(needRounds[0])}`,
+                )
+              : t(
+                  `You still have ${needsPick.length} match${needsPick.length === 1 ? '' : 'es'} to predict`,
+                  `Te ${needsPick.length === 1 ? 'queda' : 'quedan'} ${needsPick.length} partido${needsPick.length === 1 ? '' : 's'} por pronosticar`,
+                )}
             {needsPick[0].lock_time && (
               <span className="pick-nudge-when">
                 {' · '}
