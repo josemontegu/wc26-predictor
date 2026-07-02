@@ -73,6 +73,8 @@ export default function LeaderboardPage() {
   const [rows, setRows] = useState<LeaderboardRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // The player whose stats card is open (null = closed).
+  const [selected, setSelected] = useState<LeaderboardRow | null>(null)
   // Snapshot of ranks from the previous visit (captured once on mount).
   const prevRanks = useRef<Record<string, number>>(loadPrevRanks())
 
@@ -147,6 +149,14 @@ export default function LeaderboardPage() {
     }
   }, [rows, session])
 
+  // Close the open stats card on Escape.
+  useEffect(() => {
+    if (!selected) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSelected(null)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selected])
+
   if (loading) {
     return (
       <div className="page">
@@ -183,31 +193,18 @@ export default function LeaderboardPage() {
   const lastRank =
     hasScores && rest.length > 0 ? Math.max(...rows.map((r) => ranks[r.user_id])) : -1
 
-  // The tie-break criteria, in priority order, shown as subtle chips so it's
-  // clear why players on equal points are ordered the way they are.
-  const statChips = (r: LeaderboardRow) => (
-    <>
-      <span className="lb-stat" title={t('Exact scores', 'Marcadores exactos')}>
-        <span className="lb-stat-ico">🎯</span>
-        {r.exact_scores}
-      </span>
-      <span className="lb-stat" title={t('Correct advancing picks', 'Aciertos de avance')}>
-        <span className="lb-stat-ico">✅</span>
-        {r.correct_advances}
-      </span>
-    </>
-  )
+  const pct = (n: number, d: number) => (d > 0 ? Math.round((n / d) * 100) : 0)
 
   return (
     <div className="page">
       <div className="lb-head">
         <h1>{t('Leaderboard', 'Tabla de posiciones')}</h1>
       </div>
-      {hasScores && (
+      {rows.length > 0 && (
         <p className="lb-caption">
           {t(
-            'Points, then 🎯 exact scores, then ✅ correct picks',
-            'Puntos, luego 🎯 marcadores exactos y ✅ aciertos',
+            'Ranked by points · tap a player for their stats',
+            'Ordenado por puntos · toca a un jugador para ver sus estadísticas',
           )}
         </p>
       )}
@@ -222,7 +219,12 @@ export default function LeaderboardPage() {
               {podiumOrder.map((r) => {
                 const rank = ranks[r.user_id]
                 return (
-                  <div key={r.user_id} className={`podium-col podium-${rank}`}>
+                  <button
+                    key={r.user_id}
+                    type="button"
+                    className={`podium-col podium-${rank}`}
+                    onClick={() => setSelected(r)}
+                  >
                     {rank === 1 && <span className="podium-medal">👑</span>}
                     <div
                       className={`podium-avatar ${r.emoji ? 'avatar-emoji' : ''}`}
@@ -236,8 +238,7 @@ export default function LeaderboardPage() {
                       <CountUp value={r.total_points} />
                       <span className="podium-pts-lbl"> {t('pts', 'pts')}</span>
                     </div>
-                    <div className="podium-statline">{statChips(r)}</div>
-                  </div>
+                  </button>
                 )
               })}
             </div>
@@ -250,9 +251,11 @@ export default function LeaderboardPage() {
               const mv = movement(r, rank)
               const isLast = rank === lastRank
               return (
-                <div
+                <button
                   key={r.user_id}
+                  type="button"
                   className={`lb-row ${isMe ? 'lb-row-me' : ''} ${isLast ? 'lb-row-last' : ''}`}
+                  onClick={() => setSelected(r)}
                 >
                   <span className="lb-rank">
                     {rank}
@@ -274,18 +277,79 @@ export default function LeaderboardPage() {
                       {r.nickname || r.display_name}
                       {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
                     </div>
-                    <div className="lb-statline">{statChips(r)}</div>
                   </div>
                   <div className="lb-stats">
                     <div className="lb-points">
                       <CountUp value={r.total_points} />
                     </div>
                   </div>
-                </div>
+                </button>
               )
             })}
           </div>
         </>
+      )}
+
+      {selected && (
+        <div className="pcard-overlay" onClick={() => setSelected(null)}>
+          <div className="pcard" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="pcard-close"
+              onClick={() => setSelected(null)}
+              aria-label={t('Close', 'Cerrar')}
+            >
+              ✕
+            </button>
+            <div className="pcard-head">
+              <span
+                className={`pcard-avatar ${selected.emoji ? 'avatar-emoji' : ''}`}
+                style={selected.emoji ? undefined : { background: avatarGradient(selected.user_id) }}
+              >
+                {selected.emoji || initials(selected)}
+              </span>
+              <div className="pcard-id">
+                <div className="pcard-nick">{selected.nickname || selected.display_name}</div>
+                <div className="pcard-rank">
+                  {medals[ranks[selected.user_id]] ?? ''} {t('Rank', 'Puesto')} #
+                  {ranks[selected.user_id]}
+                </div>
+              </div>
+            </div>
+
+            <div className="pcard-points">
+              <span className="pcard-pts-num">{selected.total_points}</span>
+              <span className="pcard-pts-lbl"> {t('points', 'puntos')}</span>
+            </div>
+
+            <div className="pcard-stats">
+              <div className="pcard-stat">
+                <span className="pcard-stat-ico">🎯</span>
+                <span className="pcard-stat-val">{selected.exact_scores}</span>
+                <span className="pcard-stat-lbl">{t('exact scores', 'exactos')}</span>
+              </div>
+              <div className="pcard-stat">
+                <span className="pcard-stat-ico">✅</span>
+                <span className="pcard-stat-val">{selected.correct_advances}</span>
+                <span className="pcard-stat-lbl">{t('advancing right', 'aciertos avance')}</span>
+              </div>
+              <div className="pcard-stat">
+                <span className="pcard-stat-ico">📋</span>
+                <span className="pcard-stat-val">{selected.scored_predictions}</span>
+                <span className="pcard-stat-lbl">{t('matches scored', 'partidos')}</span>
+              </div>
+            </div>
+
+            {selected.scored_predictions > 0 && (
+              <div className="pcard-rates">
+                {t(
+                  `${pct(selected.exact_scores, selected.scored_predictions)}% exact · ${pct(selected.correct_advances, selected.scored_predictions)}% advancing accuracy`,
+                  `${pct(selected.exact_scores, selected.scored_predictions)}% exactos · ${pct(selected.correct_advances, selected.scored_predictions)}% de avance`,
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       )}
       <p className="muted small" style={{ marginTop: '1rem' }}>
         {t(

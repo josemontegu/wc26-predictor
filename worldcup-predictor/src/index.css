@@ -1101,6 +1101,160 @@ label {
 [data-theme='dark'] .lb-row-last .lb-points {
   color: #ff8080;
 }
+
+/* Podium cards & rows are now buttons (they open the player card). */
+button.lb-row,
+button.podium-col {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+button.lb-row {
+  width: 100%;
+  text-align: left;
+}
+button.lb-row:active {
+  transform: scale(0.992);
+}
+
+/* ---- Player stats card (modal) ---- */
+.pcard-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem;
+  background: rgba(10, 20, 40, 0.55);
+  animation: pcardFade 0.15s ease;
+}
+@keyframes pcardFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.pcard {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.45);
+  padding: 1.4rem 1.2rem 1.2rem;
+  animation: pcardPop 0.18s ease;
+}
+@keyframes pcardPop {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.pcard-close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--line-soft);
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.pcard-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+}
+.pcard-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--indigo), var(--navy-2));
+  flex: 0 0 auto;
+}
+.pcard-avatar.avatar-emoji {
+  font-size: 1.7rem;
+}
+.pcard-nick {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+.pcard-rank {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.pcard-points {
+  text-align: center;
+  margin: 0.3rem 0 1rem;
+}
+.pcard-pts-num {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 2.3rem;
+  color: var(--accent-dark);
+}
+.pcard-pts-lbl {
+  color: var(--muted);
+  font-weight: 600;
+}
+.pcard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.pcard-stat {
+  background: var(--card-tint);
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  padding: 0.7rem 0.35rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+.pcard-stat-ico {
+  font-size: 1.05rem;
+}
+.pcard-stat-val {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+.pcard-stat-lbl {
+  color: var(--muted);
+  font-size: 0.66rem;
+  line-height: 1.15;
+  text-align: center;
+}
+.pcard-rates {
+  margin-top: 0.9rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
 .lb-rank {
   font-family: var(--display);
   font-weight: 700;
