@@ -251,6 +251,26 @@ export default function StatsPage() {
     <div className="page">
       <h1>📊 {t('Stats', 'Estadísticas')}</h1>
 
+      {board.length > 0 && (
+        <div className="form-card">
+          <div className="stat-title">{t('Points distribution', 'Distribución de puntos')}</div>
+          {board.map((r) => (
+            <div key={r.user_id} className="cbar-row">
+              <span className="cbar-label">
+                {r.emoji || '🏳️'} {r.nickname}
+              </span>
+              <div className="cbar-track">
+                <div
+                  className="cbar-fill cbar-gold"
+                  style={{ width: `${Math.round((r.total_points / maxPts) * 100)}%` }}
+                />
+              </div>
+              <span className="cbar-pct">{r.total_points}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ---------------- Pool Pulse ---------------- */}
       <h2 className="stat-h">🔮 {t('Pool Pulse', 'Pulso del grupo')}</h2>
       {!hasPulse ? (
@@ -283,17 +303,6 @@ export default function StatsPage() {
             <AwardTile icon="⚽" label={t('Golden Ball', 'Balón de Oro')} pick={pulse.ball} t={t} />
             <AwardTile icon="👟" label={t('Golden Boot', 'Bota de Oro')} pick={pulse.boot} t={t} />
             <AwardTile icon="🧤" label={t('Golden Glove', 'Guante de Oro')} pick={pulse.glove} t={t} />
-          </div>
-
-          <div className="stat-tiles">
-            <div className="stat-tile">
-              <div className="stat-big">{pulse.pensPct}%</div>
-              <div className="stat-cap">🥅 {t('of picks call penalties', 'de los pronósticos predicen penales')}</div>
-            </div>
-            <div className="stat-tile">
-              <div className="stat-big">{pulse.avgGoals.toFixed(1)}</div>
-              <div className="stat-cap">⚽ {t('goals/game the pool expects', 'goles/partido que espera el grupo')}</div>
-            </div>
           </div>
         </>
       )}
@@ -392,41 +401,19 @@ export default function StatsPage() {
       )}
 
       {/* ---------------- Charts & figures ---------------- */}
-      <h2 className="stat-h mt-lg">🎛️ {t('Figures', 'Gráficos')}</h2>
-      {board.length === 0 ? (
-        <p className="muted small">{t('No players yet.', 'Aún no hay jugadores.')}</p>
-      ) : (
+      {goals.playedCount > 0 && (
         <>
-          <div className="form-card">
-            <div className="stat-title">{t('Points distribution', 'Distribución de puntos')}</div>
-            {board.map((r) => (
-              <div key={r.user_id} className="cbar-row">
-                <span className="cbar-label">
-                  {r.emoji || '🏳️'} {r.nickname}
-                </span>
-                <div className="cbar-track">
-                  <div
-                    className="cbar-fill cbar-gold"
-                    style={{ width: `${Math.round((r.total_points / maxPts) * 100)}%` }}
-                  />
-                </div>
-                <span className="cbar-pct">{r.total_points}</span>
-              </div>
-            ))}
-          </div>
-
-          {goals.playedCount > 0 && (
-            <div className="stat-tiles">
-              <div className="stat-tile">
-                <div className="stat-big">{goals.predicted.toFixed(1)}</div>
-                <div className="stat-cap">🔮 {t('pool predicted goals/game', 'goles/partido pronosticados por el grupo')}</div>
-              </div>
-              <div className="stat-tile">
-                <div className="stat-big">{goals.actual.toFixed(1)}</div>
-                <div className="stat-cap">✅ {t('actual goals/game', 'goles/partido reales')}</div>
-              </div>
+          <h2 className="stat-h mt-lg">🎛️ {t('Figures', 'Gráficos')}</h2>
+          <div className="stat-tiles">
+            <div className="stat-tile">
+              <div className="stat-big">{goals.predicted.toFixed(1)}</div>
+              <div className="stat-cap">🔮 {t('pool predicted goals/game', 'goles/partido pronosticados por el grupo')}</div>
             </div>
-          )}
+            <div className="stat-tile">
+              <div className="stat-big">{goals.actual.toFixed(1)}</div>
+              <div className="stat-cap">✅ {t('actual goals/game', 'goles/partido reales')}</div>
+            </div>
+          </div>
         </>
       )}
     </div>
