@@ -179,7 +179,7 @@ export default function LeaderboardPage() {
   const top = rows.slice(0, 3)
   const rest = rows.slice(3)
   const podiumOrder = [top[1], top[0], top[2]].filter(Boolean)
-  const medals: Record<number, string> = { 1: '👑', 2: '🥈', 3: '🥉' }
+  const medals: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
   const hasScores = (rows[0]?.total_points || 0) > 0
 
   // The tie-break criteria, in priority order, shown as subtle chips so it's
@@ -227,13 +227,14 @@ export default function LeaderboardPage() {
                 const rank = ranks[r.user_id]
                 return (
                   <div key={r.user_id} className={`podium-col podium-${rank}`}>
-                    <span className="podium-medal">{medals[rank]}</span>
+                    {rank === 1 && <span className="podium-medal">👑</span>}
                     <div
                       className={`podium-avatar ${r.emoji ? 'avatar-emoji' : ''}`}
                       style={r.emoji ? undefined : { background: avatarGradient(r.user_id) }}
                     >
                       {r.emoji || initials(r)}
                     </div>
+                    <div className="podium-rankmedal">{medals[rank]}</div>
                     <div className="podium-nick">{r.nickname || r.display_name}</div>
                     <div className="podium-pts">
                       <CountUp value={r.total_points} />
