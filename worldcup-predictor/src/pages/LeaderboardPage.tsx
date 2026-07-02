@@ -273,14 +273,6 @@ export default function LeaderboardPage() {
                     <div className="lb-nick">
                       {r.nickname || r.display_name}
                       {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
-                      {isLast && (
-                        <span
-                          className="spoon-tag"
-                          title={t('Wooden spoon — dead last!', 'Farolillo rojo — colista')}
-                        >
-                          🥄
-                        </span>
-                      )}
                     </div>
                     <div className="lb-statline">{statChips(r)}</div>
                   </div>
