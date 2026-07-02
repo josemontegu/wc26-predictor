@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Match, MyScore, Prediction, RoundCode } from '../lib/types'
@@ -16,7 +17,17 @@ export default function MatchesPage() {
   const [points, setPoints] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeRound, setActiveRound] = useState<RoundCode>('R32')
+  // Keep the selected round in the URL so it survives navigating into a match
+  // and back (the page remounts, and history-back restores this param).
+  const [searchParams, setSearchParams] = useSearchParams()
+  const paramRound = searchParams.get('round') as RoundCode | null
+  const [activeRound, setActiveRound] = useState<RoundCode>(
+    paramRound && ROUND_ORDER.includes(paramRound) ? paramRound : 'R32',
+  )
+  const selectRound = (r: RoundCode) => {
+    setActiveRound(r)
+    setSearchParams({ round: r }, { replace: true })
+  }
 
   const load = useCallback(async () => {
     const [matchRes, predRes, scoreRes] = await Promise.all([
@@ -182,7 +193,7 @@ export default function MatchesPage() {
             <button
               key={r}
               className={`round-tab ${activeRound === r ? 'round-tab-active' : ''}`}
-              onClick={() => setActiveRound(r)}
+              onClick={() => selectRound(r)}
             >
               {r}
               {need > 0 && <span className="round-tab-badge">{need}</span>}
