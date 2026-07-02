@@ -15,6 +15,10 @@ on:
     - cron: '*/15 * * * *' # every 15 minutes
   workflow_dispatch: # manual "Run workflow" button
     inputs:
+      force:
+        description: 'Check now: bypass the result-window gate (still fill-only)'
+        type: boolean
+        default: false
       overwrite:
         description: 'Force re-sync: overwrite existing results with the feed'
         type: boolean
@@ -43,4 +47,5 @@ jobs:
           # Optional: when set, results come from the football-data.org live feed
           # (near-instant, with penalty tallies). Without it, falls back to openfootball.
           FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+          RESULTS_FORCE: ${{ inputs.force }}
           RESULTS_OVERWRITE: ${{ inputs.overwrite }}

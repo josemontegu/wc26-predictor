@@ -17,6 +17,8 @@ import { fetchEspnResults } from '../src/lib/espn'
 const url = process.env.SUPABASE_URL
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY
 const overwrite = process.env.RESULTS_OVERWRITE === 'true'
+// Bypass the result-window gate and check now (overwrite implies a forced run).
+const force = process.env.RESULTS_FORCE === 'true' || overwrite
 
 if (!url || !key) {
   console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
@@ -25,25 +27,66 @@ if (!url || !key) {
 
 const supabase = createClient(url, key, { auth: { persistSession: false } })
 
+// A finished result can appear no sooner than ~90' + stoppage + half-time, and
+// no later than 90' + extra time + a shootout + reporting delay. So an unscored
+// match is only worth polling for once it's this many minutes past kickoff.
+const RESULT_WINDOW_MIN = 90
+const RESULT_WINDOW_MAX = 210
+
+type ExistingRow = {
+  match_no: number
+  round: string
+  home_team: string | null
+  away_team: string | null
+  home_score: number | null
+  away_score: number | null
+  kickoff_time: string | null
+}
+
 /**
  * Get the result-update rows. Primary source is ESPN's live scoreboard
  * (near-instant, keyless, carries the penalty tally); if it's unreachable or
  * empty we fall back to the openfootball dataset. Writing is fill-only unless
  * RESULTS_OVERWRITE is set.
+ *
+ * Self-gating: the live feed is only hit when an unscored match is actually
+ * inside its result window (or on the once-an-hour safety sweep, or when forced),
+ * so the 5-minute ping is a ~instant no-op during the many hours no match is
+ * ending — tight polling exactly when it matters, idle otherwise.
  */
 async function computeRows(): Promise<MatchResultRow[]> {
   // One read serves both paths: ESPN matches by team, openfootball by match_no.
-  const { data: existing, error } = await supabase
+  const { data, error } = await supabase
     .from('matches')
-    .select('match_no, round, home_team, away_team, home_score, away_score')
+    .select('match_no, round, home_team, away_team, home_score, away_score, kickoff_time')
     .gte('match_no', 73)
   if (error) throw new Error(error.message)
+  const existing = (data ?? []) as ExistingRow[]
+
+  if (!force) {
+    const now = Date.now()
+    const active = existing.filter((m) => {
+      if (m.home_score != null || !m.kickoff_time) return false
+      const mins = (now - new Date(m.kickoff_time).getTime()) / 60000
+      return mins >= RESULT_WINDOW_MIN && mins <= RESULT_WINDOW_MAX
+    })
+    // Once-an-hour full sweep as a backstop for missing/odd kickoff times or a
+    // result that posts unusually late.
+    const hourlySweep = new Date().getUTCMinutes() < 5
+    if (active.length === 0 && !hourlySweep) {
+      console.log('No unscored match in its result window — skipping the live fetch.')
+      return []
+    }
+    if (active.length > 0) {
+      console.log(`In result window: match ${active.map((m) => m.match_no).join(', ')}.`)
+    }
+  }
 
   try {
     const espn = await fetchEspnResults()
     console.log(`Fetched ${espn.length} finished knockout result(s) from ESPN.`)
     if (espn.length > 0) {
-      const { rows, unmatched } = buildResultUpsertsFromFd(existing ?? [], espn, { overwrite })
+      const { rows, unmatched } = buildResultUpsertsFromFd(existing, espn, { overwrite })
       for (const u of unmatched) {
         console.warn(
           `Unmatched (no DB row): ${u.homeName} [${u.homeTla}] vs ${u.awayName} [${u.awayTla}] ` +
@@ -59,7 +102,7 @@ async function computeRows(): Promise<MatchResultRow[]> {
 
   const feed = await fetchFeed()
   console.log(`Fetched ${feed.length} knockout fixtures from openfootball.`)
-  return buildResultUpserts(existing ?? [], feed, { overwrite })
+  return buildResultUpserts(existing, feed, { overwrite })
 }
 
 async function main() {
