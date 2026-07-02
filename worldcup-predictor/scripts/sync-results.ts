@@ -11,11 +11,11 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { buildResultUpserts, fetchFeed, type MatchResultRow } from '../src/lib/openfootball'
-import { buildResultUpsertsFromFd, fetchFootballData } from '../src/lib/footballdata'
+import { buildResultUpsertsFromFd } from '../src/lib/footballdata'
+import { fetchEspnResults } from '../src/lib/espn'
 
 const url = process.env.SUPABASE_URL
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-const fdToken = process.env.FOOTBALL_DATA_TOKEN
 const overwrite = process.env.RESULTS_OVERWRITE === 'true'
 
 if (!url || !key) {
@@ -26,36 +26,39 @@ if (!url || !key) {
 const supabase = createClient(url, key, { auth: { persistSession: false } })
 
 /**
- * Get the result-update rows. When a football-data.org token is configured we
- * use that live feed (near-instant, with penalty tallies); otherwise we fall
- * back to the openfootball dataset. Either way, writing is fill-only unless
+ * Get the result-update rows. Primary source is ESPN's live scoreboard
+ * (near-instant, keyless, carries the penalty tally); if it's unreachable or
+ * empty we fall back to the openfootball dataset. Writing is fill-only unless
  * RESULTS_OVERWRITE is set.
  */
 async function computeRows(): Promise<MatchResultRow[]> {
-  if (fdToken) {
-    const fd = await fetchFootballData(fdToken)
-    console.log(`Fetched ${fd.length} finished knockout match(es) from football-data.org.`)
-    const { data: existing, error } = await supabase
-      .from('matches')
-      .select('match_no, round, home_team, away_team, home_score, away_score')
-      .gte('match_no', 73)
-    if (error) throw new Error(error.message)
-    const { rows, unmatched } = buildResultUpsertsFromFd(existing ?? [], fd, { overwrite })
-    for (const u of unmatched) {
-      console.warn(
-        `Unmatched (no DB row): ${u.homeName} [${u.homeTla}] vs ${u.awayName} [${u.awayTla}] ` +
-          `(${u.round}) — check TEAM_TLA / team-name spelling.`,
-      )
+  // One read serves both paths: ESPN matches by team, openfootball by match_no.
+  const { data: existing, error } = await supabase
+    .from('matches')
+    .select('match_no, round, home_team, away_team, home_score, away_score')
+    .gte('match_no', 73)
+  if (error) throw new Error(error.message)
+
+  try {
+    const espn = await fetchEspnResults()
+    console.log(`Fetched ${espn.length} finished knockout result(s) from ESPN.`)
+    if (espn.length > 0) {
+      const { rows, unmatched } = buildResultUpsertsFromFd(existing ?? [], espn, { overwrite })
+      for (const u of unmatched) {
+        console.warn(
+          `Unmatched (no DB row): ${u.homeName} [${u.homeTla}] vs ${u.awayName} [${u.awayTla}] ` +
+            `— check TEAM_TLA / team-name spelling.`,
+        )
+      }
+      return rows
     }
-    return rows
+    console.warn('ESPN returned no finished knockout results; falling back to openfootball.')
+  } catch (e) {
+    console.warn(`ESPN source failed (${(e as Error).message}); falling back to openfootball.`)
   }
 
   const feed = await fetchFeed()
   console.log(`Fetched ${feed.length} knockout fixtures from openfootball.`)
-  const { data: existing, error } = await supabase
-    .from('matches')
-    .select('match_no, home_score, away_score')
-  if (error) throw new Error(error.message)
   return buildResultUpserts(existing ?? [], feed, { overwrite })
 }
 

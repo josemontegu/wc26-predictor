@@ -203,11 +203,14 @@ export function buildResultUpsertsFromFd(
 ): { rows: MatchResultRow[]; unmatched: FdKnockout[] } {
   // Index finished fixtures by round + unordered team-key pair, under both the
   // FIFA-code key and the normalized-name key, so either can find a match.
-  const pairKey = (round: string, a: string, b: string) => `${round}|${[a, b].sort().join('~')}`
+  // Team pairs are unique across a knockout bracket, so we match on the pair
+  // alone (round-agnostic) — which also lets sources that don't label the round
+  // (e.g. ESPN's scoreboard) reuse this matcher.
+  const pairKey = (a: string, b: string) => [a, b].sort().join('~')
   const index = new Map<string, FdKnockout>()
   for (const f of fd) {
-    index.set(pairKey(f.round, f.homeTla, f.awayTla), f)
-    index.set(pairKey(f.round, normName(f.homeName), normName(f.awayName)), f)
+    index.set(pairKey(f.homeTla, f.awayTla), f)
+    index.set(pairKey(normName(f.homeName), normName(f.awayName)), f)
   }
 
   const rows: MatchResultRow[] = []
@@ -221,9 +224,8 @@ export function buildResultUpsertsFromFd(
     if (!home || !away) continue // matchup not resolved yet
 
     const f =
-      index.get(pairKey(String(m.round), TEAM_TLA[home] || '', TEAM_TLA[away] || '')) ||
-      index.get(pairKey(String(m.round), dbKey(home), dbKey(away))) ||
-      index.get(pairKey(String(m.round), normName(home), normName(away)))
+      index.get(pairKey(dbKey(home), dbKey(away))) ||
+      index.get(pairKey(normName(home), normName(away)))
     if (!f) continue
     matched.add(f)
 
@@ -231,7 +233,9 @@ export function buildResultUpsertsFromFd(
     if (alreadyScored && !opts.overwrite) continue
 
     // Orient the feed's home/away to our DB's ordering.
-    const swapped = dbKey(home) !== f.homeTla && dbKey(home) !== normName(f.homeName)
+    const homeIsFeedHome =
+      dbKey(home) === f.homeTla || normName(home) === normName(f.homeName)
+    const swapped = !homeIsFeedHome
     const finalHome = swapped ? f.finalAway : f.finalHome
     const finalAway = swapped ? f.finalHome : f.finalAway
     const penHome = swapped ? f.penAway : f.penHome
