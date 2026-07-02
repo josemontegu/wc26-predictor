@@ -211,21 +211,25 @@ export function buildResultUpsertsFromFd(
   }
 
   const rows: MatchResultRow[] = []
-  const consumed = new Set<FdKnockout>()
+  // A feed fixture counts as "matched" whenever a DB row for it exists — even if
+  // that row is already scored (and therefore skipped by fill-only). Only truly
+  // absent rows end up in `unmatched`, so the warning means a real name/code gap.
+  const matched = new Set<FdKnockout>()
   for (const m of existing) {
     const home = m.home_team?.trim()
     const away = m.away_team?.trim()
     if (!home || !away) continue // matchup not resolved yet
-    const alreadyScored = m.home_score != null && m.away_score != null
-    if (alreadyScored && !opts.overwrite) continue
 
     const f =
       index.get(pairKey(String(m.round), TEAM_TLA[home] || '', TEAM_TLA[away] || '')) ||
       index.get(pairKey(String(m.round), dbKey(home), dbKey(away))) ||
       index.get(pairKey(String(m.round), normName(home), normName(away)))
     if (!f) continue
+    matched.add(f)
 
-    consumed.add(f)
+    const alreadyScored = m.home_score != null && m.away_score != null
+    if (alreadyScored && !opts.overwrite) continue
+
     // Orient the feed's home/away to our DB's ordering.
     const swapped = dbKey(home) !== f.homeTla && dbKey(home) !== normName(f.homeName)
     const finalHome = swapped ? f.finalAway : f.finalHome
@@ -247,6 +251,6 @@ export function buildResultUpsertsFromFd(
     })
   }
 
-  const unmatched = fd.filter((f) => !consumed.has(f))
+  const unmatched = fd.filter((f) => !matched.has(f))
   return { rows, unmatched }
 }
