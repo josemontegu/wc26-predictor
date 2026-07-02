@@ -985,6 +985,12 @@ label {
   font-size: 1.5rem;
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.28));
 }
+/* gold/silver/bronze medal sitting on each pedestal */
+.podium-bar-medal {
+  font-size: 1.4rem;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
 /* crown on the leader, floating */
 .podium-1 .podium-medal {
   font-size: 2rem;
