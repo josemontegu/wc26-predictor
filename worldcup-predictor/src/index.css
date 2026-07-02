@@ -1082,6 +1082,29 @@ label {
   border: 1.5px solid var(--accent);
   background: #f3fcf8;
 }
+/* The wooden spoon — dead last gets gently roasted. */
+.lb-row-last {
+  background: rgba(224, 82, 82, 0.1);
+  border: 1px solid rgba(224, 82, 82, 0.3);
+}
+.lb-row-last .lb-rank,
+.lb-row-last .lb-points {
+  color: #d1453f;
+}
+.spoon-tag {
+  margin-left: 0.35rem;
+  font-size: 0.95rem;
+  transform: rotate(8deg);
+  display: inline-block;
+}
+[data-theme='dark'] .lb-row-last {
+  background: rgba(224, 82, 82, 0.16);
+  border-color: rgba(224, 82, 82, 0.4);
+}
+[data-theme='dark'] .lb-row-last .lb-rank,
+[data-theme='dark'] .lb-row-last .lb-points {
+  color: #ff8080;
+}
 .lb-rank {
   font-family: var(--display);
   font-weight: 700;

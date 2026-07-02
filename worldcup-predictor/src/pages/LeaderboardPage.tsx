@@ -178,6 +178,10 @@ export default function LeaderboardPage() {
   const podiumOrder = [top[1], top[0], top[2]].filter(Boolean)
   const medals: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
   const hasScores = (rows[0]?.total_points || 0) > 0
+  // The worst rank on the board — the "wooden spoon" (only once results are in,
+  // and only when there's a list below the podium). Ties share it.
+  const lastRank =
+    hasScores && rest.length > 0 ? Math.max(...rows.map((r) => ranks[r.user_id])) : -1
 
   // The tie-break criteria, in priority order, shown as subtle chips so it's
   // clear why players on equal points are ordered the way they are.
@@ -244,8 +248,12 @@ export default function LeaderboardPage() {
               const isMe = r.user_id === session?.user.id
               const rank = ranks[r.user_id]
               const mv = movement(r, rank)
+              const isLast = rank === lastRank
               return (
-                <div key={r.user_id} className={`lb-row ${isMe ? 'lb-row-me' : ''}`}>
+                <div
+                  key={r.user_id}
+                  className={`lb-row ${isMe ? 'lb-row-me' : ''} ${isLast ? 'lb-row-last' : ''}`}
+                >
                   <span className="lb-rank">
                     {rank}
                     {mv && mv.dir !== 'same' && (
@@ -265,6 +273,14 @@ export default function LeaderboardPage() {
                     <div className="lb-nick">
                       {r.nickname || r.display_name}
                       {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
+                      {isLast && (
+                        <span
+                          className="spoon-tag"
+                          title={t('Wooden spoon — dead last!', 'Farolillo rojo — colista')}
+                        >
+                          🥄
+                        </span>
+                      )}
                     </div>
                     <div className="lb-statline">{statChips(r)}</div>
                   </div>
