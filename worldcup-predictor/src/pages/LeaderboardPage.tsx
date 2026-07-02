@@ -3,8 +3,37 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { LeaderboardRow } from '../lib/types'
 import { avatarGradient } from '../lib/teamMeta'
+import { fireConfetti } from '../lib/confetti'
 import Spinner from '../components/Spinner'
 import { useT } from '../lib/i18n'
+
+/** Animates a number up to its value (and between values on live updates). */
+function CountUp({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0)
+  const fromRef = useRef(0)
+  useEffect(() => {
+    const from = fromRef.current
+    if (from === value) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      setDisplay(value)
+      fromRef.current = value
+      return
+    }
+    let raf = 0
+    let start: number | null = null
+    const step = (now: number) => {
+      if (start === null) start = now
+      const p = Math.min(1, (now - start) / 800)
+      const eased = 1 - Math.pow(1 - p, 3)
+      setDisplay(Math.round(from + (value - from) * eased))
+      if (p < 1) raf = requestAnimationFrame(step)
+      else fromRef.current = value
+    }
+    raf = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf)
+  }, [value])
+  return <>{display}</>
+}
 
 const RANK_KEY = 'wc26_ranks'
 
@@ -102,6 +131,25 @@ export default function LeaderboardPage() {
     }
   }, [fetchRows])
 
+  // A confetti burst when you're sitting in first place (once per visit).
+  const celebrated = useRef(false)
+  useEffect(() => {
+    if (celebrated.current) return
+    const top = rows[0]
+    const me = rows.find((r) => r.user_id === session?.user.id)
+    if (
+      top &&
+      me &&
+      (top.total_points || 0) > 0 &&
+      me.total_points === top.total_points &&
+      me.exact_scores === top.exact_scores &&
+      me.correct_advances === top.correct_advances
+    ) {
+      celebrated.current = true
+      setTimeout(() => fireConfetti(), 450)
+    }
+  }, [rows, session])
+
   if (loading) {
     return (
       <div className="page">
@@ -132,7 +180,7 @@ export default function LeaderboardPage() {
   const rest = rows.slice(3)
   const podiumOrder = [top[1], top[0], top[2]].filter(Boolean)
   const barHeights: Record<number, number> = { 1: 52, 2: 38, 3: 28 }
-  const medals: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
+  const medals: Record<number, string> = { 1: '👑', 2: '🥈', 3: '🥉' }
   const hasScores = (rows[0]?.total_points || 0) > 0
 
   // The tie-break criteria, in priority order, shown as subtle chips so it's
@@ -189,7 +237,7 @@ export default function LeaderboardPage() {
                     </div>
                     <div className="podium-nick">{r.nickname || r.display_name}</div>
                     <div className="podium-pts">
-                      {r.total_points}
+                      <CountUp value={r.total_points} />
                       <span className="podium-pts-lbl"> {t('pts', 'pts')}</span>
                     </div>
                     <div className="podium-statline">{statChips(r)}</div>
@@ -232,7 +280,9 @@ export default function LeaderboardPage() {
                     <div className="lb-statline">{statChips(r)}</div>
                   </div>
                   <div className="lb-stats">
-                    <div className="lb-points">{r.total_points}</div>
+                    <div className="lb-points">
+                      <CountUp value={r.total_points} />
+                    </div>
                   </div>
                 </div>
               )
