@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type {
+  AppConfig,
   LeaderboardRow,
   LockedAwardPrediction,
   LockedPrediction,
   Match,
   PlayerStat,
+  Round,
 } from '../lib/types'
 import { teamFlag } from '../lib/teamMeta'
+import { roundName, ROUND_ORDER } from '../lib/format'
 import Spinner from '../components/Spinner'
 import { useT, type TFn } from '../lib/i18n'
 
@@ -30,6 +33,16 @@ const CATS = [
   { key: 'pts_awards', label: 'Awards', color: '#f59f00' },
 ] as const
 
+// One colour per knockout round, for the "by round" points breakdown.
+const ROUND_COLORS: Record<string, string> = {
+  R32: '#15aabf',
+  R16: '#4263eb',
+  QF: '#7048e8',
+  SF: '#e8590c',
+  TP: '#868e96',
+  F: '#f59f00',
+}
+
 function topPick(list: LockedAwardPrediction[]) {
   const counts = new Map<string, number>()
   for (const p of list) counts.set(p.pick, (counts.get(p.pick) ?? 0) + 1)
@@ -46,9 +59,11 @@ export default function StatsPage() {
   const [picks, setPicks] = useState<LockedPrediction[]>([])
   const [awardPicks, setAwardPicks] = useState<LockedAwardPrediction[]>([])
   const [matches, setMatches] = useState<Match[]>([])
+  const [config, setConfig] = useState<AppConfig | null>(null)
+  const [rounds, setRounds] = useState<Round[]>([])
   const [loading, setLoading] = useState(true)
-  // Points-distribution colouring: solid total vs. split by where points came from.
-  const [showSource, setShowSource] = useState(false)
+  // How the points-distribution bars are coloured.
+  const [mode, setMode] = useState<'total' | 'source' | 'round'>('total')
 
   useEffect(() => {
     let active = true
@@ -58,7 +73,9 @@ export default function StatsPage() {
       supabase.from('locked_predictions').select('*'),
       supabase.from('locked_award_predictions').select('*'),
       supabase.from('matches').select('*'),
-    ]).then(([b, s, p, a, m]) => {
+      supabase.from('app_config').select('*').eq('id', 1).maybeSingle(),
+      supabase.from('rounds').select('*').order('sort_order'),
+    ]).then(([b, s, p, a, m, cfg, rds]) => {
       if (!active) return
       // Exclude players who haven't set a nickname yet (incomplete sign-ups).
       const named = (n: string | null | undefined) => (n ?? '').trim() !== ''
@@ -67,6 +84,8 @@ export default function StatsPage() {
       setPicks((p.data as LockedPrediction[]) ?? [])
       setAwardPicks((a.data as LockedAwardPrediction[]) ?? [])
       setMatches((m.data as Match[]) ?? [])
+      setConfig((cfg.data as AppConfig) ?? null)
+      setRounds((rds.data as Round[]) ?? [])
       setLoading(false)
     })
     return () => {
@@ -235,6 +254,39 @@ export default function StatsPage() {
     ].map((a) => ({ ...a, res: a.win }))
   }, [picks, stats, matches, t])
 
+  // Per-player points grouped by round, mirroring the DB's prediction_scores
+  // formula (per-category points × round multiplier) so numbers match the totals.
+  const pointsByRound = useMemo(() => {
+    const out = new Map<string, Map<string, number>>()
+    if (!config) return out
+    const multByRound = new Map(rounds.map((r) => [r.code, r.multiplier]))
+    const matchById = new Map(matches.map((m) => [m.id, m]))
+    for (const p of picks) {
+      const m = matchById.get(p.match_id)
+      if (!m || m.home_score == null || m.away_score == null) continue
+      const mult = multByRound.get(m.round) ?? 1
+      let pts = 0
+      if (m.advancing_team && p.advancing_team === m.advancing_team) pts += config.points_advance * mult
+      if (p.home_score === m.home_score && p.away_score === m.away_score) pts += config.points_exact * mult
+      if (Math.sign(p.home_score - p.away_score) === Math.sign(m.home_score - m.away_score))
+        pts += config.points_tendency * mult
+      if (m.went_to_penalties != null && p.penalties === m.went_to_penalties)
+        pts += config.points_penalties * mult
+      if (pts === 0) continue
+      let um = out.get(p.user_id)
+      if (!um) {
+        um = new Map()
+        out.set(p.user_id, um)
+      }
+      um.set(m.round, (um.get(m.round) ?? 0) + pts)
+    }
+    return out
+  }, [picks, matches, config, rounds])
+  // Rounds that have any points yet — drives the "by round" legend.
+  const roundsWithPoints = ROUND_ORDER.filter((rc) =>
+    [...pointsByRound.values()].some((um) => (um.get(rc) ?? 0) > 0),
+  )
+
   if (loading) {
     return (
       <div className="page">
@@ -262,47 +314,64 @@ export default function StatsPage() {
               <div className="pdist-toggle">
                 <button
                   type="button"
-                  className={`pdist-chip ${!showSource ? 'pdist-chip-on' : ''}`}
-                  onClick={() => setShowSource(false)}
+                  className={`pdist-chip ${mode === 'total' ? 'pdist-chip-on' : ''}`}
+                  onClick={() => setMode('total')}
                 >
                   {t('Total', 'Total')}
                 </button>
                 <button
                   type="button"
-                  className={`pdist-chip ${showSource ? 'pdist-chip-on' : ''}`}
-                  onClick={() => setShowSource(true)}
+                  className={`pdist-chip ${mode === 'source' ? 'pdist-chip-on' : ''}`}
+                  onClick={() => setMode('source')}
                 >
                   {t('By source', 'Por origen')}
+                </button>
+                <button
+                  type="button"
+                  className={`pdist-chip ${mode === 'round' ? 'pdist-chip-on' : ''}`}
+                  onClick={() => setMode('round')}
+                >
+                  {t('By round', 'Por ronda')}
                 </button>
               </div>
             )}
           </div>
           {board.map((r) => {
             const st = statByUser.get(r.user_id)
-            const catSum = st
-              ? CATS.reduce((a, c) => a + (st[c.key] as number), 0)
-              : 0
+            const um = pointsByRound.get(r.user_id)
+            const segs =
+              mode === 'source'
+                ? CATS.map((c) => ({ color: c.color, v: st ? (st[c.key] as number) : 0, label: catLabel(c.label, t) }))
+                : mode === 'round'
+                  ? ROUND_ORDER.filter((rc) => (um?.get(rc) ?? 0) > 0).map((rc) => ({
+                      color: ROUND_COLORS[rc],
+                      v: um!.get(rc)!,
+                      label: roundName(rc),
+                    }))
+                  : []
+            const segSum = segs.reduce((a, s) => a + s.v, 0)
+            const split = mode !== 'total'
             return (
               <div key={r.user_id} className="cbar-row">
                 <span className="cbar-label">
                   {r.emoji || '🏳️'} {r.nickname}
                 </span>
-                <div className={`cbar-track ${showSource ? 'cbar-track-split' : ''}`}>
-                  {showSource && catSum > 0 ? (
-                    CATS.map((c) => {
-                      const v = st![c.key] as number
-                      if (!v) return null
-                      // Scale so the segments fill exactly the total-points bar.
-                      const w = (v / catSum) * (r.total_points / maxPts) * 100
-                      return (
-                        <div
-                          key={c.key}
-                          className="cat-seg"
-                          style={{ width: `${w}%`, background: c.color }}
-                          title={`${catLabel(c.label, t)}: ${v}`}
-                        />
-                      )
-                    })
+                <div className={`cbar-track ${split ? 'cbar-track-split' : ''}`}>
+                  {split && segSum > 0 ? (
+                    segs.map(
+                      (s, i) =>
+                        s.v > 0 && (
+                          <div
+                            key={i}
+                            className="cat-seg"
+                            style={{
+                              width: `${(s.v / segSum) * (r.total_points / maxPts) * 100}%`,
+                              background: s.color,
+                            }}
+                            title={`${s.label}: ${s.v}`}
+                          />
+                        ),
+                    )
                   ) : (
                     <div
                       className="cbar-fill cbar-gold"
@@ -314,11 +383,14 @@ export default function StatsPage() {
               </div>
             )
           })}
-          {showSource && (
+          {mode !== 'total' && (
             <div className="cat-legend">
-              {CATS.map((c) => (
-                <span key={c.key} className="cat-key">
-                  <span className="cat-dot" style={{ background: c.color }} /> {catLabel(c.label, t)}
+              {(mode === 'source'
+                ? CATS.map((c) => ({ color: c.color, label: catLabel(c.label, t) }))
+                : roundsWithPoints.map((rc) => ({ color: ROUND_COLORS[rc], label: roundName(rc) }))
+              ).map((it, i) => (
+                <span key={i} className="cat-key">
+                  <span className="cat-dot" style={{ background: it.color }} /> {it.label}
                 </span>
               ))}
             </div>
