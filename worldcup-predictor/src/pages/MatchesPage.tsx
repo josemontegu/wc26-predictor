@@ -15,7 +15,6 @@ export default function MatchesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeRound, setActiveRound] = useState<RoundCode>('R32')
-  const [live, setLive] = useState(false)
 
   const load = useCallback(async () => {
     const [matchRes, predRes, scoreRes] = await Promise.all([
@@ -43,14 +42,12 @@ export default function MatchesPage() {
       if (active) setLoading(false)
     })()
 
-    // Live-update as results come in, so friends watching while the admin
-    // sleeps see scores (and their points) flip in real time — no reload.
+    // Refresh in place when a result is written, so friends watching while the
+    // admin sleeps see final scores (and their points) appear without reloading.
     const channel = supabase
       .channel('matches-live')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, () => load())
-      .subscribe((status: string) => {
-        if (status === 'SUBSCRIBED') setLive(true)
-      })
+      .subscribe()
 
     return () => {
       active = false
@@ -114,14 +111,7 @@ export default function MatchesPage() {
 
   return (
     <div className="page">
-      <div className="lb-head">
-        <h1>{t('Knockout matches', 'Partidos de eliminación')}</h1>
-        {live && (
-          <span className="live-chip">
-            <span className="dot" /> {t('Live', 'En vivo')}
-          </span>
-        )}
-      </div>
+      <h1>{t('Knockout matches', 'Partidos de eliminación')}</h1>
       {error && <div className="notice notice-err">{error}</div>}
 
       <div className="round-tabs">

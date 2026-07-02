@@ -72,7 +72,6 @@ export default function LeaderboardPage() {
   const { session } = useAuth()
   const [rows, setRows] = useState<LeaderboardRow[]>([])
   const [loading, setLoading] = useState(true)
-  const [live, setLive] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // Snapshot of ranks from the previous visit (captured once on mount).
   const prevRanks = useRef<Record<string, number>>(loadPrevRanks())
@@ -121,9 +120,7 @@ export default function LeaderboardPage() {
         fetchRows(),
       )
       .on('postgres_changes', { event: '*', schema: 'public', table: 'awards' }, () => fetchRows())
-      .subscribe((status: string) => {
-        if (status === 'SUBSCRIBED') setLive(true)
-      })
+      .subscribe()
 
     return () => {
       active = false
@@ -201,11 +198,6 @@ export default function LeaderboardPage() {
     <div className="page">
       <div className="lb-head">
         <h1>{t('Leaderboard', 'Tabla de posiciones')}</h1>
-        {live && (
-          <span className="live-chip">
-            <span className="dot" /> {t('Live', 'En vivo')}
-          </span>
-        )}
       </div>
       {hasScores && (
         <p className="lb-caption">
@@ -288,15 +280,10 @@ export default function LeaderboardPage() {
         </>
       )}
       <p className="muted small" style={{ marginTop: '1rem' }}>
-        {live
-          ? t(
-              'Updating live as results come in.',
-              'Se actualiza en vivo a medida que llegan los resultados.',
-            )
-          : t(
-              'Points update automatically as the admin enters results.',
-              'Los puntos se actualizan automáticamente cuando el admin ingresa los resultados.',
-            )}
+        {t(
+          'Points update automatically as results come in.',
+          'Los puntos se actualizan automáticamente a medida que llegan los resultados.',
+        )}
       </p>
     </div>
   )
