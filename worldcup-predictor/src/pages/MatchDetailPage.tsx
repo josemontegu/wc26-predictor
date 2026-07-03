@@ -388,7 +388,7 @@ export default function MatchDetailPage() {
                       {p.nickname || p.display_name}
                       {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
                       {shadowIds.has(p.user_id) && (
-                        <span className="shadow-badge shadow-badge-sm">{t('SHADOW', 'SOMBRA')}</span>
+                        <span className="shadow-badge shadow-badge-sm">{t('Guest', 'Invitado')}</span>
                       )}
                     </span>
                     <span className={`pick-score ${exactRight ? 'pick-hit' : ''}`}>

@@ -57,7 +57,7 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
             {profile.nickname || t('(no nickname)', '(sin apodo)')}
             {profile.is_admin && <span className="you-tag">{t('ADMIN', 'ADMIN')}</span>}
             {!profile.official && (
-              <span className="shadow-badge shadow-badge-sm">{t('SHADOW', 'SOMBRA')}</span>
+              <span className="shadow-badge shadow-badge-sm">{t('Guest', 'Invitado')}</span>
             )}
           </span>
         </span>
@@ -87,7 +87,7 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
               onChange={(e) => setOfficial(!e.target.checked)}
             />
             <span>
-              {t('Shadow player', 'Jugador sombra')}{' '}
+              {t('Guest player', 'Jugador invitado')}{' '}
               <span className="muted small">
                 {t('· unofficial, ranked separately', '· no oficial, clasificado aparte')}
               </span>

@@ -313,10 +313,7 @@ export default function LeaderboardPage() {
           {shadows.length > 0 && (
             <div className="shadow-block">
               <div className="shadow-head">
-                <span className="shadow-badge">{t('SHADOW', 'SOMBRA')}</span>
-                <span className="shadow-head-txt">
-                  {t('Shadow players · unofficial', 'Jugadores sombra · no oficial')}
-                </span>
+                <span className="shadow-badge">{t('Guests', 'Invitados')}</span>
               </div>
               <div className="lb-list">
                 {shadows.map((r) => {
@@ -378,7 +375,7 @@ export default function LeaderboardPage() {
                 <div className="pcard-rank">
                   {shadowIds.has(selected.user_id) ? (
                     <span className="pcard-shadow">
-                      {t('Shadow player · unofficial', 'Jugador sombra · no oficial')}
+                      {t('Guest · unofficial', 'Invitado · no oficial')}
                     </span>
                   ) : (
                     <>
