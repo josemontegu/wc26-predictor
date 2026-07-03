@@ -514,35 +514,35 @@ export default function StatsPage() {
         </div>
       )}
 
-      {/* ---------------- Charts & figures ---------------- */}
+      {/* ---------------- By the numbers ---------------- */}
       {goals.playedCount > 0 && (
         <>
-          <h2 className="stat-h mt-lg">🎛️ {t('Figures', 'Gráficos')}</h2>
+          <h2 className="stat-h stat-h-divider">{t('By the numbers', 'En números')}</h2>
           <div className="stat-tiles">
             <div className="stat-tile">
               <div className="stat-big">{goals.predicted.toFixed(1)}</div>
-              <div className="stat-cap">🔮 {t('pool predicted goals/game', 'goles/partido pronosticados por el grupo')}</div>
-            </div>
-            <div className="stat-tile">
-              <div className="stat-big">{goals.actual.toFixed(1)}</div>
-              <div className="stat-cap">✅ {t('actual goals/game', 'goles/partido reales')}</div>
+              <div className="stat-cap">{t('pool predicted goals/game', 'goles/partido pronosticados por el grupo')}</div>
             </div>
             <div className="stat-tile">
               <div className="stat-big">{poolExactPct}%</div>
-              <div className="stat-cap">🎯 {t('of picks were exact scores', 'de los pronósticos fueron exactos')}</div>
-            </div>
-            <div className="stat-tile">
-              <div className="stat-big">{poolAdvPct}%</div>
-              <div className="stat-cap">➡️ {t('called the right team through', 'acertaron quién avanza')}</div>
+              <div className="stat-cap">{t('of picks were exact scores', 'de los pronósticos fueron exactos')}</div>
             </div>
             <div className="stat-tile">
               <div className="stat-big">{crowd.pct}%</div>
-              <div className="stat-cap">🧠 {t('the crowd favourite advanced', 'el favorito del grupo avanzó')}</div>
+              <div className="stat-cap">{t('the crowd favourite advanced', 'el favorito del grupo avanzó')}</div>
+            </div>
+            <div className="stat-tile">
+              <div className="stat-big">{goals.actual.toFixed(1)}</div>
+              <div className="stat-cap">{t('actual goals/game', 'goles/partido reales')}</div>
+            </div>
+            <div className="stat-tile">
+              <div className="stat-big">{poolAdvPct}%</div>
+              <div className="stat-cap">{t('called the right team through', 'acertaron quién avanza')}</div>
             </div>
             <div className="stat-tile">
               <div className="stat-big">{favScore.score || '—'}</div>
               <div className="stat-cap">
-                📊 {t(`most-picked scoreline · ${favScore.pct}%`, `marcador más elegido · ${favScore.pct}%`)}
+                {t(`most-picked scoreline · ${favScore.pct}%`, `marcador más elegido · ${favScore.pct}%`)}
               </div>
             </div>
           </div>

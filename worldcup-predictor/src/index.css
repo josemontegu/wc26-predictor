@@ -2455,6 +2455,12 @@ button.lb-row:active {
 .stat-h {
   margin: 0.4rem 0 0.7rem;
 }
+/* A clearly-separated section (extra space + hairline divider above). */
+.stat-h-divider {
+  margin-top: 2.2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line-soft);
+}
 .stat-title {
   font-weight: 700;
   font-size: 0.92rem;
