@@ -37,12 +37,13 @@ export const demoConfig: AppConfig = {
 }
 
 export const demoProfiles: Profile[] = [
-  { id: DEMO_USER_ID, display_name: 'Alex', nickname: 'Alex', emoji: '🦊', is_admin: true, created_at: '' },
-  { id: 'u2', display_name: 'SammyGoals', nickname: 'SammyGoals', emoji: '🐲', is_admin: false, created_at: '' },
-  { id: 'u3', display_name: 'PriyaP', nickname: 'PriyaP', emoji: '🦄', is_admin: false, created_at: '' },
-  { id: 'u4', display_name: 'TommyB', nickname: 'TommyB', emoji: '🐻', is_admin: false, created_at: '' },
-  { id: 'u5', display_name: 'Lu', nickname: 'Lu', emoji: '🦉', is_admin: false, created_at: '' },
-  { id: 'u6', display_name: 'MarcoD', nickname: 'MarcoD', emoji: '🦁', is_admin: false, created_at: '' },
+  { id: DEMO_USER_ID, display_name: 'Alex', nickname: 'Alex', emoji: '🦊', is_admin: true, official: true, created_at: '' },
+  { id: 'u2', display_name: 'SammyGoals', nickname: 'SammyGoals', emoji: '🐲', is_admin: false, official: true, created_at: '' },
+  { id: 'u3', display_name: 'PriyaP', nickname: 'PriyaP', emoji: '🦄', is_admin: false, official: true, created_at: '' },
+  { id: 'u4', display_name: 'TommyB', nickname: 'TommyB', emoji: '🐻', is_admin: false, official: true, created_at: '' },
+  { id: 'u5', display_name: 'Lu', nickname: 'Lu', emoji: '🦉', is_admin: false, official: true, created_at: '' },
+  // A mid-tournament joiner — shadow (unofficial) player.
+  { id: 'u6', display_name: 'MarcoD', nickname: 'MarcoD', emoji: '🦁', is_admin: false, official: false, created_at: '' },
 ]
 
 const USERS = [DEMO_USER_ID, 'u2', 'u3', 'u4', 'u5', 'u6']

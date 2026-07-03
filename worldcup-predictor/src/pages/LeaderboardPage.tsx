@@ -75,8 +75,21 @@ export default function LeaderboardPage() {
   const [error, setError] = useState<string | null>(null)
   // The player whose stats card is open (null = closed).
   const [selected, setSelected] = useState<LeaderboardRow | null>(null)
+  // Ids of shadow (unofficial) players — ranked & shown separately.
+  const [shadowIds, setShadowIds] = useState<Set<string>>(new Set())
   // Snapshot of ranks from the previous visit (captured once on mount).
   const prevRanks = useRef<Record<string, number>>(loadPrevRanks())
+
+  const fetchShadows = useCallback(async () => {
+    const { data } = await supabase.from('profiles').select('id, official')
+    setShadowIds(
+      new Set(
+        ((data as { id: string; official: boolean }[]) ?? [])
+          .filter((p) => p.official === false)
+          .map((p) => p.id),
+      ),
+    )
+  }, [])
 
   const fetchRows = useCallback(async () => {
     const { data, error } = await supabase.from('leaderboard').select('*')
@@ -110,11 +123,11 @@ export default function LeaderboardPage() {
   useEffect(() => {
     let active = true
     ;(async () => {
-      await fetchRows()
+      await Promise.all([fetchRows(), fetchShadows()])
       if (active) setLoading(false)
     })()
 
-    // Live-update when results or predictions change.
+    // Live-update when results, predictions or player status change.
     const channel = supabase
       .channel('leaderboard-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, () => fetchRows())
@@ -122,20 +135,25 @@ export default function LeaderboardPage() {
         fetchRows(),
       )
       .on('postgres_changes', { event: '*', schema: 'public', table: 'awards' }, () => fetchRows())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () =>
+        fetchShadows(),
+      )
       .subscribe()
 
     return () => {
       active = false
       supabase.removeChannel(channel)
     }
-  }, [fetchRows])
+  }, [fetchRows, fetchShadows])
 
   // A confetti burst when you're sitting in first place (once per visit).
   const celebrated = useRef(false)
   useEffect(() => {
     if (celebrated.current) return
-    const top = rows[0]
-    const me = rows.find((r) => r.user_id === session?.user.id)
+    // Only official players top the (official) board.
+    const official = rows.filter((r) => !shadowIds.has(r.user_id))
+    const top = official[0]
+    const me = official.find((r) => r.user_id === session?.user.id)
     if (
       top &&
       me &&
@@ -147,7 +165,7 @@ export default function LeaderboardPage() {
       celebrated.current = true
       setTimeout(() => fireConfetti(), 450)
     }
-  }, [rows, session])
+  }, [rows, session, shadowIds])
 
   // Close the open stats card on Escape.
   useEffect(() => {
@@ -182,16 +200,20 @@ export default function LeaderboardPage() {
     return { dir: delta > 0 ? ('up' as const) : ('down' as const), n: Math.abs(delta) }
   }
 
-  const ranks = computeRanks(rows)
-  const top = rows.slice(0, 3)
-  const rest = rows.slice(3)
+  // Official players rank & take the podium; shadow (unofficial) players are
+  // listed separately and never mixed into the standings.
+  const official = rows.filter((r) => !shadowIds.has(r.user_id))
+  const shadows = rows.filter((r) => shadowIds.has(r.user_id))
+  const ranks = computeRanks(official)
+  const top = official.slice(0, 3)
+  const rest = official.slice(3)
   const podiumOrder = [top[1], top[0], top[2]].filter(Boolean)
   const medals: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
-  const hasScores = (rows[0]?.total_points || 0) > 0
+  const hasScores = (official[0]?.total_points || 0) > 0
   // The worst rank on the board — the "wooden spoon" (only once results are in,
   // and only when there's a list below the podium). Ties share it.
   const lastRank =
-    hasScores && rest.length > 0 ? Math.max(...rows.map((r) => ranks[r.user_id])) : -1
+    hasScores && rest.length > 0 ? Math.max(...official.map((r) => ranks[r.user_id])) : -1
 
   const pct = (n: number, d: number) => (d > 0 ? Math.round((n / d) * 100) : 0)
 
@@ -245,7 +267,7 @@ export default function LeaderboardPage() {
           )}
 
           <div className="lb-list">
-            {(hasScores ? rest : rows).map((r) => {
+            {(hasScores ? rest : official).map((r) => {
               const isMe = r.user_id === session?.user.id
               const rank = ranks[r.user_id]
               const mv = movement(r, rank)
@@ -287,6 +309,49 @@ export default function LeaderboardPage() {
               )
             })}
           </div>
+
+          {shadows.length > 0 && (
+            <div className="shadow-block">
+              <div className="shadow-head">
+                <span className="shadow-badge">{t('SHADOW', 'SOMBRA')}</span>
+                <span className="shadow-head-txt">
+                  {t('Shadow players · unofficial', 'Jugadores sombra · no oficial')}
+                </span>
+              </div>
+              <div className="lb-list">
+                {shadows.map((r) => {
+                  const isMe = r.user_id === session?.user.id
+                  return (
+                    <button
+                      key={r.user_id}
+                      type="button"
+                      className={`lb-row lb-row-shadow ${isMe ? 'lb-row-me' : ''}`}
+                      onClick={() => setSelected(r)}
+                    >
+                      <span className="lb-rank lb-rank-shadow">•</span>
+                      <span
+                        className={`lb-avatar ${r.emoji ? 'avatar-emoji' : ''}`}
+                        style={r.emoji ? undefined : { background: avatarGradient(r.user_id) }}
+                      >
+                        {r.emoji || initials(r)}
+                      </span>
+                      <div className="lb-id">
+                        <div className="lb-nick">
+                          {r.nickname || r.display_name}
+                          {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
+                        </div>
+                      </div>
+                      <div className="lb-stats">
+                        <div className="lb-points">
+                          <CountUp value={r.total_points} />
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </>
       )}
 
@@ -311,8 +376,16 @@ export default function LeaderboardPage() {
               <div className="pcard-id">
                 <div className="pcard-nick">{selected.nickname || selected.display_name}</div>
                 <div className="pcard-rank">
-                  {medals[ranks[selected.user_id]] ?? ''} {t('Rank', 'Puesto')} #
-                  {ranks[selected.user_id]}
+                  {shadowIds.has(selected.user_id) ? (
+                    <span className="pcard-shadow">
+                      {t('Shadow player · unofficial', 'Jugador sombra · no oficial')}
+                    </span>
+                  ) : (
+                    <>
+                      {medals[ranks[selected.user_id]] ?? ''} {t('Rank', 'Puesto')} #
+                      {ranks[selected.user_id]}
+                    </>
+                  )}
                 </div>
               </div>
             </div>

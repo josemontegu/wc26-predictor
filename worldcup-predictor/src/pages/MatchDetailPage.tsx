@@ -26,6 +26,7 @@ export default function MatchDetailPage() {
   const [prediction, setPrediction] = useState<Prediction | null>(null)
   const [score, setScore] = useState<MyScore | null>(null)
   const [picks, setPicks] = useState<LockedPrediction[]>([])
+  const [shadowIds, setShadowIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const confettiFired = useRef(false)
@@ -43,7 +44,7 @@ export default function MatchDetailPage() {
     async function load() {
       if (!id) return
       setLoading(true)
-      const [matchRes, predRes, scoreRes, picksRes] = await Promise.all([
+      const [matchRes, predRes, scoreRes, picksRes, profRes] = await Promise.all([
         supabase.from('matches').select('*').eq('id', id).maybeSingle(),
         supabase
           .from('predictions')
@@ -53,6 +54,7 @@ export default function MatchDetailPage() {
           .maybeSingle(),
         supabase.from('my_scores').select('*').eq('match_id', id).maybeSingle(),
         supabase.from('locked_predictions').select('*').eq('match_id', id),
+        supabase.from('profiles').select('id, official'),
       ])
       if (!active) return
       if (matchRes.error) setError(matchRes.error.message)
@@ -62,6 +64,13 @@ export default function MatchDetailPage() {
       setPrediction(p)
       setScore((scoreRes.data as MyScore) ?? null)
       setPicks((picksRes.data as LockedPrediction[]) ?? [])
+      setShadowIds(
+        new Set(
+          ((profRes.data as { id: string; official: boolean }[]) ?? [])
+            .filter((pr) => pr.official === false)
+            .map((pr) => pr.id),
+        ),
+      )
       if (p) {
         setHome(String(p.home_score))
         setAway(String(p.away_score))
@@ -365,7 +374,10 @@ export default function MatchDetailPage() {
                 const advRight =
                   match.advancing_team != null && p.advancing_team === match.advancing_team
                 return (
-                  <div key={p.user_id} className={`pick-row ${isMe ? 'pick-row-me' : ''}`}>
+                  <div
+                    key={p.user_id}
+                    className={`pick-row ${isMe ? 'pick-row-me' : ''} ${shadowIds.has(p.user_id) ? 'pick-row-shadow' : ''}`}
+                  >
                     <span
                       className={`pick-avatar ${p.emoji ? 'avatar-emoji' : ''}`}
                       style={p.emoji ? undefined : { background: avatarGradient(p.user_id) }}
@@ -375,6 +387,9 @@ export default function MatchDetailPage() {
                     <span className="pick-who">
                       {p.nickname || p.display_name}
                       {isMe && <span className="you-tag">{t('YOU', 'TÚ')}</span>}
+                      {shadowIds.has(p.user_id) && (
+                        <span className="shadow-badge shadow-badge-sm">{t('SHADOW', 'SOMBRA')}</span>
+                      )}
                     </span>
                     <span className={`pick-score ${exactRight ? 'pick-hit' : ''}`}>
                       {exactRight && <span className="pick-check">✓</span>}

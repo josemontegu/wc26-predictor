@@ -15,6 +15,7 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
   const [open, setOpen] = useState(false)
   const [nickname, setNickname] = useState(profile.nickname)
   const [emoji, setEmoji] = useState(profile.emoji)
+  const [official, setOfficial] = useState(profile.official)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [savedTick, setSavedTick] = useState(false)
@@ -30,7 +31,7 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
     setSavedTick(false)
     const { data, error } = await supabase
       .from('profiles')
-      .update({ nickname: value, display_name: value, emoji })
+      .update({ nickname: value, display_name: value, emoji, official })
       .eq('id', profile.id)
       .select()
       .single()
@@ -55,6 +56,9 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
           <span className="admin-row-title">
             {profile.nickname || t('(no nickname)', '(sin apodo)')}
             {profile.is_admin && <span className="you-tag">{t('ADMIN', 'ADMIN')}</span>}
+            {!profile.official && (
+              <span className="shadow-badge shadow-badge-sm">{t('SHADOW', 'SOMBRA')}</span>
+            )}
           </span>
         </span>
         <span className="admin-row-meta">{open ? '▲' : '▼'}</span>
@@ -75,6 +79,20 @@ export default function AdminPlayerRow({ profile, takenEmojis, onSaved }: Props)
             {t('Emoji', 'Emoji')} {emoji && <span className="emoji-current">{emoji}</span>}
           </label>
           <EmojiPicker value={emoji} onChange={setEmoji} taken={takenEmojis} />
+
+          <label className="admin-shadow-toggle">
+            <input
+              type="checkbox"
+              checked={!official}
+              onChange={(e) => setOfficial(!e.target.checked)}
+            />
+            <span>
+              {t('Shadow player', 'Jugador sombra')}{' '}
+              <span className="muted small">
+                {t('· unofficial, ranked separately', '· no oficial, clasificado aparte')}
+              </span>
+            </span>
+          </label>
 
           {error && <div className="notice notice-err">{error}</div>}
           {savedTick && <div className="notice notice-ok">{t('Saved ✓', 'Guardado ✓')}</div>}

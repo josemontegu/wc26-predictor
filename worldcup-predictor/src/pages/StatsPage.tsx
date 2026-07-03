@@ -62,13 +62,21 @@ export default function StatsPage() {
       supabase.from('matches').select('*'),
       supabase.from('app_config').select('*').eq('id', 1).maybeSingle(),
       supabase.from('rounds').select('*').order('sort_order'),
-    ]).then(([b, s, p, m, cfg, rds]) => {
+      supabase.from('profiles').select('id, official'),
+    ]).then(([b, s, p, m, cfg, rds, prof]) => {
       if (!active) return
-      // Exclude players who haven't set a nickname yet (incomplete sign-ups).
+      // Exclude players who haven't set a nickname yet (incomplete sign-ups),
+      // and shadow (unofficial) players — pool stats are official-only.
       const named = (n: string | null | undefined) => (n ?? '').trim() !== ''
-      setBoard(((b.data as LeaderboardRow[]) ?? []).filter((r) => named(r.nickname)))
-      setStats(((s.data as PlayerStat[]) ?? []).filter((r) => named(r.nickname)))
-      setPicks((p.data as LockedPrediction[]) ?? [])
+      const shadow = new Set(
+        ((prof.data as { id: string; official: boolean }[]) ?? [])
+          .filter((pr) => pr.official === false)
+          .map((pr) => pr.id),
+      )
+      const official = (id: string) => !shadow.has(id)
+      setBoard(((b.data as LeaderboardRow[]) ?? []).filter((r) => named(r.nickname) && official(r.user_id)))
+      setStats(((s.data as PlayerStat[]) ?? []).filter((r) => named(r.nickname) && official(r.user_id)))
+      setPicks(((p.data as LockedPrediction[]) ?? []).filter((pk) => official(pk.user_id)))
       setMatches((m.data as Match[]) ?? [])
       setConfig((cfg.data as AppConfig) ?? null)
       setRounds((rds.data as Round[]) ?? [])
