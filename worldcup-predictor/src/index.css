@@ -1661,16 +1661,14 @@ button.lb-row:active {
   background: rgba(255, 255, 255, 0.16);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
+  width: 30px;
   height: 30px;
-  padding: 0 9px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  padding: 0;
   color: inherit;
   cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
   line-height: 1;
   transition: transform 0.1s;
 }
@@ -1678,7 +1676,7 @@ button.lb-row:active {
   transform: scale(0.9);
 }
 .lang-globe {
-  font-size: 0.82rem;
+  font-size: 0.95rem;
 }
 
 /* match-card team colour stripe */

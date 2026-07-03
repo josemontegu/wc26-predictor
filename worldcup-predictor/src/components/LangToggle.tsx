@@ -13,7 +13,6 @@ export default function LangToggle() {
       <span className="lang-globe" aria-hidden="true">
         🌐
       </span>
-      {next.toUpperCase()}
     </button>
   )
 }
