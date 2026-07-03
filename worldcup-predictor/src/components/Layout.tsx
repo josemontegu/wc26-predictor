@@ -23,12 +23,12 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="app-shell">
       <header className="app-header">
         <div className="app-header-inner">
-          <span className="brand">
+          <Link to="/" className="brand" aria-label={t('Home', 'Inicio')}>
             <span className="brand-badge">⚽</span>
             <span className="brand-word">
               Polla <span className="brand-accent">LDF</span>
             </span>
-          </span>
+          </Link>
           <span className="brand-right">
             {DEMO && <span className="demo-badge">Demo</span>}
             {profile?.nickname && (
