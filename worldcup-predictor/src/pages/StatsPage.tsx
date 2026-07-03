@@ -3,13 +3,11 @@ import { supabase } from '../lib/supabase'
 import type {
   AppConfig,
   LeaderboardRow,
-  LockedAwardPrediction,
   LockedPrediction,
   Match,
   PlayerStat,
   Round,
 } from '../lib/types'
-import { teamFlag } from '../lib/teamMeta'
 import { roundName, ROUND_ORDER } from '../lib/format'
 import Spinner from '../components/Spinner'
 import { useT, type TFn } from '../lib/i18n'
@@ -43,21 +41,11 @@ const ROUND_COLORS: Record<string, string> = {
   F: '#f59f00',
 }
 
-function topPick(list: LockedAwardPrediction[]) {
-  const counts = new Map<string, number>()
-  for (const p of list) counts.set(p.pick, (counts.get(p.pick) ?? 0) + 1)
-  let best = ''
-  let n = 0
-  for (const [k, v] of counts) if (v > n) ((best = k), (n = v))
-  return { pick: best, n, total: list.length }
-}
-
 export default function StatsPage() {
   const t = useT()
   const [board, setBoard] = useState<LeaderboardRow[]>([])
   const [stats, setStats] = useState<PlayerStat[]>([])
   const [picks, setPicks] = useState<LockedPrediction[]>([])
-  const [awardPicks, setAwardPicks] = useState<LockedAwardPrediction[]>([])
   const [matches, setMatches] = useState<Match[]>([])
   const [config, setConfig] = useState<AppConfig | null>(null)
   const [rounds, setRounds] = useState<Round[]>([])
@@ -71,18 +59,16 @@ export default function StatsPage() {
       supabase.from('leaderboard').select('*'),
       supabase.from('player_stats').select('*'),
       supabase.from('locked_predictions').select('*'),
-      supabase.from('locked_award_predictions').select('*'),
       supabase.from('matches').select('*'),
       supabase.from('app_config').select('*').eq('id', 1).maybeSingle(),
       supabase.from('rounds').select('*').order('sort_order'),
-    ]).then(([b, s, p, a, m, cfg, rds]) => {
+    ]).then(([b, s, p, m, cfg, rds]) => {
       if (!active) return
       // Exclude players who haven't set a nickname yet (incomplete sign-ups).
       const named = (n: string | null | undefined) => (n ?? '').trim() !== ''
       setBoard(((b.data as LeaderboardRow[]) ?? []).filter((r) => named(r.nickname)))
       setStats(((s.data as PlayerStat[]) ?? []).filter((r) => named(r.nickname)))
       setPicks((p.data as LockedPrediction[]) ?? [])
-      setAwardPicks((a.data as LockedAwardPrediction[]) ?? [])
       setMatches((m.data as Match[]) ?? [])
       setConfig((cfg.data as AppConfig) ?? null)
       setRounds((rds.data as Round[]) ?? [])
@@ -92,32 +78,6 @@ export default function StatsPage() {
       active = false
     }
   }, [])
-
-  const pulse = useMemo(() => {
-    const champ = awardPicks.filter((a) => a.award_key === 'champion')
-    const champCounts = new Map<string, number>()
-    for (const c of champ) champCounts.set(c.pick, (champCounts.get(c.pick) ?? 0) + 1)
-    const champBars = [...champCounts.entries()]
-      .map(([team, n]) => ({ team, n, pct: champ.length ? Math.round((n / champ.length) * 100) : 0 }))
-      .sort((a, b) => b.n - a.n)
-      .slice(0, 5)
-
-    const pensTotal = picks.length
-    const pensYes = picks.filter((p) => p.penalties).length
-    const avgGoals = picks.length
-      ? picks.reduce((s, p) => s + p.home_score + p.away_score, 0) / picks.length
-      : 0
-
-    return {
-      champBars,
-      champTotal: champ.length,
-      ball: topPick(awardPicks.filter((a) => a.award_key === 'golden_ball')),
-      boot: topPick(awardPicks.filter((a) => a.award_key === 'golden_boot')),
-      glove: topPick(awardPicks.filter((a) => a.award_key === 'golden_glove')),
-      pensPct: pensTotal ? Math.round((pensYes / pensTotal) * 100) : 0,
-      avgGoals,
-    }
-  }, [awardPicks, picks])
 
   const goals = useMemo(() => {
     const played = matches.filter((m) => m.home_score != null && m.away_score != null)
@@ -348,7 +308,6 @@ export default function StatsPage() {
     ? Math.round((board.reduce((a, r) => a + r.correct_advances, 0) / poolScored) * 100)
     : 0
   const hasSupers = supers.some((a) => a.res)
-  const hasPulse = pulse.champTotal > 0 || picks.length > 0
   const hasResults = stats.some((s) => s.scored > 0)
 
   return (
@@ -447,42 +406,6 @@ export default function StatsPage() {
         </div>
       )}
 
-      {/* ---------------- Pool Pulse ---------------- */}
-      <h2 className="stat-h">🔮 {t('Pool Pulse', 'Pulso del grupo')}</h2>
-      {!hasPulse ? (
-        <p className="muted small">
-          {t(
-            'Pool stats appear as matches lock and award picks close — nothing revealed yet.',
-            'Las estadísticas del grupo aparecen cuando los partidos se bloquean y cierran los pronósticos de premios — aún no hay nada revelado.',
-          )}
-        </p>
-      ) : (
-        <>
-          {pulse.champBars.length > 0 && (
-            <div className="form-card">
-              <div className="stat-title">{t('Who the pool backs to win it', 'A quién apuesta el grupo para ganar')}</div>
-              {pulse.champBars.map((b) => (
-                <div key={b.team} className="cbar-row">
-                  <span className="cbar-label">
-                    {teamFlag(b.team)} {b.team}
-                  </span>
-                  <div className="cbar-track">
-                    <div className="cbar-fill" style={{ width: `${b.pct}%` }} />
-                  </div>
-                  <span className="cbar-pct">{b.pct}%</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="stat-tiles">
-            <AwardTile icon="⚽" label={t('Golden Ball', 'Balón de Oro')} pick={pulse.ball} t={t} />
-            <AwardTile icon="👟" label={t('Golden Boot', 'Bota de Oro')} pick={pulse.boot} t={t} />
-            <AwardTile icon="🧤" label={t('Golden Glove', 'Guante de Oro')} pick={pulse.glove} t={t} />
-          </div>
-        </>
-      )}
-
       {/* ---------------- Superlatives ---------------- */}
       <h2 className="stat-h mt-lg">🏅 {t('Superlatives', 'Superlativos')}</h2>
       {!hasSupers ? (
@@ -548,29 +471,6 @@ export default function StatsPage() {
           </div>
         </>
       )}
-    </div>
-  )
-}
-
-function AwardTile({
-  icon,
-  label,
-  pick,
-  t,
-}: {
-  icon: string
-  label: string
-  pick: { pick: string; n: number; total: number }
-  t: TFn
-}) {
-  const pct = pick.total ? Math.round((pick.n / pick.total) * 100) : 0
-  return (
-    <div className="stat-tile">
-      <div className="award-tile-label">
-        {icon} {label}
-      </div>
-      <div className="award-tile-pick">{pick.pick || '—'}</div>
-      {pick.pick && <div className="stat-cap">{t(`${pct}% of the pool`, `${pct}% del grupo`)}</div>}
     </div>
   )
 }

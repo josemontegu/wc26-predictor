@@ -1,10 +1,11 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { Award, AwardPrediction } from '../lib/types'
+import type { Award, AwardPrediction, LockedAwardPrediction } from '../lib/types'
 import { awardLocked } from '../lib/types'
 import { formatLock, timeUntilLock } from '../lib/format'
 import { useT, type TFn } from '../lib/i18n'
+import { teamFlag } from '../lib/teamMeta'
 import Spinner from '../components/Spinner'
 import AwardPicker from '../components/AwardPicker'
 
@@ -45,12 +46,45 @@ function awardDesc(key: string, fallback: string | null, t: TFn): string | null 
   }
 }
 
+function topPick(list: LockedAwardPrediction[]) {
+  const counts = new Map<string, number>()
+  for (const p of list) counts.set(p.pick, (counts.get(p.pick) ?? 0) + 1)
+  let best = ''
+  let n = 0
+  for (const [k, v] of counts) if (v > n) ((best = k), (n = v))
+  return { pick: best, n, total: list.length }
+}
+
+function PoolAwardTile({
+  icon,
+  label,
+  pick,
+  t,
+}: {
+  icon: string
+  label: string
+  pick: { pick: string; n: number; total: number }
+  t: TFn
+}) {
+  const pct = pick.total ? Math.round((pick.n / pick.total) * 100) : 0
+  return (
+    <div className="stat-tile">
+      <div className="award-tile-label">
+        {icon} {label}
+      </div>
+      <div className="award-tile-pick">{pick.pick || '—'}</div>
+      {pick.pick && <div className="stat-cap">{t(`${pct}% of the pool`, `${pct}% del grupo`)}</div>}
+    </div>
+  )
+}
+
 export default function AwardsPage() {
   const t = useT()
   const { session } = useAuth()
   const [awards, setAwards] = useState<Award[]>([])
   const [picks, setPicks] = useState<Record<string, string>>({})
   const [saved, setSaved] = useState<Record<string, string>>({}) // last-saved value per award
+  const [awardPicks, setAwardPicks] = useState<LockedAwardPrediction[]>([]) // whole pool, once locked
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
@@ -59,9 +93,10 @@ export default function AwardsPage() {
   useEffect(() => {
     let active = true
     async function load() {
-      const [awardRes, predRes] = await Promise.all([
+      const [awardRes, predRes, poolRes] = await Promise.all([
         supabase.from('awards').select('*').order('sort_order'),
         supabase.from('award_predictions').select('*').eq('user_id', session!.user.id),
+        supabase.from('locked_award_predictions').select('*'),
       ])
       if (!active) return
       if (awardRes.error) setError(awardRes.error.message)
@@ -70,6 +105,7 @@ export default function AwardsPage() {
       for (const p of (predRes.data as AwardPrediction[]) ?? []) byAward[p.award_id] = p.pick
       setPicks(byAward)
       setSaved(byAward)
+      setAwardPicks((poolRes.data as LockedAwardPrediction[]) ?? [])
       setLoading(false)
     }
     load()
@@ -77,6 +113,24 @@ export default function AwardsPage() {
       active = false
     }
   }, [session])
+
+  // What the whole pool backs — only visible once award picks lock (the
+  // locked_award_predictions view stays empty until then).
+  const pulse = useMemo(() => {
+    const champ = awardPicks.filter((a) => a.award_key === 'champion')
+    const champCounts = new Map<string, number>()
+    for (const c of champ) champCounts.set(c.pick, (champCounts.get(c.pick) ?? 0) + 1)
+    const champBars = [...champCounts.entries()]
+      .map(([team, n]) => ({ team, n, pct: champ.length ? Math.round((n / champ.length) * 100) : 0 }))
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 5)
+    return {
+      champBars,
+      ball: topPick(awardPicks.filter((a) => a.award_key === 'golden_ball')),
+      boot: topPick(awardPicks.filter((a) => a.award_key === 'golden_boot')),
+      glove: topPick(awardPicks.filter((a) => a.award_key === 'golden_glove')),
+    }
+  }, [awardPicks])
 
   async function handleSave(e: FormEvent) {
     e.preventDefault()
@@ -200,6 +254,35 @@ export default function AwardsPage() {
             </>
           )}
         </form>
+      )}
+
+      {awardPicks.length > 0 && (
+        <>
+          <h2 className="stat-h stat-h-divider">🔮 {t('Pool Pulse', 'Pulso del grupo')}</h2>
+          {pulse.champBars.length > 0 && (
+            <div className="form-card">
+              <div className="stat-title">
+                {t('Who the pool backs to win it', 'A quién apuesta el grupo para ganar')}
+              </div>
+              {pulse.champBars.map((b) => (
+                <div key={b.team} className="cbar-row">
+                  <span className="cbar-label">
+                    {teamFlag(b.team)} {b.team}
+                  </span>
+                  <div className="cbar-track">
+                    <div className="cbar-fill" style={{ width: `${b.pct}%` }} />
+                  </div>
+                  <span className="cbar-pct">{b.pct}%</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="stat-tiles">
+            <PoolAwardTile icon="⚽" label={t('Golden Ball', 'Balón de Oro')} pick={pulse.ball} t={t} />
+            <PoolAwardTile icon="👟" label={t('Golden Boot', 'Bota de Oro')} pick={pulse.boot} t={t} />
+            <PoolAwardTile icon="🧤" label={t('Golden Glove', 'Guante de Oro')} pick={pulse.glove} t={t} />
+          </div>
+        </>
       )}
     </div>
   )
