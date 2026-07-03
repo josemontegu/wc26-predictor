@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { LockedPrediction, Match, MyScore, Prediction } from '../lib/types'
 import { isLocked, hasResult, resolveOutcome } from '../lib/types'
-import { roundName, formatKickoff, formatLock } from '../lib/format'
+import { roundName, formatKickoff } from '../lib/format'
 import { teamFlag, teamColor, avatarGradient } from '../lib/teamMeta'
 import { fireConfetti } from '../lib/confetti'
 import { useT, type TFn } from '../lib/i18n'
@@ -234,13 +234,11 @@ export default function MatchDetailPage() {
         </div>
         <div className="detail-meta">
           <span>🕒 {t('Kick-off', 'Inicio')}: {formatKickoff(match.kickoff_time)}</span>
-          <span>
-            🔒 {locked ? t('Predictions closed', 'Los pronósticos cerrados') : t('Predictions close', 'Los pronósticos cierran')}: {formatLock(match.lock_time)}
-          </span>
-          {played && match.went_to_penalties !== null && (
-            <span>🥅 {t('Penalties', 'Penales')}: {match.went_to_penalties ? t('Yes', 'Sí') : t('No', 'No')}</span>
+          {/* Only spell out who advanced when it isn't implicit — i.e. a level
+              result decided on penalties. A decisive score speaks for itself. */}
+          {played && match.went_to_penalties && match.advancing_team && (
+            <span>✅ {t('Advanced on penalties', 'Avanzó por penales')}: {match.advancing_team}</span>
           )}
-          {played && match.advancing_team && <span>✅ {t('Advanced', 'Avanzó')}: {match.advancing_team}</span>}
         </div>
         {played && score && (
           <div className="detail-pts">
