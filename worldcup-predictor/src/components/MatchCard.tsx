@@ -72,9 +72,7 @@ export default function MatchCard({ match, prediction, points }: Props) {
       </div>
 
       {played && match.went_to_penalties && (
-        <div className="mcard-pens">
-          🥅 {t('Penalties', 'Penales')}{match.advancing_team ? t(` · ${teamName(match.advancing_team)} advanced`, ` · ${teamName(match.advancing_team)} avanzó`) : ''}
-        </div>
+        <div className="mcard-pens">{t('Penalties', 'Penales')}</div>
       )}
 
       <div className="mcard-foot">
