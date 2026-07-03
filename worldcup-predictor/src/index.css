@@ -666,14 +666,15 @@ label {
   margin: 0 0.16em;
 }
 .mcard-pens {
-  margin-top: 0.55rem;
+  margin: 0.55rem auto 0;
+  width: fit-content;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--muted);
   background: var(--bg-2);
-  display: inline-block;
+  display: block;
   padding: 0.16rem 0.5rem;
   border-radius: 999px;
 }
