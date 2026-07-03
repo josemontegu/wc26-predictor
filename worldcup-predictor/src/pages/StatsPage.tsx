@@ -282,6 +282,47 @@ export default function StatsPage() {
     }
     return out
   }, [picks, matches, config, rounds])
+
+  // How often the pool's majority advancing pick actually went through.
+  const crowd = useMemo(() => {
+    const adv = new Map<string, Map<string, number>>()
+    for (const p of picks) {
+      const am = adv.get(p.match_id) ?? new Map<string, number>()
+      am.set(p.advancing_team, (am.get(p.advancing_team) ?? 0) + 1)
+      adv.set(p.match_id, am)
+    }
+    let total = 0
+    let correct = 0
+    for (const m of matches) {
+      if (m.home_score == null || !m.advancing_team) continue
+      const am = adv.get(m.id)
+      if (!am || am.size === 0) continue
+      let best = ''
+      let n = -1
+      for (const [team, c] of am) if (c > n) ((best = team), (n = c))
+      total += 1
+      if (best === m.advancing_team) correct += 1
+    }
+    return { total, pct: total ? Math.round((correct / total) * 100) : 0 }
+  }, [picks, matches])
+
+  // The single most-predicted scoreline across everyone.
+  const favScore = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const p of picks) {
+      const k = `${p.home_score}-${p.away_score}`
+      counts.set(k, (counts.get(k) ?? 0) + 1)
+    }
+    let best = ''
+    let n = 0
+    for (const [k, c] of counts) if (c > n) ((best = k), (n = c))
+    return {
+      score: best.replace('-', '–'),
+      pct: picks.length ? Math.round((n / picks.length) * 100) : 0,
+      n,
+    }
+  }, [picks])
+
   // Rounds that have any points yet — drives the "by round" legend.
   const roundsWithPoints = ROUND_ORDER.filter((rc) =>
     [...pointsByRound.values()].some((um) => (um.get(rc) ?? 0) > 0),
@@ -298,6 +339,14 @@ export default function StatsPage() {
 
   const maxPts = Math.max(1, ...board.map((r) => r.total_points))
   const statByUser = new Map(stats.map((s) => [s.user_id, s]))
+  // Pool-wide accuracy across every scored pick.
+  const poolScored = board.reduce((a, r) => a + r.scored_predictions, 0)
+  const poolExactPct = poolScored
+    ? Math.round((board.reduce((a, r) => a + r.exact_scores, 0) / poolScored) * 100)
+    : 0
+  const poolAdvPct = poolScored
+    ? Math.round((board.reduce((a, r) => a + r.correct_advances, 0) / poolScored) * 100)
+    : 0
   const hasSupers = supers.some((a) => a.res)
   const hasPulse = pulse.champTotal > 0 || picks.length > 0
   const hasResults = stats.some((s) => s.scored > 0)
@@ -477,6 +526,24 @@ export default function StatsPage() {
             <div className="stat-tile">
               <div className="stat-big">{goals.actual.toFixed(1)}</div>
               <div className="stat-cap">✅ {t('actual goals/game', 'goles/partido reales')}</div>
+            </div>
+            <div className="stat-tile">
+              <div className="stat-big">{poolExactPct}%</div>
+              <div className="stat-cap">🎯 {t('of picks were exact scores', 'de los pronósticos fueron exactos')}</div>
+            </div>
+            <div className="stat-tile">
+              <div className="stat-big">{poolAdvPct}%</div>
+              <div className="stat-cap">➡️ {t('called the right team through', 'acertaron quién avanza')}</div>
+            </div>
+            <div className="stat-tile">
+              <div className="stat-big">{crowd.pct}%</div>
+              <div className="stat-cap">🧠 {t('the crowd favourite advanced', 'el favorito del grupo avanzó')}</div>
+            </div>
+            <div className="stat-tile">
+              <div className="stat-big">{favScore.score || '—'}</div>
+              <div className="stat-cap">
+                📊 {t(`most-picked scoreline · ${favScore.pct}%`, `marcador más elegido · ${favScore.pct}%`)}
+              </div>
             </div>
           </div>
         </>
