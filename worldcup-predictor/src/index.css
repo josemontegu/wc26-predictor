@@ -984,14 +984,26 @@ label {
   box-shadow: 0 0 0 1px rgba(224, 164, 28, 0.35), 0 12px 30px -8px rgba(224, 164, 28, 0.5);
 }
 .podium-2 {
+  background: linear-gradient(180deg, #eef1f7, #fdfefe);
   border: 1.5px solid #9aa7ba;
+  box-shadow: 0 0 0 1px rgba(154, 167, 186, 0.28), 0 10px 26px -10px rgba(154, 167, 186, 0.55);
 }
 .podium-3 {
+  background: linear-gradient(180deg, #f7ead9, #fffdfb);
   border: 1.5px solid #c08a5a;
+  box-shadow: 0 0 0 1px rgba(192, 138, 90, 0.28), 0 10px 26px -10px rgba(192, 138, 90, 0.5);
 }
 [data-theme='dark'] .podium-1 {
   background: linear-gradient(180deg, #2c2512, #1a2030);
   box-shadow: 0 0 0 1px rgba(247, 201, 72, 0.38), 0 12px 30px -8px rgba(247, 201, 72, 0.25);
+}
+[data-theme='dark'] .podium-2 {
+  background: var(--card-2);
+  box-shadow: 0 0 0 1px rgba(154, 167, 186, 0.38), 0 10px 26px -10px rgba(154, 167, 186, 0.3);
+}
+[data-theme='dark'] .podium-3 {
+  background: var(--card-2);
+  box-shadow: 0 0 0 1px rgba(192, 138, 90, 0.4), 0 10px 26px -10px rgba(192, 138, 90, 0.3);
 }
 .podium-1::after {
   content: '';
