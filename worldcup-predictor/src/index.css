@@ -1134,6 +1134,9 @@ label {
 [data-theme='dark'] .shadow-badge {
   color: #c1b4ea;
 }
+.lb-view-tabs {
+  margin: 0.1rem 0 0.9rem;
+}
 .shadow-block {
   margin-top: 1.4rem;
 }

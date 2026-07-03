@@ -1,8 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { LeaderboardRow } from '../lib/types'
+import type {
+  AppConfig,
+  LeaderboardRow,
+  LockedPrediction,
+  Match,
+  Round,
+  RoundCode,
+} from '../lib/types'
 import { avatarGradient } from '../lib/teamMeta'
+import { roundName, ROUND_ORDER } from '../lib/format'
 import { fireConfetti } from '../lib/confetti'
 import Spinner from '../components/Spinner'
 import { useT } from '../lib/i18n'
@@ -50,21 +58,23 @@ function loadPrevRanks(): Record<string, number> {
  * Players who match on all three share a rank ("1, 2, 2, 4" style) — the name
  * only keeps the row order stable, it never changes a position.
  */
-function computeRanks(rows: LeaderboardRow[]): Record<string, number> {
+function computeRanksBy(
+  rows: LeaderboardRow[],
+  keyFn: (r: LeaderboardRow) => string,
+): Record<string, number> {
   const out: Record<string, number> = {}
   let lastRank = 0
   rows.forEach((r, i) => {
-    const prev = rows[i - 1]
-    const tied =
-      prev &&
-      prev.total_points === r.total_points &&
-      prev.exact_scores === r.exact_scores &&
-      prev.correct_advances === r.correct_advances
+    const tied = i > 0 && keyFn(rows[i - 1]) === keyFn(r)
     const rank = tied ? lastRank : i + 1
     out[r.user_id] = rank
     lastRank = rank
   })
   return out
+}
+
+function computeRanks(rows: LeaderboardRow[]): Record<string, number> {
+  return computeRanksBy(rows, (r) => `${r.total_points}|${r.exact_scores}|${r.correct_advances}`)
 }
 
 export default function LeaderboardPage() {
@@ -77,8 +87,28 @@ export default function LeaderboardPage() {
   const [selected, setSelected] = useState<LeaderboardRow | null>(null)
   // Ids of shadow (unofficial) players — ranked & shown separately.
   const [shadowIds, setShadowIds] = useState<Set<string>>(new Set())
+  // Which table to show: cumulative total, or a single round's points.
+  const [view, setView] = useState<'total' | RoundCode>('total')
+  // Inputs for the per-round view (points earned in each round).
+  const [picks, setPicks] = useState<LockedPrediction[]>([])
+  const [matches, setMatches] = useState<Match[]>([])
+  const [config, setConfig] = useState<AppConfig | null>(null)
+  const [rounds, setRounds] = useState<Round[]>([])
   // Snapshot of ranks from the previous visit (captured once on mount).
   const prevRanks = useRef<Record<string, number>>(loadPrevRanks())
+
+  const fetchRoundData = useCallback(async () => {
+    const [p, m, cfg, rds] = await Promise.all([
+      supabase.from('locked_predictions').select('*'),
+      supabase.from('matches').select('*'),
+      supabase.from('app_config').select('*').eq('id', 1).maybeSingle(),
+      supabase.from('rounds').select('*').order('sort_order'),
+    ])
+    setPicks((p.data as LockedPrediction[]) ?? [])
+    setMatches((m.data as Match[]) ?? [])
+    setConfig((cfg.data as AppConfig) ?? null)
+    setRounds((rds.data as Round[]) ?? [])
+  }, [])
 
   const fetchShadows = useCallback(async () => {
     const { data } = await supabase.from('profiles').select('id, official')
@@ -123,17 +153,19 @@ export default function LeaderboardPage() {
   useEffect(() => {
     let active = true
     ;(async () => {
-      await Promise.all([fetchRows(), fetchShadows()])
+      await Promise.all([fetchRows(), fetchShadows(), fetchRoundData()])
       if (active) setLoading(false)
     })()
 
+    const refresh = () => {
+      fetchRows()
+      fetchRoundData()
+    }
     // Live-update when results, predictions or player status change.
     const channel = supabase
       .channel('leaderboard-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, () => fetchRows())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'predictions' }, () =>
-        fetchRows(),
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'predictions' }, refresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'awards' }, () => fetchRows())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () =>
         fetchShadows(),
@@ -144,7 +176,43 @@ export default function LeaderboardPage() {
       active = false
       supabase.removeChannel(channel)
     }
-  }, [fetchRows, fetchShadows])
+  }, [fetchRows, fetchShadows, fetchRoundData])
+
+  // Per-player points grouped by round (mirrors the DB prediction_scores formula).
+  const pointsByRound = useMemo(() => {
+    const out = new Map<string, Map<string, number>>()
+    if (!config) return out
+    const multByRound = new Map(rounds.map((r) => [r.code, r.multiplier]))
+    const matchById = new Map(matches.map((m) => [m.id, m]))
+    for (const p of picks) {
+      const m = matchById.get(p.match_id)
+      if (!m || m.home_score == null || m.away_score == null) continue
+      const mult = multByRound.get(m.round) ?? 1
+      let pts = 0
+      if (m.advancing_team && p.advancing_team === m.advancing_team) pts += config.points_advance * mult
+      if (p.home_score === m.home_score && p.away_score === m.away_score) pts += config.points_exact * mult
+      if (Math.sign(p.home_score - p.away_score) === Math.sign(m.home_score - m.away_score))
+        pts += config.points_tendency * mult
+      if (m.went_to_penalties != null && p.penalties === m.went_to_penalties)
+        pts += config.points_penalties * mult
+      if (pts === 0) continue
+      let um = out.get(p.user_id)
+      if (!um) {
+        um = new Map()
+        out.set(p.user_id, um)
+      }
+      um.set(m.round, (um.get(m.round) ?? 0) + pts)
+    }
+    return out
+  }, [picks, matches, config, rounds])
+
+  const roundsWithPoints = ROUND_ORDER.filter((rc) =>
+    [...pointsByRound.values()].some((um) => (um.get(rc) ?? 0) > 0),
+  )
+  // A round we no longer have data for → fall back to Total.
+  const activeView = view !== 'total' && roundsWithPoints.includes(view) ? view : 'total'
+  const valueOf = (r: LeaderboardRow) =>
+    activeView === 'total' ? r.total_points : (pointsByRound.get(r.user_id)?.get(activeView) ?? 0)
 
   // A confetti burst when you're sitting in first place (once per visit).
   const celebrated = useRef(false)
@@ -202,18 +270,36 @@ export default function LeaderboardPage() {
 
   // Official players rank & take the podium; shadow (unofficial) players are
   // listed separately and never mixed into the standings.
-  const official = rows.filter((r) => !shadowIds.has(r.user_id))
-  const shadows = rows.filter((r) => shadowIds.has(r.user_id))
-  const ranks = computeRanks(official)
+  const officialAll = rows.filter((r) => !shadowIds.has(r.user_id))
+  const shadowAll = rows.filter((r) => shadowIds.has(r.user_id))
+  // The stats card always shows a player's overall standing, regardless of view.
+  const overallRanks = computeRanks(officialAll)
+
+  // Re-order for the active view: Total keeps the overall order; a round reranks
+  // by that round's points (ties share a place) — so late-joining guests can be
+  // compared to everyone on the rounds they actually played.
+  const byView = (list: LeaderboardRow[]) =>
+    activeView === 'total'
+      ? list
+      : [...list].sort(
+          (a, b) =>
+            valueOf(b) - valueOf(a) ||
+            (a.nickname || a.display_name || '').localeCompare(b.nickname || b.display_name || ''),
+        )
+  const official = byView(officialAll)
+  const shadows = byView(shadowAll)
+  const ranks =
+    activeView === 'total' ? overallRanks : computeRanksBy(official, (r) => String(valueOf(r)))
   const top = official.slice(0, 3)
   const rest = official.slice(3)
   const podiumOrder = [top[1], top[0], top[2]].filter(Boolean)
   const medals: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
-  const hasScores = (official[0]?.total_points || 0) > 0
-  // The worst rank on the board — the "wooden spoon" (only once results are in,
-  // and only when there's a list below the podium). Ties share it.
+  const hasScores = official.length > 0 && valueOf(official[0]) > 0
+  // The wooden spoon only makes sense on the official Total standing.
   const lastRank =
-    hasScores && rest.length > 0 ? Math.max(...official.map((r) => ranks[r.user_id])) : -1
+    activeView === 'total' && hasScores && rest.length > 0
+      ? Math.max(...official.map((r) => ranks[r.user_id]))
+      : -1
 
   const pct = (n: number, d: number) => (d > 0 ? Math.round((n / d) * 100) : 0)
 
@@ -224,11 +310,38 @@ export default function LeaderboardPage() {
       </div>
       {rows.length > 0 && (
         <p className="lb-caption">
-          {t(
-            'Ranked by points · tap a player for their stats',
-            'Ordenado por puntos · toca a un jugador para ver sus estadísticas',
-          )}
+          {activeView === 'total'
+            ? t(
+                'Ranked by points · tap a player for their stats',
+                'Ordenado por puntos · toca a un jugador para ver sus estadísticas',
+              )
+            : t(
+                `${roundName(activeView)} points · tap a player for their stats`,
+                `Puntos de ${roundName(activeView)} · toca a un jugador para ver sus estadísticas`,
+              )}
         </p>
+      )}
+
+      {roundsWithPoints.length > 0 && (
+        <div className="round-tabs lb-view-tabs">
+          <button
+            type="button"
+            className={`round-tab ${activeView === 'total' ? 'round-tab-active' : ''}`}
+            onClick={() => setView('total')}
+          >
+            {t('Total', 'Total')}
+          </button>
+          {roundsWithPoints.map((rc) => (
+            <button
+              key={rc}
+              type="button"
+              className={`round-tab ${activeView === rc ? 'round-tab-active' : ''}`}
+              onClick={() => setView(rc)}
+            >
+              {rc}
+            </button>
+          ))}
+        </div>
       )}
       {error && <div className="notice notice-err">{error}</div>}
 
@@ -257,7 +370,7 @@ export default function LeaderboardPage() {
                     <div className="podium-rankmedal">{medals[rank]}</div>
                     <div className="podium-nick">{r.nickname || r.display_name}</div>
                     <div className="podium-pts">
-                      <CountUp value={r.total_points} />
+                      <CountUp value={valueOf(r)} />
                       <span className="podium-pts-lbl"> {t('pts', 'pts')}</span>
                     </div>
                   </button>
@@ -270,7 +383,7 @@ export default function LeaderboardPage() {
             {(hasScores ? rest : official).map((r) => {
               const isMe = r.user_id === session?.user.id
               const rank = ranks[r.user_id]
-              const mv = movement(r, rank)
+              const mv = activeView === 'total' ? movement(r, rank) : null
               const isLast = rank === lastRank
               return (
                 <button
@@ -302,7 +415,7 @@ export default function LeaderboardPage() {
                   </div>
                   <div className="lb-stats">
                     <div className="lb-points">
-                      <CountUp value={r.total_points} />
+                      <CountUp value={valueOf(r)} />
                     </div>
                   </div>
                 </button>
@@ -340,7 +453,7 @@ export default function LeaderboardPage() {
                       </div>
                       <div className="lb-stats">
                         <div className="lb-points">
-                          <CountUp value={r.total_points} />
+                          <CountUp value={valueOf(r)} />
                         </div>
                       </div>
                     </button>
@@ -379,8 +492,8 @@ export default function LeaderboardPage() {
                     </span>
                   ) : (
                     <>
-                      {medals[ranks[selected.user_id]] ?? ''} {t('Rank', 'Puesto')} #
-                      {ranks[selected.user_id]}
+                      {medals[overallRanks[selected.user_id]] ?? ''} {t('Rank', 'Puesto')} #
+                      {overallRanks[selected.user_id]}
                     </>
                   )}
                 </div>
