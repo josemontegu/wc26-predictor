@@ -741,6 +741,14 @@ label {
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.78);
 }
+.detail-when {
+  position: relative;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.45rem;
+}
 .detail-fixture {
   position: relative;
   display: grid;

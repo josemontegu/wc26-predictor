@@ -217,6 +217,9 @@ export default function MatchDetailPage() {
           {roundName(match.round)}
           {match.match_no ? ` · ${t('Match', 'Partido')} ${match.match_no}` : ''}
         </span>
+        {match.kickoff_time && (
+          <div className="detail-when">{formatKickoff(match.kickoff_time)}</div>
+        )}
         <div className="detail-fixture">
           <div className="df-team">
             <span className="df-flag">{teamFlag(match.home_team)}</span>
@@ -232,14 +235,13 @@ export default function MatchDetailPage() {
             <span className="df-name">{match.away_team}</span>
           </div>
         </div>
-        <div className="detail-meta">
-          <span>🕒 {t('Kick-off', 'Inicio')}: {formatKickoff(match.kickoff_time)}</span>
-          {/* Only spell out who advanced when it isn't implicit — i.e. a level
-              result decided on penalties. A decisive score speaks for itself. */}
-          {played && match.went_to_penalties && match.advancing_team && (
+        {/* Only spell out who advanced when it isn't implicit — a level result
+            decided on penalties. A decisive score speaks for itself. */}
+        {played && match.went_to_penalties && match.advancing_team && (
+          <div className="detail-meta">
             <span>✅ {t('Advanced on penalties', 'Avanzó por penales')}: {match.advancing_team}</span>
-          )}
-        </div>
+          </div>
+        )}
         {played && score && (
           <div className="detail-pts">
             {t(`🏅 You scored ${score.total_points} pts on this match`, `🏅 Sumaste ${score.total_points} pts en este partido`)}
