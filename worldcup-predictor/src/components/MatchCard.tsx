@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import type { Match, Prediction } from '../lib/types'
 import { isLocked, hasResult } from '../lib/types'
 import { formatTime, timeUntilLock } from '../lib/format'
-import { teamFlag, isTBD, teamColor } from '../lib/teamMeta'
+import { teamFlag, isTBD, teamColor, teamName } from '../lib/teamMeta'
 import { useT } from '../lib/i18n'
 import Scoreline from './Scoreline'
 
@@ -55,7 +55,7 @@ export default function MatchCard({ match, prediction, points }: Props) {
         <div className="mteam">
           <span className="flag">{teamFlag(match.home_team)}</span>
           <span className={`mteam-name ${isTBD(match.home_team) ? 'mteam-tbd' : ''}`}>
-            {match.home_team}
+            {teamName(match.home_team)}
           </span>
         </div>
         {played ? (
@@ -65,7 +65,7 @@ export default function MatchCard({ match, prediction, points }: Props) {
         )}
         <div className="mteam mteam-r">
           <span className={`mteam-name ${isTBD(match.away_team) ? 'mteam-tbd' : ''}`}>
-            {match.away_team}
+            {teamName(match.away_team)}
           </span>
           <span className="flag">{teamFlag(match.away_team)}</span>
         </div>
@@ -73,7 +73,7 @@ export default function MatchCard({ match, prediction, points }: Props) {
 
       {played && match.went_to_penalties && (
         <div className="mcard-pens">
-          🥅 {t('Penalties', 'Penales')}{match.advancing_team ? t(` · ${match.advancing_team} advanced`, ` · ${match.advancing_team} avanzó`) : ''}
+          🥅 {t('Penalties', 'Penales')}{match.advancing_team ? t(` · ${teamName(match.advancing_team)} advanced`, ` · ${teamName(match.advancing_team)} avanzó`) : ''}
         </div>
       )}
 
@@ -81,7 +81,7 @@ export default function MatchCard({ match, prediction, points }: Props) {
         {prediction ? (
           <span className="pick">
             <span className="pick-label">{t('Your pick:', 'Tu elección:')}</span> {prediction.home_score}–
-            {prediction.away_score} · {prediction.advancing_team}
+            {prediction.away_score} · {teamName(prediction.advancing_team)}
             {prediction.penalties ? t(' (pens)', ' (penales)') : ''}
           </span>
         ) : (

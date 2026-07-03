@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { AwardKind } from '../lib/types'
 import { useT } from '../lib/i18n'
+import { teamName } from '../lib/teamMeta'
 
 interface Opt {
   value: string
@@ -74,7 +75,12 @@ export default function AwardPicker({
   const filtered = useMemo(() => {
     const q = norm(query)
     const list = q
-      ? options.filter((o) => norm(o.value).includes(q) || norm(o.sub).includes(q))
+      ? options.filter(
+          (o) =>
+            norm(o.value).includes(q) ||
+            norm(teamName(o.value)).includes(q) ||
+            norm(o.sub).includes(q),
+        )
       : options
     return list.slice(0, 40)
   }, [options, query])
@@ -97,7 +103,7 @@ export default function AwardPicker({
         <span className="picker-chip">{selectedFlag ?? (disabled ? '🏳️' : '🔎')}</span>
         <input
           type="text"
-          value={query}
+          value={disabled ? teamName(query) : query}
           disabled={disabled}
           placeholder={placeholder}
           autoComplete="off"
@@ -126,7 +132,7 @@ export default function AwardPicker({
             >
               <span className="picker-opt-flag">{o.flag}</span>
               <span className="picker-opt-main">
-                <span className="picker-opt-name">{o.value}</span>
+                <span className="picker-opt-name">{teamName(o.value)}</span>
                 <span className="picker-opt-sub">{o.sub}</span>
               </span>
             </button>

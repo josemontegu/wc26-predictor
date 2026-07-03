@@ -5,7 +5,7 @@ import type { Award, AwardPrediction, LockedAwardPrediction } from '../lib/types
 import { awardLocked } from '../lib/types'
 import { formatLock, timeUntilLock } from '../lib/format'
 import { useT, type TFn } from '../lib/i18n'
-import { teamFlag } from '../lib/teamMeta'
+import { teamFlag, teamName } from '../lib/teamMeta'
 import Spinner from '../components/Spinner'
 import AwardPicker from '../components/AwardPicker'
 
@@ -267,7 +267,7 @@ export default function AwardsPage() {
               {pulse.champBars.map((b) => (
                 <div key={b.team} className="cbar-row">
                   <span className="cbar-label">
-                    {teamFlag(b.team)} {b.team}
+                    {teamFlag(b.team)} {teamName(b.team)}
                   </span>
                   <div className="cbar-track">
                     <div className="cbar-fill" style={{ width: `${b.pct}%` }} />

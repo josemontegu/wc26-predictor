@@ -1,6 +1,8 @@
 // Flag emoji lookup for nations, used to give the app a real football feel.
 // Falls back gracefully for unknown names and placeholders.
 
+import { getLang } from './i18n'
+
 const FLAGS: Record<string, string> = {
   Argentina: '🇦🇷', Nigeria: '🇳🇬', France: '🇫🇷', Senegal: '🇸🇳',
   Brazil: '🇧🇷', 'South Korea': '🇰🇷', Spain: '🇪🇸', Morocco: '🇲🇦',
@@ -33,6 +35,68 @@ export function isTBD(name: string | null | undefined): boolean {
 export function teamFlag(name: string | null | undefined): string {
   if (isTBD(name)) return '🏳️'
   return FLAGS[name as string] ?? '⚽'
+}
+
+// Spanish names for nations. Only entries that differ from English are listed;
+// everything else falls back to the stored (English) name.
+const TEAM_ES: Record<string, string> = {
+  France: 'Francia',
+  Brazil: 'Brasil',
+  'South Korea': 'Corea del Sur',
+  Spain: 'España',
+  Morocco: 'Marruecos',
+  Germany: 'Alemania',
+  Japan: 'Japón',
+  Croatia: 'Croacia',
+  Netherlands: 'Países Bajos',
+  Mexico: 'México',
+  England: 'Inglaterra',
+  Belgium: 'Bélgica',
+  USA: 'Estados Unidos',
+  'United States': 'Estados Unidos',
+  Italy: 'Italia',
+  Canada: 'Canadá',
+  Switzerland: 'Suiza',
+  Denmark: 'Dinamarca',
+  Poland: 'Polonia',
+  Qatar: 'Catar',
+  'Saudi Arabia': 'Arabia Saudí',
+  Iran: 'Irán',
+  Cameroon: 'Camerún',
+  'Ivory Coast': 'Costa de Marfil',
+  Tunisia: 'Túnez',
+  Egypt: 'Egipto',
+  Algeria: 'Argelia',
+  Peru: 'Perú',
+  Panama: 'Panamá',
+  Norway: 'Noruega',
+  Sweden: 'Suecia',
+  Turkey: 'Turquía',
+  Greece: 'Grecia',
+  Ukraine: 'Ucrania',
+  'New Zealand': 'Nueva Zelanda',
+  Wales: 'Gales',
+  Scotland: 'Escocia',
+  'South Africa': 'Sudáfrica',
+  Mali: 'Malí',
+  'DR Congo': 'RD del Congo',
+  Uzbekistan: 'Uzbekistán',
+  Jordan: 'Jordania',
+  Iraq: 'Irak',
+  'Cape Verde': 'Cabo Verde',
+  Curacao: 'Curazao',
+  Haiti: 'Haití',
+  'Bosnia & Herzegovina': 'Bosnia y Herzegovina',
+  'Bosnia and Herzegovina': 'Bosnia y Herzegovina',
+  'Bosnia-Herzegovina': 'Bosnia y Herzegovina',
+}
+
+/** A nation's display name, localised to the current language. Bracket
+ * placeholders (e.g. "2A", "Winner M74") and unknown names pass through. */
+export function teamName(name: string | null | undefined): string {
+  const s = (name ?? '').toString()
+  if (!s || isTBD(s) || getLang() !== 'es') return s
+  return TEAM_ES[s] ?? s
 }
 
 // Kit / flag-derived primary colour per nation, used as card and header accents.

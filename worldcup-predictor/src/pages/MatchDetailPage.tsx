@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import type { LockedPrediction, Match, MyScore, Prediction } from '../lib/types'
 import { isLocked, hasResult, resolveOutcome } from '../lib/types'
 import { roundName, formatKickoff } from '../lib/format'
-import { teamFlag, teamColor, avatarGradient } from '../lib/teamMeta'
+import { teamFlag, teamColor, teamName, avatarGradient } from '../lib/teamMeta'
 import { fireConfetti } from '../lib/confetti'
 import { useT, type TFn } from '../lib/i18n'
 import Spinner from '../components/Spinner'
@@ -232,7 +232,7 @@ export default function MatchDetailPage() {
         <div className="detail-fixture">
           <div className="df-team">
             <span className="df-flag">{teamFlag(match.home_team)}</span>
-            <span className="df-name">{match.home_team}</span>
+            <span className="df-name">{teamName(match.home_team)}</span>
           </div>
           {played ? (
             <Scoreline match={match} className="df-score" />
@@ -241,14 +241,14 @@ export default function MatchDetailPage() {
           )}
           <div className="df-team">
             <span className="df-flag">{teamFlag(match.away_team)}</span>
-            <span className="df-name">{match.away_team}</span>
+            <span className="df-name">{teamName(match.away_team)}</span>
           </div>
         </div>
         {/* Only spell out who advanced when it isn't implicit — a level result
             decided on penalties. A decisive score speaks for itself. */}
         {played && match.went_to_penalties && match.advancing_team && (
           <div className="detail-meta">
-            <span>✅ {t('Advanced on penalties', 'Avanzó por penales')}: {match.advancing_team}</span>
+            <span>✅ {t('Advanced on penalties', 'Avanzó por penales')}: {teamName(match.advancing_team)}</span>
           </div>
         )}
         {played && score && (
@@ -319,13 +319,13 @@ export default function MatchDetailPage() {
                   onClick={() => setAdvancing(team)}
                 >
                   <span>{teamFlag(team)}</span>
-                  {team}
+                  {teamName(team)}
                 </button>
               ))}
             </div>
             {canEdit && (
               <p className="muted small hint">
-                {outcome.phase === 'reg' && t(`${lockedWinner} win and advance.`, `${lockedWinner} gana y avanza.`)}
+                {outcome.phase === 'reg' && t(`${teamName(lockedWinner)} win and advance.`, `${teamName(lockedWinner)} gana y avanza.`)}
                 {isShootout && t('Level after extra time — pick who wins the shootout.', 'Empate tras el tiempo extra: elige quién gana la tanda de penales.')}
               </p>
             )}

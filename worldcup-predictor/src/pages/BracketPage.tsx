@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import type { Match, RoundCode } from '../lib/types'
 import { hasResult } from '../lib/types'
 import { roundName } from '../lib/format'
-import { teamColor, teamFlag, isTBD } from '../lib/teamMeta'
+import { teamColor, teamFlag, isTBD, teamName } from '../lib/teamMeta'
 import Spinner from '../components/Spinner'
 import { useT } from '../lib/i18n'
 
@@ -225,7 +225,7 @@ function BracketSide({
       <span className="bk-flag" style={{ borderColor: teamColor(team) }}>
         {teamFlag(team)}
       </span>
-      <span className={`bk-team ${isTBD(team) ? 'bk-team-tbd' : ''}`}>{team}</span>
+      <span className={`bk-team ${isTBD(team) ? 'bk-team-tbd' : ''}`}>{teamName(team)}</span>
       <span className="bk-score">{score ?? ''}</span>
     </div>
   )
