@@ -178,9 +178,11 @@ export default function LeaderboardPage() {
     }
   }, [fetchRows, fetchShadows, fetchRoundData])
 
-  // Per-player points grouped by round (mirrors the DB prediction_scores formula).
-  const pointsByRound = useMemo(() => {
-    const out = new Map<string, Map<string, number>>()
+  // Per-player, per-round stats: points (mirrors the DB prediction_scores
+  // formula) plus exact-score and advancing counts — so the round view can
+  // break ties exactly like the Total view (points → exact → advances).
+  const roundStats = useMemo(() => {
+    const out = new Map<string, Map<string, { pts: number; exact: number; adv: number }>>()
     if (!config) return out
     const multByRound = new Map(rounds.map((r) => [r.code, r.multiplier]))
     const matchById = new Map(matches.map((m) => [m.id, m]))
@@ -188,20 +190,26 @@ export default function LeaderboardPage() {
       const m = matchById.get(p.match_id)
       if (!m || m.home_score == null || m.away_score == null) continue
       const mult = multByRound.get(m.round) ?? 1
+      const exact = p.home_score === m.home_score && p.away_score === m.away_score ? 1 : 0
+      const adv = m.advancing_team && p.advancing_team === m.advancing_team ? 1 : 0
       let pts = 0
-      if (m.advancing_team && p.advancing_team === m.advancing_team) pts += config.points_advance * mult
-      if (p.home_score === m.home_score && p.away_score === m.away_score) pts += config.points_exact * mult
+      if (adv) pts += config.points_advance * mult
+      if (exact) pts += config.points_exact * mult
       if (Math.sign(p.home_score - p.away_score) === Math.sign(m.home_score - m.away_score))
         pts += config.points_tendency * mult
       if (m.went_to_penalties != null && p.penalties === m.went_to_penalties)
         pts += config.points_penalties * mult
-      if (pts === 0) continue
+      if (pts === 0 && exact === 0 && adv === 0) continue
       let um = out.get(p.user_id)
       if (!um) {
         um = new Map()
         out.set(p.user_id, um)
       }
-      um.set(m.round, (um.get(m.round) ?? 0) + pts)
+      const cur = um.get(m.round) ?? { pts: 0, exact: 0, adv: 0 }
+      cur.pts += pts
+      cur.exact += exact
+      cur.adv += adv
+      um.set(m.round, cur)
     }
     return out
   }, [picks, matches, config, rounds])
@@ -222,7 +230,7 @@ export default function LeaderboardPage() {
   }, [picks, matches])
 
   const roundsWithPoints = ROUND_ORDER.filter((rc) =>
-    [...pointsByRound.values()].some((um) => (um.get(rc) ?? 0) > 0),
+    [...roundStats.values()].some((um) => (um.get(rc)?.pts ?? 0) > 0),
   )
   // Every round the tournament has, in order — upcoming ones are shown but
   // disabled until they're actually scored.
@@ -230,7 +238,14 @@ export default function LeaderboardPage() {
   // A round we no longer have data for → fall back to Total.
   const activeView = view !== 'total' && roundsWithPoints.includes(view) ? view : 'total'
   const valueOf = (r: LeaderboardRow) =>
-    activeView === 'total' ? r.total_points : (pointsByRound.get(r.user_id)?.get(activeView) ?? 0)
+    activeView === 'total' ? r.total_points : (roundStats.get(r.user_id)?.get(activeView)?.pts ?? 0)
+  // Round-specific tie-breakers, mirroring the Total view's exact → advances
+  // order so a single-round view ranks identically to Total when that round is
+  // the only one played.
+  const exactOf = (r: LeaderboardRow) =>
+    activeView === 'total' ? r.exact_scores : (roundStats.get(r.user_id)?.get(activeView)?.exact ?? 0)
+  const advOf = (r: LeaderboardRow) =>
+    activeView === 'total' ? r.correct_advances : (roundStats.get(r.user_id)?.get(activeView)?.adv ?? 0)
 
   // A confetti burst when you're sitting in first place (once per visit).
   const celebrated = useRef(false)
@@ -302,12 +317,16 @@ export default function LeaderboardPage() {
       : [...list].sort(
           (a, b) =>
             valueOf(b) - valueOf(a) ||
+            exactOf(b) - exactOf(a) ||
+            advOf(b) - advOf(a) ||
             (a.nickname || a.display_name || '').localeCompare(b.nickname || b.display_name || ''),
         )
   const official = byView(officialAll)
   const shadows = byView(shadowAll)
   const ranks =
-    activeView === 'total' ? overallRanks : computeRanksBy(official, (r) => String(valueOf(r)))
+    activeView === 'total'
+      ? overallRanks
+      : computeRanksBy(official, (r) => `${valueOf(r)}|${exactOf(r)}|${advOf(r)}`)
   const top = official.slice(0, 3)
   const rest = official.slice(3)
   const podiumOrder = [top[1], top[0], top[2]].filter(Boolean)
