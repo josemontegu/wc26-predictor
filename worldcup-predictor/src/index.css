@@ -452,6 +452,18 @@ label {
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(10, 24, 52, 0.22);
 }
+/* Upcoming rounds: shown for context, not yet selectable. */
+.round-tab-soon,
+.round-tab:disabled {
+  opacity: 0.5;
+  cursor: default;
+  color: var(--muted);
+  border-style: dashed;
+  box-shadow: none;
+}
+.round-tab-soon:active {
+  transform: none;
+}
 .round-title {
   margin: 0.3rem 0 0.85rem;
   display: flex;

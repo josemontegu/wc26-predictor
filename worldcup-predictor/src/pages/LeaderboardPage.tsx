@@ -209,6 +209,9 @@ export default function LeaderboardPage() {
   const roundsWithPoints = ROUND_ORDER.filter((rc) =>
     [...pointsByRound.values()].some((um) => (um.get(rc) ?? 0) > 0),
   )
+  // Every round the tournament has, in order — upcoming ones are shown but
+  // disabled until they're actually scored.
+  const allRounds = ROUND_ORDER.filter((rc) => rounds.some((r) => r.code === rc))
   // A round we no longer have data for → fall back to Total.
   const activeView = view !== 'total' && roundsWithPoints.includes(view) ? view : 'total'
   const valueOf = (r: LeaderboardRow) =>
@@ -331,16 +334,21 @@ export default function LeaderboardPage() {
           >
             {t('Total', 'Total')}
           </button>
-          {roundsWithPoints.map((rc) => (
-            <button
-              key={rc}
-              type="button"
-              className={`round-tab ${activeView === rc ? 'round-tab-active' : ''}`}
-              onClick={() => setView(rc)}
-            >
-              {rc}
-            </button>
-          ))}
+          {allRounds.map((rc) => {
+            const ready = roundsWithPoints.includes(rc)
+            return (
+              <button
+                key={rc}
+                type="button"
+                disabled={!ready}
+                className={`round-tab ${activeView === rc ? 'round-tab-active' : ''} ${ready ? '' : 'round-tab-soon'}`}
+                onClick={() => ready && setView(rc)}
+                title={ready ? undefined : t('Not started yet', 'Aún no comienza')}
+              >
+                {rc}
+              </button>
+            )
+          })}
         </div>
       )}
       {error && <div className="notice notice-err">{error}</div>}
