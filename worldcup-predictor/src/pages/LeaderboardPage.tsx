@@ -206,6 +206,21 @@ export default function LeaderboardPage() {
     return out
   }, [picks, matches, config, rounds])
 
+  // Correct results (right winner/draw) per player — a right result earns the
+  // tendency points even when the exact score is missed, so it's the piece that
+  // explains equal totals with different exact-score counts.
+  const resultsByUser = useMemo(() => {
+    const out = new Map<string, number>()
+    const matchById = new Map(matches.map((m) => [m.id, m]))
+    for (const p of picks) {
+      const m = matchById.get(p.match_id)
+      if (!m || m.home_score == null || m.away_score == null) continue
+      if (Math.sign(p.home_score - p.away_score) === Math.sign(m.home_score - m.away_score))
+        out.set(p.user_id, (out.get(p.user_id) ?? 0) + 1)
+    }
+    return out
+  }, [picks, matches])
+
   const roundsWithPoints = ROUND_ORDER.filter((rc) =>
     [...pointsByRound.values()].some((um) => (um.get(rc) ?? 0) > 0),
   )
@@ -518,6 +533,11 @@ export default function LeaderboardPage() {
                 <span className="pcard-stat-ico">🎯</span>
                 <span className="pcard-stat-val">{selected.exact_scores}</span>
                 <span className="pcard-stat-lbl">{t('exact scores', 'exactos')}</span>
+              </div>
+              <div className="pcard-stat">
+                <span className="pcard-stat-ico">🏁</span>
+                <span className="pcard-stat-val">{resultsByUser.get(selected.user_id) ?? 0}</span>
+                <span className="pcard-stat-lbl">{t('right results', 'resultados')}</span>
               </div>
               <div className="pcard-stat">
                 <span className="pcard-stat-ico">✅</span>
