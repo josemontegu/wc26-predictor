@@ -55,26 +55,47 @@ function topPick(list: LockedAwardPrediction[]) {
   return { pick: best, n, total: list.length }
 }
 
+// Group an award's picks by choice, with the voters behind each, most popular first.
+function breakdown(list: LockedAwardPrediction[]) {
+  const map = new Map<string, LockedAwardPrediction[]>()
+  for (const a of list) {
+    const arr = map.get(a.pick) ?? []
+    arr.push(a)
+    map.set(a.pick, arr)
+  }
+  const total = list.length
+  return [...map.entries()]
+    .map(([pick, voters]) => ({
+      pick,
+      voters,
+      count: voters.length,
+      pct: total ? Math.round((voters.length / total) * 100) : 0,
+    }))
+    .sort((a, b) => b.count - a.count || a.pick.localeCompare(b.pick))
+}
+
 function PoolAwardTile({
   icon,
   label,
   pick,
   t,
+  onOpen,
 }: {
   icon: string
   label: string
   pick: { pick: string; n: number; total: number }
   t: TFn
+  onOpen: () => void
 }) {
   const pct = pick.total ? Math.round((pick.n / pick.total) * 100) : 0
   return (
-    <div className="stat-tile">
+    <button type="button" className="stat-tile pp-clickable" onClick={onOpen}>
       <div className="award-tile-label">
         {icon} {label}
       </div>
       <div className="award-tile-pick">{pick.pick || '—'}</div>
       {pick.pick && <div className="stat-cap">{t(`${pct}% of the pool`, `${pct}% del grupo`)}</div>}
-    </div>
+    </button>
   )
 }
 
@@ -85,6 +106,13 @@ export default function AwardsPage() {
   const [picks, setPicks] = useState<Record<string, string>>({})
   const [saved, setSaved] = useState<Record<string, string>>({}) // last-saved value per award
   const [awardPicks, setAwardPicks] = useState<LockedAwardPrediction[]>([]) // whole pool, once locked
+  // The award whose full pick breakdown is open (null = closed).
+  const [poolDetail, setPoolDetail] = useState<{
+    key: string
+    kind: string
+    icon: string
+    label: string
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
@@ -131,6 +159,13 @@ export default function AwardsPage() {
       glove: topPick(awardPicks.filter((a) => a.award_key === 'golden_glove')),
     }
   }, [awardPicks])
+
+  useEffect(() => {
+    if (!poolDetail) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setPoolDetail(null)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [poolDetail])
 
   async function handleSave(e: FormEvent) {
     e.preventDefault()
@@ -259,8 +294,25 @@ export default function AwardsPage() {
       {awardPicks.length > 0 && (
         <>
           <h2 className="stat-h stat-h-divider">🔮 {t('Pool Pulse', 'Pulso del grupo')}</h2>
+          <p className="muted small pp-hint">
+            {t(
+              'Tap a card to see everyone’s picks',
+              'Toca una tarjeta para ver los pronósticos de todos',
+            )}
+          </p>
           {pulse.champBars.length > 0 && (
-            <div className="form-card">
+            <button
+              type="button"
+              className="form-card pp-clickable"
+              onClick={() =>
+                setPoolDetail({
+                  key: 'champion',
+                  kind: 'team',
+                  icon: AWARD_ICON.champion,
+                  label: awardName('champion', 'Champion', t),
+                })
+              }
+            >
               <div className="stat-title">
                 {t('Who the pool backs to win it', 'A quién apuesta el grupo para ganar')}
               </div>
@@ -275,15 +327,89 @@ export default function AwardsPage() {
                   <span className="cbar-pct">{b.pct}%</span>
                 </div>
               ))}
-            </div>
+            </button>
           )}
           <div className="stat-tiles">
-            <PoolAwardTile icon="⚽" label={t('Golden Ball', 'Balón de Oro')} pick={pulse.ball} t={t} />
-            <PoolAwardTile icon="👟" label={t('Golden Boot', 'Bota de Oro')} pick={pulse.boot} t={t} />
-            <PoolAwardTile icon="🧤" label={t('Golden Glove', 'Guante de Oro')} pick={pulse.glove} t={t} />
+            <PoolAwardTile
+              icon="⚽"
+              label={t('Golden Ball', 'Balón de Oro')}
+              pick={pulse.ball}
+              t={t}
+              onOpen={() =>
+                setPoolDetail({ key: 'golden_ball', kind: 'player', icon: '⚽', label: t('Golden Ball', 'Balón de Oro') })
+              }
+            />
+            <PoolAwardTile
+              icon="👟"
+              label={t('Golden Boot', 'Bota de Oro')}
+              pick={pulse.boot}
+              t={t}
+              onOpen={() =>
+                setPoolDetail({ key: 'golden_boot', kind: 'player', icon: '👟', label: t('Golden Boot', 'Bota de Oro') })
+              }
+            />
+            <PoolAwardTile
+              icon="🧤"
+              label={t('Golden Glove', 'Guante de Oro')}
+              pick={pulse.glove}
+              t={t}
+              onOpen={() =>
+                setPoolDetail({ key: 'golden_glove', kind: 'goalkeeper', icon: '🧤', label: t('Golden Glove', 'Guante de Oro') })
+              }
+            />
           </div>
         </>
       )}
+
+      {poolDetail &&
+        (() => {
+          const list = awardPicks.filter((a) => a.award_key === poolDetail.key)
+          const groups = breakdown(list)
+          return (
+            <div className="pcard-overlay" onClick={() => setPoolDetail(null)}>
+              <div className="pcard pp-card" onClick={(e) => e.stopPropagation()}>
+                <button
+                  type="button"
+                  className="pcard-close"
+                  onClick={() => setPoolDetail(null)}
+                  aria-label={t('Close', 'Cerrar')}
+                >
+                  ✕
+                </button>
+                <div className="pp-modal-head">
+                  {poolDetail.icon} {poolDetail.label}
+                </div>
+                <div className="pp-modal-sub">
+                  {t(`${list.length} picks`, `${list.length} pronósticos`)}
+                </div>
+                <div className="pp-groups">
+                  {groups.map((g) => (
+                    <div key={g.pick} className="pp-group">
+                      <div className="pp-group-head">
+                        <span className="pp-pick">
+                          {poolDetail.kind === 'team'
+                            ? `${teamFlag(g.pick)} ${teamName(g.pick)}`
+                            : g.pick}
+                        </span>
+                        <span className="pp-pick-pct">
+                          {g.count} · {g.pct}%
+                        </span>
+                      </div>
+                      <div className="pp-voters">
+                        {g.voters.map((v) => (
+                          <span key={v.user_id} className="pp-voter">
+                            <span className="pp-voter-emoji">{v.emoji || '🏳️'}</span>{' '}
+                            {v.nickname}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        })()}
     </div>
   )
 }

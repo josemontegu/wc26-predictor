@@ -1353,6 +1353,93 @@ button.lb-row:active {
   font-size: 0.82rem;
   font-weight: 600;
 }
+
+/* ---- Pool Pulse: clickable cards + who-picked-what breakdown ---- */
+.pp-hint {
+  margin: -0.2rem 0 0.7rem;
+}
+.pp-clickable {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: transform 0.1s ease, box-shadow 0.15s;
+}
+button.form-card.pp-clickable {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+.pp-clickable:hover {
+  box-shadow: 0 6px 18px -8px rgba(10, 24, 52, 0.28);
+}
+.pp-clickable:active {
+  transform: scale(0.99);
+}
+.pp-card {
+  max-width: 380px;
+}
+.pp-modal-head {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  padding-right: 1.6rem;
+}
+.pp-modal-sub {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0.1rem 0 0.9rem;
+}
+.pp-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.pp-group {
+  border-top: 1px solid var(--line-soft);
+  padding-top: 0.6rem;
+}
+.pp-group:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.pp-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+.pp-pick {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.pp-pick-pct {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.pp-voters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.5rem;
+}
+.pp-voter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  background: var(--bg-2);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem 0.12rem 0.32rem;
+}
+.pp-voter-emoji {
+  font-size: 0.9rem;
+}
 .lb-rank {
   font-family: var(--display);
   font-weight: 700;
