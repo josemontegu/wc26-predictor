@@ -502,7 +502,15 @@ export default function LeaderboardPage() {
                   <span className="lb-rank">
                     {rank}
                     {mv && mv.dir !== 'same' && (
-                      <span className={`rank-move rank-${mv.dir}`}>
+                      <span
+                        className={`rank-move rank-${mv.dir}`}
+                        role="img"
+                        aria-label={
+                          mv.dir === 'up'
+                            ? t(`up ${mv.n}`, `sube ${mv.n}`)
+                            : t(`down ${mv.n}`, `baja ${mv.n}`)
+                        }
+                      >
                         {mv.dir === 'up' ? '▲' : '▼'}
                         {mv.n}
                       </span>

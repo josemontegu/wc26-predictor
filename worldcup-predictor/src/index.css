@@ -300,6 +300,16 @@ select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(7, 160, 106, 0.16);
 }
+/* Keyboard focus ring for everything clickable. Inputs/selects keep their own
+   border+glow above; this covers buttons, tabs, links and cards, which had no
+   visible focus state at all. Only shows for keyboard (:focus-visible). */
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
 label {
   display: block;
   font-size: 0.85rem;
@@ -2001,9 +2011,9 @@ button.form-card.pp-clickable {
   background: rgba(255, 255, 255, 0.16);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
-  width: 30px;
-  height: 30px;
-  font-size: 0.9rem;
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2020,8 +2030,8 @@ button.form-card.pp-clickable {
   background: rgba(255, 255, 255, 0.16);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   color: inherit;
   cursor: pointer;
@@ -2035,7 +2045,7 @@ button.form-card.pp-clickable {
   transform: scale(0.9);
 }
 .lang-globe {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
 }
 
 /* match-card team colour stripe */
@@ -3124,4 +3134,24 @@ button.form-card.pp-clickable {
 .super-pending-txt {
   font-size: 0.78rem;
   color: var(--muted);
+}
+
+/* ---------- Reduced motion ----------
+   Honour the OS "reduce motion" setting everywhere: neutralise entrance,
+   looping and hover animations/transitions (fadeUp, shimmer, pulsing dots,
+   modal pops, podium effects…). The loading spinner is re-enabled below — a
+   frozen spinner reads as "stuck", which is worse than a little motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .spinner {
+    animation-duration: 0.8s !important;
+    animation-iteration-count: infinite !important;
+  }
 }
