@@ -1769,25 +1769,29 @@ button.form-card.pp-clickable {
   color: var(--muted);
   font-size: 0.9rem;
 }
-.mini-table {
-  width: 100%;
-  border-collapse: collapse;
+/* Round multipliers as full-width stacked rows — responsive by nature, no
+   table to overflow on a phone. */
+.mult-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
 }
-.mini-table td {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--line);
+.mult-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.65rem;
+  background: var(--bg-2);
+  border-radius: 9px;
   font-size: 0.9rem;
 }
-.mini-table tr:last-child td {
-  border-bottom: none;
-}
-.mini-mult {
+.mult-x {
   font-family: var(--display);
-  font-weight: 700;
+  font-weight: 800;
   color: var(--indigo);
-}
-.num {
-  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- admin ---------- */

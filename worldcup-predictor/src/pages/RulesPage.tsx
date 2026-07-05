@@ -51,25 +51,34 @@ export default function RulesPage() {
           <span className="rule-icon">🎯</span>
           <h2>{t('The game', 'El juego')}</h2>
         </div>
-        <p>
-          {t(
-            'Predict every knockout match of the 2026 World Cup, from the Round of 32 to the Final.',
-            'Pronostica cada partido de eliminación del Mundial 2026, desde los dieciseisavos hasta la final.',
-          )}{' '}
-          {t('You call the', 'Tú defines el')}{' '}
-          <strong>{t('final score', 'marcador final')}</strong>{' '}
-          {t('— after extra time, if it goes there. Whether it goes to', '— tras el tiempo extra, si llega a eso. Si va a')}{' '}
-          <strong>{t('penalties', 'penales')}</strong> {t('and', 'y')}{' '}
-          <strong>{t('who advances', 'quién avanza')}</strong>{' '}
-          {t(
-            'then follow automatically: a level final score means a shootout, and you pick the shootout winner.',
-            'se determinan automáticamente: un marcador final igualado significa tanda de penales, y tú eliges quién gana la tanda.',
-          )}{' '}
-          {t(
-            'You can edit any time until the match locks, shortly before kick-off.',
-            'Puedes editar en cualquier momento hasta que el partido se cierre, poco antes del inicio.',
-          )}
-        </p>
+        <ul className="rules-list-plain">
+          <li>
+            {t(
+              'Predict every knockout match of the 2026 World Cup — from the Round of 32 to the Final.',
+              'Pronostica cada partido de eliminación del Mundial 2026 — desde los dieciseisavos hasta la final.',
+            )}
+          </li>
+          <li>
+            {t('You set one thing per match: the', 'Defines una sola cosa por partido: el')}{' '}
+            <strong>{t('final score', 'marcador final')}</strong>{' '}
+            {t('(after extra time, if it goes there).', '(tras el tiempo extra, si llega a eso).')}
+          </li>
+          <li>
+            <strong>{t('Who advances', 'Quién avanza')}</strong>{' '}
+            {t('and whether it went to', 'y si se definió por')}{' '}
+            <strong>{t('penalties', 'penales')}</strong>{' '}
+            {t(
+              'follow from your score — and if you predict a draw, you pick who wins the shootout.',
+              'se derivan de tu marcador — y si pronosticas un empate, eliges quién gana la tanda.',
+            )}
+          </li>
+          <li>
+            {t(
+              'Edit as often as you like until the match locks, shortly before kick-off.',
+              'Edita las veces que quieras hasta que el partido se cierre, poco antes del inicio.',
+            )}
+          </li>
+        </ul>
       </div>
 
       <div className="form-card">
@@ -114,18 +123,25 @@ export default function RulesPage() {
           <span className="rule-icon">🏅</span>
           <h2>{t('Tournament awards', 'Premios del torneo')}</h2>
         </div>
-        <p>
-          {t(
-            'On top of the matches, pick a player for each tournament award — Golden Ball (best player), Golden Boot (top scorer) and Golden Glove (best goalkeeper).',
-            'Además de los partidos, elige un jugador para cada premio del torneo: Balón de Oro (mejor jugador), Bota de Oro (máximo goleador) y Guante de Oro (mejor portero).',
-          )}{' '}
-          {t(
-            'Each is worth a big bonus if you call it right, and picks lock when the Round of 32 ends (just before the Round of 16).',
-            'Cada uno vale un gran bono si aciertas, y las elecciones se cierran cuando termina la fase de 32 (justo antes de los octavos).',
-          )}{' '}
-          {t('Make yours on the', 'Haz las tuyas en la pestaña')}{' '}
-          <strong>{t('Awards', 'Premios')}</strong> {t('tab.', '.')}
-        </p>
+        <ul className="rules-list-plain">
+          <li>
+            {t(
+              'Pick a player for each tournament award: Golden Ball (best player), Golden Boot (top scorer) and Golden Glove (best goalkeeper).',
+              'Elige un jugador para cada premio del torneo: Balón de Oro (mejor jugador), Bota de Oro (máximo goleador) y Guante de Oro (mejor portero).',
+            )}
+          </li>
+          <li>{t('Each is worth a big bonus if you call it right.', 'Cada uno vale un gran bono si aciertas.')}</li>
+          <li>
+            {t(
+              'Award picks lock when the Round of 32 ends (just before the Round of 16).',
+              'Las elecciones de premios se cierran cuando termina la fase de 32 (justo antes de los octavos).',
+            )}
+          </li>
+          <li>
+            {t('Make yours on the', 'Haz las tuyas en la pestaña')}{' '}
+            <strong>{t('Awards', 'Premios')}</strong> {t('tab.', '.')}
+          </li>
+        </ul>
       </div>
 
       <div className="form-card">
@@ -139,16 +155,14 @@ export default function RulesPage() {
             'Las rondas posteriores valen más. Los puntos de cada partido se multiplican por:',
           )}
         </p>
-        <table className="mini-table">
-          <tbody>
-            {orderedRounds.map((r) => (
-              <tr key={r.code}>
-                <td>{roundName(r.code)}</td>
-                <td className="num mini-mult">×{r.multiplier}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="mult-rows">
+          {orderedRounds.map((r) => (
+            <div className="mult-row" key={r.code}>
+              <span className="mult-name">{roundName(r.code)}</span>
+              <span className="mult-x">×{r.multiplier}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="form-card">
@@ -207,14 +221,6 @@ export default function RulesPage() {
             {t(
               'Each match locks a minute before kick-off — its card shows a live "closes in…" countdown. The tournament award picks lock when the Round of 32 ends.',
               'Cada partido se cierra un minuto antes del inicio — su tarjeta muestra una cuenta regresiva "cierra en…". Las elecciones de premios se cierran cuando termina la fase de 32.',
-            )}
-          </p>
-
-          <p className="faq-q">{t('What if a match goes to extra time or penalties?', '¿Y si un partido va a prórroga o penales?')}</p>
-          <p className="faq-a">
-            {t(
-              'You predict the final score after extra time. A level score means a shootout, and you pick who wins it — getting that right earns the "advancing" points.',
-              'Pronosticas el marcador final tras la prórroga. Un marcador igualado significa tanda de penales, y eliges quién la gana — acertar eso otorga los puntos de "avance".',
             )}
           </p>
 
