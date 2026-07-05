@@ -663,32 +663,36 @@ label {
   font-size: 0.85rem;
 }
 
-/* penalty-shootout tally shown as a superscript on a finished score (1³ – 1⁴) */
-.pen-sup {
-  font-size: 0.56em;
-  font-weight: 700;
-  margin-left: 1px;
-  opacity: 0.65;
+/* Score with a penalty shootout: regulation on top, tally on a labelled line
+   below (never fused onto the digit — 1–1 with a 3–4 shootout must not read as
+   13–14). Applied to both the compact card pill (.mscore) and the big detail
+   score (.df-score). */
+.mscore,
+.df-score {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.05;
 }
-.pen-sup-win {
-  opacity: 1;
-  color: var(--accent);
+.sl-reg {
+  display: inline-flex;
+  align-items: baseline;
 }
-.score-dash {
-  margin: 0 0.16em;
-}
-.mcard-pens {
-  margin: 0.55rem auto 0;
-  width: fit-content;
-  font-size: 0.68rem;
+.sl-pens {
+  font-family: var(--font);
+  font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--muted);
-  background: var(--bg-2);
-  display: block;
-  padding: 0.16rem 0.5rem;
-  border-radius: 999px;
+  opacity: 0.72;
+  margin-top: 0.1rem;
+}
+.sl-pen-win {
+  opacity: 1;
+  color: var(--accent-2);
+}
+.score-dash {
+  margin: 0 0.16em;
 }
 .mcard-foot {
   margin-top: 0.7rem;

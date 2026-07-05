@@ -71,10 +71,6 @@ export default function MatchCard({ match, prediction, points }: Props) {
         </div>
       </div>
 
-      {played && match.went_to_penalties && (
-        <div className="mcard-pens">{t('Penalties', 'Penales')}</div>
-      )}
-
       <div className="mcard-foot">
         {prediction ? (
           <span className="pick">
