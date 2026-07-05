@@ -632,30 +632,44 @@ export default function LeaderboardPage() {
                 {detailList.length === 0 ? (
                   <p className="muted small pcard-detail-empty">{t('None yet.', 'Nada aún.')}</p>
                 ) : (
-                  <ul className="pcard-detail-list">
-                    {detailList.map((r) => (
-                      <li className="pcard-detail-row" key={r.m.id}>
-                        <div className="pcard-detail-line">
-                          <span className="pcard-detail-round">{r.m.round}</span>
-                          <span className="pcard-detail-teams">
-                            {teamFlag(r.m.home_team)} {teamName(r.m.home_team)}
-                            <b className="pcard-detail-score">
-                              {' '}
-                              {r.m.home_score}–{r.m.away_score}{' '}
-                            </b>
-                            {teamName(r.m.away_team)} {teamFlag(r.m.away_team)}
-                          </span>
-                          <span className={`pcard-detail-pts ${r.points === 0 ? 'is-zero' : ''}`}>
-                            +{r.points}
-                          </span>
+                  <div className="pcard-detail-scroll">
+                    {ROUND_ORDER.map((rc) => {
+                      const rows = detailList.filter((r) => r.m.round === rc)
+                      if (rows.length === 0) return null
+                      return (
+                        <div className="pcard-detail-group" key={rc}>
+                          <div className="pcard-detail-round-head">
+                            {roundName(rc)} <span className="pcard-detail-round-n">{rows.length}</span>
+                          </div>
+                          <ul className="pcard-detail-list">
+                            {rows.map((r) => (
+                              <li className="pcard-detail-row" key={r.m.id}>
+                                <div className="pcard-detail-line">
+                                  <span className="pcard-detail-teams">
+                                    {teamFlag(r.m.home_team)} {teamName(r.m.home_team)}
+                                    <b className="pcard-detail-score">
+                                      {' '}
+                                      {r.m.home_score}–{r.m.away_score}{' '}
+                                    </b>
+                                    {teamName(r.m.away_team)} {teamFlag(r.m.away_team)}
+                                  </span>
+                                  <span
+                                    className={`pcard-detail-pts ${r.points === 0 ? 'is-zero' : ''}`}
+                                  >
+                                    +{r.points}
+                                  </span>
+                                </div>
+                                <div className="pcard-detail-pick">
+                                  {t('Pick', 'Pron.')}: {r.p.home_score}–{r.p.away_score} ·{' '}
+                                  {teamName(r.p.advancing_team)}
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                        <div className="pcard-detail-pick">
-                          {t('Pick', 'Pron.')}: {r.p.home_score}–{r.p.away_score} ·{' '}
-                          {teamName(r.p.advancing_team)}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                      )
+                    })}
+                  </div>
                 )}
               </div>
             ) : (

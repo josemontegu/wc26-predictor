@@ -1483,6 +1483,35 @@ button.lb-row:active {
   text-align: center;
   padding: 0.8rem 0;
 }
+/* Scroll wraps ALL round groups so headings scroll with their matches. */
+.pcard-detail-scroll {
+  max-height: 46vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.pcard-detail-round-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: var(--ink);
+  margin-bottom: 0.35rem;
+  position: sticky;
+  top: 0;
+  background: var(--card);
+  padding: 0.15rem 0;
+  z-index: 1;
+}
+.pcard-detail-round-n {
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
 .pcard-detail-list {
   list-style: none;
   margin: 0;
@@ -1490,8 +1519,6 @@ button.lb-row:active {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  max-height: 46vh;
-  overflow-y: auto;
 }
 .pcard-detail-row {
   background: var(--card-tint);
@@ -1503,16 +1530,6 @@ button.lb-row:active {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-}
-.pcard-detail-round {
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--muted);
-  background: var(--bg);
-  border: 1px solid var(--line-soft);
-  border-radius: 6px;
-  padding: 0.1rem 0.3rem;
-  flex-shrink: 0;
 }
 .pcard-detail-teams {
   flex: 1;
