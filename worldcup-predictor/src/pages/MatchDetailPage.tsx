@@ -199,6 +199,9 @@ export default function MatchDetailPage() {
       : match.away_team
     : null
   const isShootout = outcome.phase === 'shootout'
+  // A level score still needs the user to name a shootout winner before it's a
+  // complete, submittable prediction.
+  const needsWinner = canEdit && bothSet && isShootout && !advancing
   // Progressive disclosure: reveal the outcome only once both scores are chosen.
   const showResolution = bothSet
   // A blank side increments to 0; 0 decrements back to blank.
@@ -309,7 +312,7 @@ export default function MatchDetailPage() {
         {showResolution && (
           <>
             <label className="field-label">{t('Who advances?', '¿Quién avanza?')}</label>
-            <div className="choice-row">
+            <div className={`choice-row ${needsWinner ? 'choice-row-needed' : ''}`}>
               {[match.home_team, match.away_team].map((team) => (
                 <button
                   type="button"
@@ -323,10 +326,18 @@ export default function MatchDetailPage() {
                 </button>
               ))}
             </div>
-            {canEdit && (
+            {canEdit && needsWinner && (
+              <p className="small hint hint-needed">
+                {t(
+                  '👆 One more step — pick who wins the shootout to submit.',
+                  '👆 Un paso más: elige quién gana la tanda para enviar.',
+                )}
+              </p>
+            )}
+            {canEdit && !needsWinner && (
               <p className="muted small hint">
                 {outcome.phase === 'reg' && t(`${teamName(lockedWinner)} win and advance.`, `${teamName(lockedWinner)} gana y avanza.`)}
-                {isShootout && t('Level after extra time — pick who wins the shootout.', 'Empate tras el tiempo extra: elige quién gana la tanda de penales.')}
+                {isShootout && t(`${teamName(advancing)} win the shootout and advance.`, `${teamName(advancing)} gana la tanda y avanza.`)}
               </p>
             )}
 
@@ -433,10 +444,11 @@ function ScoreStepper({
   onDec: () => void
   onInc: () => void
 }) {
+  const empty = value === null
   return (
     <div className="stepper">
       <span className="stepper-flag">{flag}</span>
-      <span className="stepper-team">{team}</span>
+      <span className="stepper-team">{teamName(team)}</span>
       <div className="stepper-controls">
         <button
           type="button"
@@ -448,11 +460,19 @@ function ScoreStepper({
           −
         </button>
         <span className="step-val">
-          {value === null ? <span className="step-empty" aria-label={t('not set', 'sin definir')} /> : value}
+          {empty ? (
+            <span className="step-ghost" aria-label={t('not set — tap +', 'sin definir — toca +')}>
+              0
+            </span>
+          ) : (
+            value
+          )}
         </span>
         <button
           type="button"
-          className="step-btn"
+          // While empty, the + is the obvious starting point — give it the accent
+          // fill so a first-timer sees where to begin.
+          className={`step-btn ${empty && !disabled ? 'step-btn-primed' : ''}`}
           disabled={disabled}
           onClick={onInc}
           aria-label={t(`increase ${team} score`, `aumentar el marcador de ${team}`)}

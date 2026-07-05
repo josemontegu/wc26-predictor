@@ -244,6 +244,12 @@ a {
 .btn:active {
   transform: scale(0.98);
 }
+.btn:disabled {
+  cursor: not-allowed;
+}
+.btn:disabled:active {
+  transform: none;
+}
 .btn-sm {
   padding: 0.5rem 0.8rem;
   font-size: 0.82rem;
@@ -255,9 +261,13 @@ a {
   color: #fff;
   box-shadow: 0 6px 16px rgba(7, 160, 106, 0.32);
 }
+/* Not a faded green (which still reads "go") — a flat, muted surface that
+   clearly says "not ready yet". */
 .btn-primary:disabled {
-  opacity: 0.55;
+  background: var(--bg-2);
+  color: var(--muted);
   box-shadow: none;
+  opacity: 1;
 }
 .btn-ghost {
   background: var(--card);
@@ -2335,6 +2345,24 @@ button.form-card.pp-clickable {
 .hint {
   margin: -0.4rem 0 0;
 }
+/* A required-action nudge (e.g. a level score still needs a shootout winner) —
+   amber and legible, surfaced before the user hits a disabled submit. */
+.hint-needed {
+  margin: 0.1rem 0 0;
+  color: var(--gold-ink, #8a5a00);
+  background: var(--gold-soft);
+  border-radius: 10px;
+  padding: 0.4rem 0.6rem;
+  font-weight: 700;
+}
+[data-theme='dark'] .hint-needed {
+  color: var(--gold);
+  background: rgba(245, 179, 1, 0.14);
+}
+.choice-row-needed .choice:not(.choice-active) {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(245, 179, 1, 0.16);
+}
 
 /* outcome chip (derived knockout resolution) */
 .outcome-chip {
@@ -2617,17 +2645,18 @@ button.form-card.pp-clickable {
 }
 
 /* "not set yet" placeholder — a soft dot, distinct from the minus/score dashes */
-.step-empty {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--line);
-  vertical-align: middle;
+/* Empty score: a faded ghost 0 so the control reads as a number picker at rest
+   (the real value only becomes 0 once + is tapped). */
+.step-ghost {
+  color: var(--muted);
+  opacity: 0.32;
 }
-[data-theme='dark'] .step-empty {
-  background: var(--muted);
-  opacity: 0.5;
+/* The + that starts an empty stepper — accent-filled to invite the first tap. */
+.step-btn-primed {
+  border-color: transparent;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  box-shadow: 0 3px 10px rgba(7, 160, 106, 0.3);
 }
 
 /* ---------- profile emoji picker ---------- */
