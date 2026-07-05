@@ -17,6 +17,8 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Live nickname availability, checked as they type (debounced).
+  const [nickStatus, setNickStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
 
   useEffect(() => {
     if (profile) {
@@ -33,6 +35,24 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
   }, [])
 
   const myId = session?.user.id
+
+  // Debounced availability: don't flash "taken" on every keystroke — wait until
+  // they pause, then compare against everyone else's nickname.
+  useEffect(() => {
+    const value = nickname.trim().toLowerCase()
+    if (!value) {
+      setNickStatus('idle')
+      return
+    }
+    setNickStatus('checking')
+    const id = window.setTimeout(() => {
+      const taken = others.some(
+        (p) => p.id !== myId && p.nickname.trim().toLowerCase() === value,
+      )
+      setNickStatus(taken ? 'taken' : 'available')
+    }, 400)
+    return () => window.clearTimeout(id)
+  }, [nickname, others, myId])
   const identitySet = Boolean(profile?.nickname?.trim() && profile?.emoji)
   // Nickname + emoji are chosen once. After that only an admin can change them.
   const canEdit = !identitySet || isAdmin
@@ -99,7 +119,12 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
             </div>
           )}
           <form onSubmit={handleSave} className="form-card">
-            <label htmlFor="nick">{t('Nickname', 'Apodo')}</label>
+            <div className="field-head">
+              <label htmlFor="nick">{t('Nickname', 'Apodo')}</label>
+              <span className={`char-count ${nickname.length >= 24 ? 'char-count-max' : ''}`}>
+                {nickname.length}/24
+              </span>
+            </div>
             <input
               id="nick"
               type="text"
@@ -112,6 +137,17 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
             />
+            {nickStatus === 'checking' && (
+              <p className="nick-status muted">{t('Checking…', 'Comprobando…')}</p>
+            )}
+            {nickStatus === 'available' && (
+              <p className="nick-status nick-ok">✓ {t('Available', 'Disponible')}</p>
+            )}
+            {nickStatus === 'taken' && (
+              <p className="nick-status nick-bad">
+                {t('Already taken — pick another', 'Ya está en uso — elige otro')}
+              </p>
+            )}
 
             <div>
               <label>
@@ -140,7 +176,11 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
             {error && <div className="notice notice-err">{error}</div>}
             {saved && <div className="notice notice-ok">{t('Profile saved ✓', 'Perfil guardado ✓')}</div>}
 
-            <button className="btn btn-primary" type="submit" disabled={busy}>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={busy || nickStatus === 'taken' || !nickname.trim() || !emoji}
+            >
               {busy ? t('Saving…', 'Guardando…') : t('Save profile', 'Guardar perfil')}
             </button>
           </form>

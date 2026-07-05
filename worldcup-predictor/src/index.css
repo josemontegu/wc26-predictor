@@ -310,6 +310,38 @@ label {
   margin-top: 0.3rem;
 }
 
+/* Label row with a live character counter (e.g. nickname 14/24). */
+.field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.field-head label {
+  margin-bottom: 0.35rem;
+}
+.char-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.char-count-max {
+  color: var(--gold, #b8860b);
+}
+/* Live nickname availability feedback. */
+.nick-status {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.nick-ok {
+  color: var(--accent-dark);
+}
+.nick-bad {
+  color: var(--danger);
+}
+
 .form-card {
   background: var(--card);
   border-radius: var(--radius);
@@ -374,6 +406,23 @@ label {
   flex-direction: column;
   gap: 0.65rem;
   margin-top: 1.2rem;
+}
+/* "Check your email" recovery: guidance + resend with cooldown. */
+.login-help {
+  font-size: 0.82rem;
+  opacity: 0.85;
+  margin: 0.3rem 0 0;
+}
+.login-resent {
+  margin: 0.5rem 0 0;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.login-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
 }
 .config-error {
   max-width: 460px;
