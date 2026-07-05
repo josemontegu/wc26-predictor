@@ -21,8 +21,10 @@ export default function MatchesPage() {
   // and back (the page remounts, and history-back restores this param).
   const [searchParams, setSearchParams] = useSearchParams()
   const paramRound = searchParams.get('round') as RoundCode | null
-  const [activeRound, setActiveRound] = useState<RoundCode>(
-    paramRound && ROUND_ORDER.includes(paramRound) ? paramRound : 'R32',
+  // null = no explicit choice yet → fall back to the current round (computed
+  // once matches load). A URL ?round= (back-navigation, shared link) wins.
+  const [activeRound, setActiveRound] = useState<RoundCode | null>(
+    paramRound && ROUND_ORDER.includes(paramRound) ? paramRound : null,
   )
   const selectRound = (r: RoundCode) => {
     setActiveRound(r)
@@ -106,9 +108,22 @@ export default function MatchesPage() {
     return ROUND_ORDER.filter((r) => set.has(r))
   }, [matches])
 
+  // The round the tournament is currently on: the first present round that still
+  // has a match without a final result. Once every round is played, fall back to
+  // the last one. This is the default view so opening the app lands on what's
+  // live (e.g. R16), not the already-finished R32.
+  const currentRound = useMemo<RoundCode>(() => {
+    const inProgress = roundsPresent.find((r) =>
+      matches.some((m) => m.round === r && !hasResult(m)),
+    )
+    return inProgress ?? roundsPresent[roundsPresent.length - 1] ?? 'R32'
+  }, [matches, roundsPresent])
+
+  const effectiveRound = activeRound ?? currentRound
+
   const visible = useMemo(
-    () => matches.filter((m) => m.round === activeRound),
-    [matches, activeRound],
+    () => matches.filter((m) => m.round === effectiveRound),
+    [matches, effectiveRound],
   )
 
   // Group into calendar days, then order for a live tournament: today first
@@ -192,7 +207,7 @@ export default function MatchesPage() {
           return (
             <button
               key={r}
-              className={`round-tab ${activeRound === r ? 'round-tab-active' : ''}`}
+              className={`round-tab ${effectiveRound === r ? 'round-tab-active' : ''}`}
               onClick={() => selectRound(r)}
             >
               {r}
@@ -203,7 +218,7 @@ export default function MatchesPage() {
       </div>
 
       <h2 className="round-title">
-        {roundName(activeRound)}
+        {roundName(effectiveRound)}
         <span className="count">
           {visible.length} {visible.length === 1 ? t('match', 'partido') : t('matches', 'partidos')}
         </span>
