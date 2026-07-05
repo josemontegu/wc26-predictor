@@ -553,43 +553,35 @@ export default function LeaderboardPage() {
             <div className="pcard-stats">
               <div className="pcard-stat">
                 <span className="pcard-stat-ico">🎯</span>
-                <span className="pcard-stat-val">
-                  {selected.exact_scores}
-                  <span className="pcard-stat-pct">
-                    {pct(selected.exact_scores, selected.scored_predictions)}%
-                  </span>
-                </span>
+                <span className="pcard-stat-val">{selected.exact_scores}</span>
                 <span className="pcard-stat-lbl">{t('exact scores', 'exactos')}</span>
+                <span className="pcard-stat-pct">
+                  ({pct(selected.exact_scores, selected.scored_predictions)}%)
+                </span>
               </div>
               <div className="pcard-stat">
                 <span className="pcard-stat-ico">🏁</span>
-                <span className="pcard-stat-val">
-                  {resultsByUser.get(selected.user_id) ?? 0}
-                  <span className="pcard-stat-pct">
-                    {pct(resultsByUser.get(selected.user_id) ?? 0, selected.scored_predictions)}%
-                  </span>
-                </span>
+                <span className="pcard-stat-val">{resultsByUser.get(selected.user_id) ?? 0}</span>
                 <span className="pcard-stat-lbl">{t('right results', 'resultados')}</span>
+                <span className="pcard-stat-pct">
+                  ({pct(resultsByUser.get(selected.user_id) ?? 0, selected.scored_predictions)}%)
+                </span>
               </div>
               <div className="pcard-stat">
                 <span className="pcard-stat-ico">✅</span>
-                <span className="pcard-stat-val">
-                  {selected.correct_advances}
-                  <span className="pcard-stat-pct">
-                    {pct(selected.correct_advances, selected.scored_predictions)}%
-                  </span>
-                </span>
+                <span className="pcard-stat-val">{selected.correct_advances}</span>
                 <span className="pcard-stat-lbl">{t('advancing right', 'aciertos avance')}</span>
+                <span className="pcard-stat-pct">
+                  ({pct(selected.correct_advances, selected.scored_predictions)}%)
+                </span>
               </div>
               <div className="pcard-stat">
                 <span className="pcard-stat-ico">📋</span>
-                <span className="pcard-stat-val">
-                  {selected.scored_predictions}
-                  <span className="pcard-stat-pct">
-                    {pct(selected.scored_predictions, playedCount)}%
-                  </span>
-                </span>
+                <span className="pcard-stat-val">{selected.scored_predictions}</span>
                 <span className="pcard-stat-lbl">{t('matches scored', 'partidos')}</span>
+                <span className="pcard-stat-pct">
+                  ({pct(selected.scored_predictions, playedCount)}%)
+                </span>
               </div>
             </div>
           </div>

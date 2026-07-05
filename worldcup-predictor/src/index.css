@@ -1351,22 +1351,18 @@ button.lb-row:active {
   font-family: var(--display);
   font-weight: 800;
   font-size: 1.2rem;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0.3rem;
-}
-.pcard-stat-pct {
-  font-family: var(--font);
-  font-weight: 600;
-  font-size: 0.72rem;
-  color: var(--muted);
 }
 .pcard-stat-lbl {
   color: var(--muted);
   font-size: 0.66rem;
   line-height: 1.15;
   text-align: center;
+}
+.pcard-stat-pct {
+  font-family: var(--font);
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 /* ---- Pool Pulse: clickable cards + who-picked-what breakdown ---- */
