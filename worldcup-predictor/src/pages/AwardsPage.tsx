@@ -296,8 +296,8 @@ export default function AwardsPage() {
           <h2 className="stat-h stat-h-divider">🔮 {t('Pool Pulse', 'Pulso del grupo')}</h2>
           <p className="muted small pp-hint">
             {t(
-              'Tap a card to see everyone’s picks',
-              'Toca una tarjeta para ver los pronósticos de todos',
+              'What everyone picked for the tournament awards — tap a card for the full breakdown.',
+              'Lo que eligió cada uno para los premios del torneo — toca una tarjeta para ver el detalle.',
             )}
           </p>
           {pulse.champBars.length > 0 && (

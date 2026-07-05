@@ -16,7 +16,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     { to: '/awards', label: t('Awards', 'Premios'), icon: '🏅', end: false },
     { to: '/leaderboard', label: t('Table', 'Tabla'), icon: '🏆', end: false },
     { to: '/stats', label: t('Stats', 'Stats'), icon: '📊', end: false },
-    { to: '/rules', label: t('Info', 'Info'), icon: 'ℹ️', end: false },
+    { to: '/rules', label: t('Rules', 'Reglas'), icon: '📖', end: false },
   ]
 
   return (
