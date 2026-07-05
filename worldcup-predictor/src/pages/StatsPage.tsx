@@ -52,6 +52,8 @@ export default function StatsPage() {
   const [loading, setLoading] = useState(true)
   // How the points-distribution bars are coloured.
   const [mode, setMode] = useState<'total' | 'source' | 'round'>('total')
+  // Superlatives are collapsed to a preview by default — there are ~11.
+  const [showAllSupers, setShowAllSupers] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -419,30 +421,47 @@ export default function StatsPage() {
       {!hasSupers ? (
         <p className="muted small">{t('Titles are awarded once there are enough picks & results.', 'Los títulos se otorgan cuando hay suficientes pronósticos y resultados.')}</p>
       ) : (
-        <div className="super-grid">
-          {supers.map((a) => (
-            <div key={a.title} className={`super ${a.res ? '' : 'super-pending'}`}>
-              <span className="super-icon">{a.icon}</span>
-              <div className="super-main">
-                <div className="super-title">{a.title}</div>
-                <div className="super-crit">{a.desc}</div>
-              </div>
-              <div className="super-right">
-                {a.res ? (
-                  <>
-                    <div className="super-winner">
-                      {a.res.map((w) => w.emoji).join(' ')}{' '}
-                      {a.res.length === 1 ? a.res[0].nick : t('Tied', 'Empate')}
+        <>
+          <div className="super-grid">
+            {(showAllSupers ? supers : supers.slice(0, 4)).map((a) => (
+              <div key={a.title} className={`super ${a.res ? '' : 'super-pending'}`}>
+                <span className="super-icon">{a.icon}</span>
+                <div className="super-main">
+                  <div className="super-title">{a.title}</div>
+                  <div className="super-crit">{a.desc}</div>
+                </div>
+                <div className="super-right">
+                  {a.res ? (
+                    <>
+                      <div className="super-winner">
+                        {a.res.map((w) => w.emoji).join(' ')}{' '}
+                        {a.res.length === 1 ? a.res[0].nick : t('Tied', 'Empate')}
+                      </div>
+                      <div className="super-val">{a.fmt(a.res[0])}</div>
+                    </>
+                  ) : (
+                    <div className="super-pending-txt">
+                      {t('Needs more results', 'Faltan más resultados')}
                     </div>
-                    <div className="super-val">{a.fmt(a.res[0])}</div>
-                  </>
-                ) : (
-                  <div className="super-pending-txt">{t('Not yet', 'Aún no')}</div>
-                )}
+                  )}
+                </div>
               </div>
+            ))}
+          </div>
+          {supers.length > 4 && (
+            <div className="super-toggle-wrap">
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => setShowAllSupers((v) => !v)}
+              >
+                {showAllSupers
+                  ? t('Show fewer', 'Ver menos')
+                  : t(`Show all ${supers.length}`, `Ver los ${supers.length}`)}
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {/* ---------------- By the numbers ---------------- */}

@@ -3063,6 +3063,10 @@ button.form-card.pp-clickable {
   gap: 0.6rem;
   margin-bottom: 0.5rem;
 }
+.super-toggle-wrap {
+  text-align: center;
+  margin-top: 0.2rem;
+}
 .super {
   background: var(--card);
   border-radius: 14px;
