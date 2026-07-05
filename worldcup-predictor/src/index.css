@@ -680,12 +680,10 @@ label {
 }
 .sl-pens {
   font-family: var(--font);
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  opacity: 0.72;
-  margin-top: 0.1rem;
+  opacity: 0.78;
+  margin-top: 0.05rem;
 }
 .sl-pen-win {
   opacity: 1;
