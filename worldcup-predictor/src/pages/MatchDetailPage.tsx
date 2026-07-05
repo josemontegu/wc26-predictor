@@ -16,6 +16,21 @@ function clampScore(n: number): number {
   return Math.max(0, Math.min(99, n))
 }
 
+// Countdown to lock: coarse when far off ("2d 4h"), down to the second in the
+// final hour ("5m 23s", "42s") — the last minute is when it matters, since
+// picks lock a minute before kickoff.
+function formatCountdown(ms: number): string {
+  const s = Math.max(0, Math.floor(ms / 1000))
+  const d = Math.floor(s / 86400)
+  const h = Math.floor((s % 86400) / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  const sec = s % 60
+  if (d > 0) return `${d}d ${h}h`
+  if (h > 0) return `${h}h ${String(m).padStart(2, '0')}m`
+  if (m > 0) return `${m}m ${String(sec).padStart(2, '0')}s`
+  return `${sec}s`
+}
+
 export default function MatchDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { session } = useAuth()
@@ -103,8 +118,18 @@ export default function MatchDetailPage() {
     }
   }, [id, session])
 
-  const locked = useMemo(() => (match ? isLocked(match) : true), [match])
   const played = useMemo(() => (match ? hasResult(match) : false), [match])
+  // Tick every second so the countdown stays live and the form flips to
+  // "locked" the instant it closes, even if the viewer never reloads.
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    if (!match || played) return
+    const id = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(id)
+  }, [match, played])
+  const lockAt = match?.lock_time ? new Date(match.lock_time).getTime() : null
+  const locked = lockAt == null || now >= lockAt
+  const msToLock = lockAt != null ? lockAt - now : 0
 
   // Keep the prediction internally consistent with the laws of knockout football:
   // a decisive final score locks in the winner; a level score is a shootout and
@@ -272,6 +297,29 @@ export default function MatchDetailPage() {
 
       <form onSubmit={handleSave} className="form-card">
         <h2>{prediction ? t('Your prediction', 'Tu pronóstico') : t('Make your prediction', 'Haz tu pronóstico')}</h2>
+
+        {canEdit && lockAt != null && (
+          <div
+            className={`lock-countdown ${
+              msToLock < 60_000
+                ? 'lock-countdown-crit'
+                : msToLock < 15 * 60_000
+                  ? 'lock-countdown-warn'
+                  : ''
+            }`}
+          >
+            <span className="lock-countdown-ico" aria-hidden="true">
+              ⏱️
+            </span>
+            {t('Closes in', 'Cierra en')} <strong>{formatCountdown(msToLock)}</strong>
+            <span className="lock-countdown-sub">
+              {' · '}
+              {prediction
+                ? t('you can still change it', 'aún puedes cambiarlo')
+                : t('get your pick in', 'haz tu pronóstico')}
+            </span>
+          </div>
+        )}
 
         <label className="field-label">
           {t('Final score', 'Marcador final')} <span className="muted small">{t('· after extra time, before penalties', '· tras el tiempo extra, antes de los penales')}</span>

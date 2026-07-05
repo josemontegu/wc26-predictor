@@ -2396,6 +2396,50 @@ button.form-card.pp-clickable {
   color: #f0c560;
 }
 
+/* Live "closes in …" countdown on the prediction form. Neutral when far off,
+   amber under 15 min, red under a minute. */
+.lock-countdown {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin: -0.15rem 0 0.9rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--bg-2);
+  color: var(--ink);
+}
+.lock-countdown strong {
+  font-family: var(--display);
+  font-variant-numeric: tabular-nums;
+}
+.lock-countdown-ico {
+  font-size: 0.95rem;
+}
+.lock-countdown-sub {
+  color: var(--muted);
+  font-weight: 500;
+}
+.lock-countdown-warn {
+  background: var(--gold-soft);
+  color: #8a5a00;
+}
+.lock-countdown-crit {
+  background: rgba(226, 59, 78, 0.12);
+  color: var(--live);
+}
+.lock-countdown-warn .lock-countdown-sub,
+.lock-countdown-crit .lock-countdown-sub {
+  color: inherit;
+  opacity: 0.82;
+}
+[data-theme='dark'] .lock-countdown-warn {
+  background: rgba(245, 179, 1, 0.14);
+  color: var(--gold);
+}
+
 .pick-label {
   color: var(--muted);
   font-weight: 500;
