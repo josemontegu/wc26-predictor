@@ -1364,6 +1364,110 @@ button.lb-row:active {
   font-weight: 600;
   color: var(--muted);
 }
+/* Tiles are tappable to drill into which games they came from. */
+.pcard-stat-btn {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+.pcard-stat-btn:hover {
+  border-color: var(--accent);
+}
+.pcard-stat-btn:active {
+  transform: scale(0.97);
+}
+
+/* ---- Player card drill-down: the games behind a stat ---- */
+.pcard-detail-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+.pcard-detail-back {
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--card-tint);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.pcard-detail-back:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.pcard-detail-heading {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+.pcard-detail-empty {
+  text-align: center;
+  padding: 0.8rem 0;
+}
+.pcard-detail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+.pcard-detail-row {
+  background: var(--card-tint);
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+}
+.pcard-detail-line {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.pcard-detail-round {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  padding: 0.1rem 0.3rem;
+  flex-shrink: 0;
+}
+.pcard-detail-teams {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+.pcard-detail-score {
+  font-family: var(--display);
+  font-weight: 800;
+}
+.pcard-detail-pts {
+  flex-shrink: 0;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+.pcard-detail-pts.is-zero {
+  color: var(--muted);
+}
+.pcard-detail-pick {
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
 
 /* ---- Pool Pulse: clickable cards + who-picked-what breakdown ---- */
 .pp-hint {

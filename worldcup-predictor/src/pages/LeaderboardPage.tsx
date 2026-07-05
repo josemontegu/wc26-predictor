@@ -9,11 +9,24 @@ import type {
   Round,
   RoundCode,
 } from '../lib/types'
-import { avatarGradient } from '../lib/teamMeta'
+import { avatarGradient, teamFlag, teamName } from '../lib/teamMeta'
 import { roundName, ROUND_ORDER } from '../lib/format'
 import { fireConfetti } from '../lib/confetti'
 import Spinner from '../components/Spinner'
 import { useT } from '../lib/i18n'
+
+// The four drill-down categories on a player's stats card.
+type StatKey = 'exact' | 'results' | 'advancing' | 'scored'
+// One scored match for the open player: the result, their pick, what they got
+// right, and the points it earned.
+interface StatRow {
+  m: Match
+  p: LockedPrediction
+  exact: boolean
+  rightResult: boolean
+  advancingRight: boolean
+  points: number
+}
 
 /** Animates a number up to its value (and between values on live updates). */
 function CountUp({ value }: { value: number }) {
@@ -85,6 +98,8 @@ export default function LeaderboardPage() {
   const [error, setError] = useState<string | null>(null)
   // The player whose stats card is open (null = closed).
   const [selected, setSelected] = useState<LeaderboardRow | null>(null)
+  // Which stat tile is drilled into (null = the four-tile summary).
+  const [statDetail, setStatDetail] = useState<StatKey | null>(null)
   // Ids of shadow (unofficial) players — ranked & shown separately.
   const [shadowIds, setShadowIds] = useState<Set<string>>(new Set())
   // Which table to show: cumulative total, or a single round's points.
@@ -229,6 +244,35 @@ export default function LeaderboardPage() {
     return out
   }, [picks, matches])
 
+  // Every scored match for the open player, with what they got right and the
+  // points it earned — the source for the per-tile drill-down. Ordered by
+  // schedule (match number).
+  const selectedRows = useMemo<StatRow[]>(() => {
+    if (!selected || !config) return []
+    const multByRound = new Map(rounds.map((r) => [r.code, r.multiplier]))
+    const matchById = new Map(matches.map((m) => [m.id, m]))
+    const rows: StatRow[] = []
+    for (const p of picks) {
+      if (p.user_id !== selected.user_id) continue
+      const m = matchById.get(p.match_id)
+      if (!m || m.home_score == null || m.away_score == null) continue
+      const mult = multByRound.get(m.round) ?? 1
+      const exact = p.home_score === m.home_score && p.away_score === m.away_score
+      const rightResult =
+        Math.sign(p.home_score - p.away_score) === Math.sign(m.home_score - m.away_score)
+      const advancingRight = !!m.advancing_team && p.advancing_team === m.advancing_team
+      let points = 0
+      if (advancingRight) points += config.points_advance * mult
+      if (exact) points += config.points_exact * mult
+      if (rightResult) points += config.points_tendency * mult
+      if (m.went_to_penalties != null && p.penalties === m.went_to_penalties)
+        points += config.points_penalties * mult
+      rows.push({ m, p, exact, rightResult, advancingRight, points })
+    }
+    rows.sort((a, b) => (a.m.match_no ?? 0) - (b.m.match_no ?? 0))
+    return rows
+  }, [selected, config, rounds, matches, picks])
+
   const roundsWithPoints = ROUND_ORDER.filter((rc) =>
     [...roundStats.values()].some((um) => (um.get(rc)?.pts ?? 0) > 0),
   )
@@ -268,12 +312,20 @@ export default function LeaderboardPage() {
     }
   }, [rows, session, shadowIds])
 
-  // Close the open stats card on Escape.
+  // Escape backs out of a drill-down first, then closes the card.
   useEffect(() => {
     if (!selected) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSelected(null)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      setStatDetail((d) => (d ? null : (setSelected(null), null)))
+    }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
+  }, [selected])
+
+  // Always reopen a card on its summary, never a stale drill-down.
+  useEffect(() => {
+    setStatDetail(null)
   }, [selected])
 
   if (loading) {
@@ -342,6 +394,16 @@ export default function LeaderboardPage() {
   // How many matches have a final result — the denominator for a player's
   // coverage (how much of the played tournament they actually predicted).
   const playedCount = matches.filter((m) => m.home_score != null && m.away_score != null).length
+
+  // Per-tile drill-down: icon, label and which scored matches it lists.
+  const statMeta: Record<StatKey, { ico: string; label: string; keep: (r: StatRow) => boolean }> = {
+    exact: { ico: '🎯', label: t('exact scores', 'exactos'), keep: (r) => r.exact },
+    results: { ico: '🏁', label: t('right results', 'resultados'), keep: (r) => r.rightResult },
+    advancing: { ico: '✅', label: t('advancing right', 'aciertos avance'), keep: (r) => r.advancingRight },
+    scored: { ico: '📋', label: t('matches scored', 'partidos'), keep: () => true },
+  }
+  const detailMeta = statDetail ? statMeta[statDetail] : null
+  const detailList = detailMeta ? selectedRows.filter(detailMeta.keep) : []
 
   return (
     <div className="page">
@@ -545,45 +607,108 @@ export default function LeaderboardPage() {
               </div>
             </div>
 
-            <div className="pcard-points">
-              <span className="pcard-pts-num">{selected.total_points}</span>
-              <span className="pcard-pts-lbl"> {t('points', 'puntos')}</span>
-            </div>
+            {detailMeta ? (
+              <div className="pcard-detail">
+                <div className="pcard-detail-bar">
+                  <button
+                    type="button"
+                    className="pcard-detail-back"
+                    onClick={() => setStatDetail(null)}
+                  >
+                    ← {t('Back', 'Volver')}
+                  </button>
+                  <span className="pcard-detail-heading">
+                    {detailMeta.ico} {detailMeta.label} · {detailList.length}
+                  </span>
+                </div>
+                {detailList.length === 0 ? (
+                  <p className="muted small pcard-detail-empty">{t('None yet.', 'Nada aún.')}</p>
+                ) : (
+                  <ul className="pcard-detail-list">
+                    {detailList.map((r) => (
+                      <li className="pcard-detail-row" key={r.m.id}>
+                        <div className="pcard-detail-line">
+                          <span className="pcard-detail-round">{r.m.round}</span>
+                          <span className="pcard-detail-teams">
+                            {teamFlag(r.m.home_team)} {teamName(r.m.home_team)}
+                            <b className="pcard-detail-score">
+                              {' '}
+                              {r.m.home_score}–{r.m.away_score}{' '}
+                            </b>
+                            {teamName(r.m.away_team)} {teamFlag(r.m.away_team)}
+                          </span>
+                          <span className={`pcard-detail-pts ${r.points === 0 ? 'is-zero' : ''}`}>
+                            +{r.points}
+                          </span>
+                        </div>
+                        <div className="pcard-detail-pick">
+                          {t('Pick', 'Pron.')}: {r.p.home_score}–{r.p.away_score} ·{' '}
+                          {teamName(r.p.advancing_team)}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="pcard-points">
+                  <span className="pcard-pts-num">{selected.total_points}</span>
+                  <span className="pcard-pts-lbl"> {t('points', 'puntos')}</span>
+                </div>
 
-            <div className="pcard-stats">
-              <div className="pcard-stat">
-                <span className="pcard-stat-ico">🎯</span>
-                <span className="pcard-stat-val">{selected.exact_scores}</span>
-                <span className="pcard-stat-lbl">{t('exact scores', 'exactos')}</span>
-                <span className="pcard-stat-pct">
-                  ({pct(selected.exact_scores, selected.scored_predictions)}%)
-                </span>
-              </div>
-              <div className="pcard-stat">
-                <span className="pcard-stat-ico">🏁</span>
-                <span className="pcard-stat-val">{resultsByUser.get(selected.user_id) ?? 0}</span>
-                <span className="pcard-stat-lbl">{t('right results', 'resultados')}</span>
-                <span className="pcard-stat-pct">
-                  ({pct(resultsByUser.get(selected.user_id) ?? 0, selected.scored_predictions)}%)
-                </span>
-              </div>
-              <div className="pcard-stat">
-                <span className="pcard-stat-ico">✅</span>
-                <span className="pcard-stat-val">{selected.correct_advances}</span>
-                <span className="pcard-stat-lbl">{t('advancing right', 'aciertos avance')}</span>
-                <span className="pcard-stat-pct">
-                  ({pct(selected.correct_advances, selected.scored_predictions)}%)
-                </span>
-              </div>
-              <div className="pcard-stat">
-                <span className="pcard-stat-ico">📋</span>
-                <span className="pcard-stat-val">{selected.scored_predictions}</span>
-                <span className="pcard-stat-lbl">{t('matches scored', 'partidos')}</span>
-                <span className="pcard-stat-pct">
-                  ({pct(selected.scored_predictions, playedCount)}%)
-                </span>
-              </div>
-            </div>
+                <div className="pcard-stats">
+                  <button
+                    type="button"
+                    className="pcard-stat pcard-stat-btn"
+                    onClick={() => setStatDetail('exact')}
+                  >
+                    <span className="pcard-stat-ico">🎯</span>
+                    <span className="pcard-stat-val">{selected.exact_scores}</span>
+                    <span className="pcard-stat-lbl">{t('exact scores', 'exactos')}</span>
+                    <span className="pcard-stat-pct">
+                      ({pct(selected.exact_scores, selected.scored_predictions)}%)
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="pcard-stat pcard-stat-btn"
+                    onClick={() => setStatDetail('results')}
+                  >
+                    <span className="pcard-stat-ico">🏁</span>
+                    <span className="pcard-stat-val">{resultsByUser.get(selected.user_id) ?? 0}</span>
+                    <span className="pcard-stat-lbl">{t('right results', 'resultados')}</span>
+                    <span className="pcard-stat-pct">
+                      ({pct(resultsByUser.get(selected.user_id) ?? 0, selected.scored_predictions)}%)
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="pcard-stat pcard-stat-btn"
+                    onClick={() => setStatDetail('advancing')}
+                  >
+                    <span className="pcard-stat-ico">✅</span>
+                    <span className="pcard-stat-val">{selected.correct_advances}</span>
+                    <span className="pcard-stat-lbl">{t('advancing right', 'aciertos avance')}</span>
+                    <span className="pcard-stat-pct">
+                      ({pct(selected.correct_advances, selected.scored_predictions)}%)
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="pcard-stat pcard-stat-btn"
+                    onClick={() => setStatDetail('scored')}
+                  >
+                    <span className="pcard-stat-ico">📋</span>
+                    <span className="pcard-stat-val">{selected.scored_predictions}</span>
+                    <span className="pcard-stat-lbl">{t('matches scored', 'partidos')}</span>
+                    <span className="pcard-stat-pct">
+                      ({pct(selected.scored_predictions, playedCount)}%)
+                    </span>
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
