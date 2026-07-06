@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useT } from '../lib/i18n'
 
@@ -117,6 +118,12 @@ export default function LoginPage() {
             </button>
           </form>
         )}
+        <p className="login-legal">
+          {t('By signing in you agree to our ', 'Al iniciar sesión aceptas nuestros ')}
+          <Link to="/terms">{t('Terms', 'Términos')}</Link>
+          {t(' and ', ' y ')}
+          <Link to="/privacy">{t('Privacy Policy', 'Política de Privacidad')}</Link>.
+        </p>
       </div>
     </div>
   )

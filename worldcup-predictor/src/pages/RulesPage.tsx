@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { AppConfig, Round } from '../lib/types'
 import { ROUND_ORDER, roundName } from '../lib/format'
@@ -262,6 +263,12 @@ export default function RulesPage() {
           <li>{t('Your nickname and emoji are shown to the group; your predictions are yours alone until they lock.', 'Tu apodo y emoji se muestran al grupo; tus pronósticos son solo tuyos hasta que se cierran.')}</li>
         </ul>
       </div>
+
+      <p className="muted small legal-links">
+        <Link to="/terms">{t('Terms of Service', 'Términos del Servicio')}</Link>
+        {' · '}
+        <Link to="/privacy">{t('Privacy Policy', 'Política de Privacidad')}</Link>
+      </p>
     </div>
   )
 }

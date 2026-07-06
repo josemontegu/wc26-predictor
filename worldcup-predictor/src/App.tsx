@@ -10,6 +10,7 @@ import MatchesPage from './pages/MatchesPage'
 import MatchDetailPage from './pages/MatchDetailPage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import RulesPage from './pages/RulesPage'
+import { TermsPage, PrivacyPage } from './pages/LegalPage'
 import AdminPage from './pages/AdminPage'
 import BracketPage from './pages/BracketPage'
 import AwardsPage from './pages/AwardsPage'
@@ -42,7 +43,14 @@ export default function App() {
   }
 
   if (!session) {
-    return <LoginPage />
+    // Legal pages must be readable before signing up; everything else → login.
+    return (
+      <Routes>
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="*" element={<LoginPage />} />
+      </Routes>
+    )
   }
 
   // Signed in but no nickname/emoji yet → force setup before anything else.
@@ -66,6 +74,8 @@ export default function App() {
         <Route path="/match/:id" element={<MatchDetailPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/rules" element={<RulesPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

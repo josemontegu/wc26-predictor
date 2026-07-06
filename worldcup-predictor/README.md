@@ -1,33 +1,42 @@
-# ⚽ Polla LDF
+# Polla LDF
 
-A private, mobile-first web app for a **World Cup 2026 knockout-stage prediction pool**
-("polla") among friends. Predict the Round of 32 through the Final, lock in your calls before
-kick-off, and climb an automatically-scored leaderboard.
+**Polla LDF** is a mobile-first web app for running a **knockout-stage football prediction pool** among a private group. Players predict each match from the Round of 32 through the Final, lock in their calls before kick-off, and climb a leaderboard that scores itself automatically as results come in.
 
-Built with **React + Vite + TypeScript** on the front end and **Supabase**
-(Postgres + Auth + Row Level Security) on the back end. Deploys for free to **GitHub Pages**.
+Built with **React + Vite + TypeScript** on the front end and **Supabase** (Postgres, Auth, Row-Level Security, Realtime) on the back end. It ships as a static bundle and deploys to any static host.
+
+> **Status:** private pool, currently in production for a single group. See [Path to launch](#path-to-launch) for what a public/official release still requires.
 
 ---
 
+## Table of contents
+
+- [Features](#features)
+- [Scoring](#scoring)
+- [Try it instantly (demo mode)](#try-it-instantly-demo-mode)
+- [Automatic fixtures & results](#automatic-fixtures--results)
+- [Setup](#setup)
+- [Architecture](#architecture)
+- [Security model](#security-model)
+- [Legal](#legal)
+- [License](#license)
+- [Path to launch](#path-to-launch)
+
 ## Features
 
-- **Email magic-link sign-in** (Supabase Auth) — no passwords to manage.
-- **Profiles** with a unique nickname and a unique emoji avatar (picked from a grid; taken ones are greyed out). Each player sets these **once**; afterwards only an admin can change them (enforced by a DB trigger, not just the UI), via an admin "Players" editor.
-- **Predictions** per match: the final home/away score (after extra time), with the team advancing and penalties **derived** from it.
-- **Self-service editing** until a configurable lock time before kick-off; **read-only** after.
-- **Admin panel**: create/edit fixtures, set kick-off & lock times, enter results, pick the team that advanced, and tune scoring.
-- **Automatic leaderboard** computed in the database from configurable scoring rules.
-- **Stats page** — Pool Pulse (the group's consensus champion/award picks, penalty-o-meter, expected goals), per-player breakdown (accuracy + points by category), and figures (points distribution, predicted-vs-actual goals).
-- **Rules page** that reads live scoring config so it's always accurate.
-- **Row Level Security** so users only touch their own predictions; admins manage everything else.
-- **Dark mode** with a header toggle (remembers your choice, respects system preference).
-- **"See everyone's picks"** — once a match locks, every player's prediction is revealed.
-- **Live leaderboard** — updates in real time (Supabase Realtime) as results are entered, with rank-movement arrows since your last visit.
-- **Knockout bracket view** — a swipeable column-per-round tree showing the path to the Final.
-- **Delight**: confetti when you nail a perfect prediction, team kit-colour accents on cards and match headers.
-- **Tournament award picks** — Champion (the winner), Golden Ball / Boot / Glove. Players are chosen from the official squad lists via a searchable, flag-rich picker (Golden Glove is goalkeepers-only); locked before kick-off and scored into the leaderboard.
+- **Passwordless sign-in** via email magic link (Supabase Auth).
+- **Set-once identity** — each player picks a unique nickname and emoji avatar (taken emojis are disabled). Locked after selection; only an admin can change them, enforced by a database trigger.
+- **One prediction per match** — a single final score (after extra time). Who advances and whether it went to penalties are **derived** from the score, so a prediction can never contradict itself; a level score prompts you to pick the shootout winner.
+- **Self-service editing** until each match locks, with a **live countdown** on the match page; read-only afterwards.
+- **Automatic, transparent scoring** computed from configurable rules, with a **live leaderboard** (Realtime) that updates as results land, including rank-movement indicators.
+- **Reveal after lock** — once a match locks, everyone's picks (and, after full-time, their points) are shown together.
+- **Player cards** — tap any player for their accuracy stats, drilled down by round into the exact games behind each figure.
+- **Knockout bracket** — a swipeable round-by-round tree.
+- **Tournament awards** — Champion, Golden Ball / Boot / Glove, chosen from official squad lists via a searchable picker, plus a "Pool Pulse" view of the group's consensus.
+- **Stats** — points distribution, per-source and per-round breakdowns, pool-wide figures, and playful superlatives.
+- **Bilingual** (English / Spanish) throughout, **dark mode**, and accessibility support (keyboard focus, reduced-motion, screen-reader labels).
+- **Admin panel** — manage fixtures, kick-off/lock times, results, the advancing team, scoring config, and players (including guest/"unofficial" entrants).
 
-## Scoring (defaults — all configurable in Admin)
+## Scoring
 
 Each match awards, independently:
 
@@ -37,143 +46,80 @@ Each match awards, independently:
 | +4 | Exact final score (stacks on the result → 6 in all) |
 | 4 | Correct team advancing |
 
-These components **stack**, so a flawless match (exact score + right team
-through) is worth **10** before the round multiplier.
+Components **stack**, so a flawless match (exact score + right team through) is worth **10** before the round multiplier. The match total is then multiplied by a **round multiplier** (later rounds are worth more): R32 ×1, R16 ×2, QF ×3, SF ×4, Third place ×2, Final ×5.
 
-Predictions capture a single **final score** — after extra time, if the match
-goes there. Penalties and who advances are then **derived** from it (a level
-final score ⇒ a shootout, and you pick the shootout winner), so a prediction can
-never contradict itself.
-
-The match total is then multiplied by a **round multiplier** (later rounds are worth more):
-R32 ×1, R16 ×2, QF ×3, SF ×4, Third place ×2, Final ×5.
-
----
+All values are configurable in the Admin panel, and the in-app Rules page reads the live config so it is always accurate.
 
 ## Try it instantly (demo mode)
 
-Want to see the whole app with sample data and **no setup**? Append `?demo` to the
-URL — locally (`http://localhost:5173/?demo`) or on your deployed site
-(`https://YOURNAME.github.io/REPO/?demo`). Demo mode runs entirely in the browser
-with mock matches, results, predictions and a populated leaderboard — no Supabase,
-no sign-in. It's perfect for showing friends the game before going live. A **DEMO**
-badge in the header makes it obvious you're in the sandbox.
+Append `?demo` to the URL — locally (`http://localhost:5173/?demo`) or on your deployed site. Demo mode runs entirely in the browser with mock data and no sign-in, so you can show the whole app without any backend. A **DEMO** badge in the header makes the sandbox obvious.
 
-## Live bracket auto-fill (openfootball)
+## Automatic fixtures & results
 
-You don't have to type in every knockout matchup. The app can pull them from the
-free, public-domain **[openfootball/worldcup.json](https://github.com/openfootball/worldcup.json)**
-dataset (no API key, CORS-open). As the group stage finishes, bracket slots like
-`2A vs 2B` resolve to real nations, and a sync brings them in — the BBC-style
-"fills itself in live" behaviour, on a source built for reuse.
+The pool can keep itself up to date without manual entry.
 
-Two ways to run it, pick either or both:
+- **Fixtures** resolve from the free, public-domain [openfootball/worldcup.json](https://github.com/openfootball/worldcup.json) dataset as the bracket fills in. The Admin panel auto-syncs on load, and [`.github/workflows/sync-fixtures.yml`](.github/workflows/sync-fixtures.yml) can run it on a schedule.
+- **Results** are fetched by [`scripts/sync-results.ts`](scripts/sync-results.ts) on a schedule ([`.github/workflows/sync-results.yml`](.github/workflows/sync-results.yml)). The **primary source is ESPN's public scoreboard**, with **openfootball as a fallback**. Writes are **fill-only** by default (a result you've entered or corrected is never overwritten; set `RESULTS_OVERWRITE=true` to change that), and only complete, consistent matches are written.
+- **Manual entry always wins** — the Admin panel is the authoritative override, and the leaderboard/stats recompute instantly.
 
-1. **From the Admin panel (no setup).** Just open **Admin** — it **auto-syncs the
-   bracket every time the page loads** (live mode), fetching the feed in the
-   browser and upserting matchups + kick-off times via your admin session (RLS
-   allows admin writes). There's also a **Sync again** button to refresh on
-   demand. Combined with the live leaderboard, everyone's bracket updates in real
-   time. Only changed rows are written, so re-opening when nothing has changed is
-   a no-op.
-2. **Hands-off on a schedule (optional).** The included
-   [`.github/workflows/sync-fixtures.yml`](../.github/workflows/sync-fixtures.yml)
-   runs `npm run sync` hourly. Add two repo secrets — `SUPABASE_URL` and
-   `SUPABASE_SERVICE_ROLE_KEY` (the service key is **server-side only**, never in
-   the client). Delete the workflow file if you only want the manual button.
-
-## Automatic results (openfootball)
-
-Results can post themselves too. openfootball publishes each finished knockout
-match with full detail — full-time (`ft`), after-extra-time (`et`) and the
-penalty shootout tally (`p`) — which is exactly what the single "final score"
-model needs, and it maps by match number (no team-name matching). The included
-[`.github/workflows/sync-results.yml`](../.github/workflows/sync-results.yml)
-runs [`scripts/sync-results.ts`](scripts/sync-results.ts) every 15 minutes (same
-two secrets as above), so matches update automatically — even overnight.
-
-- **Fill-only by default:** a result you've already entered or corrected is never
-  overwritten; the sync only fills matches with no result yet. Set
-  `RESULTS_OVERWRITE=true` to always take the feed's result.
-- **Safe:** only complete, finished matches are written, and the DB constraints
-  reject anything inconsistent. The leaderboard and stats recompute instantly.
-- **Manual entry still works** in the Admin panel as an override.
-- **Caveat:** results appear when openfootball's volunteers commit them — usually
-  within a reasonable window of full-time, but not guaranteed within minutes. For
-  near-instant updates, swap in a paid live-score API behind the same script.
+> Scheduled syncs use two GitHub Actions secrets — `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. The **service-role key is server-side only** and must never appear in the client bundle or in `VITE_*` variables.
 
 ## Setup
 
-> **Going live?** Follow [`LAUNCH.md`](LAUNCH.md) — a 15-minute, step-by-step
-> go-live checklist. The fastest path is to paste [`supabase/setup.sql`](supabase/setup.sql)
-> (all migrations + seed in one file) into the Supabase SQL editor. The
-> step-by-step below explains the same pieces in more detail.
+> **Going live?** [`LAUNCH.md`](LAUNCH.md) is a step-by-step go-live checklist. The fastest database path is to paste [`supabase/setup.sql`](supabase/setup.sql) (all migrations + seed in one file) into the Supabase SQL editor.
 
-### 1. Create a Supabase project
+1. **Create a Supabase project** (free tier is fine). In the SQL Editor, run [`supabase/setup.sql`](supabase/setup.sql), or the numbered files in [`supabase/migrations/`](supabase/migrations/) in order followed by [`supabase/seed.sql`](supabase/seed.sql).
+2. **Enable email auth** (Authentication → Providers → Email) and add your local (`http://localhost:5173`) and production URLs to the **Redirect URLs** allow-list.
+3. **Make yourself admin** after signing in once:
+   ```sql
+   update public.profiles set is_admin = true
+   where id = (select id from auth.users where email = 'you@example.com');
+   ```
+4. **Run locally:**
+   ```bash
+   cd worldcup-predictor
+   cp .env.example .env      # fill in your Supabase URL + anon (publishable) key
+   npm install
+   npm run dev
+   ```
+5. **Deploy.** The included [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builds and publishes to GitHub Pages on push to `main`; add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as repository secrets. The app uses `HashRouter` and a relative asset base, so it works at any sub-path (and on other static hosts).
 
-1. Go to [supabase.com](https://supabase.com) → **New project** (free tier is fine).
-2. In **SQL Editor**, run these files in order: [`0001_init.sql`](supabase/migrations/0001_init.sql), [`0002_features.sql`](supabase/migrations/0002_features.sql) (reveal-picks view + Realtime), [`0003_consistency.sql`](supabase/migrations/0003_consistency.sql) (outcome constraints), [`0004_extra_time.sql`](supabase/migrations/0004_extra_time.sql) (two-score model + extra-time bonus), [`0005_awards.sql`](supabase/migrations/0005_awards.sql) (tournament award picks), [`0006_champion_squads.sql`](supabase/migrations/0006_champion_squads.sql) (Champion pick + award kinds), [`0007_unique_nickname.sql`](supabase/migrations/0007_unique_nickname.sql) (unique nicknames), [`0008_profile_emoji.sql`](supabase/migrations/0008_profile_emoji.sql) (unique emoji avatars), [`0009_identity_lock.sql`](supabase/migrations/0009_identity_lock.sql) (set-once nickname/emoji, admin override), [`0010_stats.sql`](supabase/migrations/0010_stats.sql) (stats views), [`0011_single_score.sql`](supabase/migrations/0011_single_score.sql) (single final-score model), then [`supabase/seed.sql`](supabase/seed.sql).
-3. In **Authentication → Providers → Email**, make sure **Email** is enabled. Magic links work out of the box on the free tier.
-   - The live leaderboard uses **Realtime**; `0002_features.sql` already adds the `matches` and `predictions` tables to the `supabase_realtime` publication, so no extra clicks are needed.
-4. In **Authentication → URL Configuration**, add your local URL (`http://localhost:5173`) and your GitHub Pages URL (e.g. `https://YOURNAME.github.io/REPO/`) to the **Redirect URLs** allow-list.
-5. Grab your project **URL** and **anon public key** from **Project Settings → API**.
+Only the **anon/publishable** Supabase key belongs in the client. Keep the service-role/secret key out of the repo and out of `VITE_*` entirely.
 
-### 2. Make yourself an admin
-
-After signing in once (so your profile row exists), run this in the SQL Editor:
-
-```sql
-update public.profiles set is_admin = true
-where id = (select id from auth.users where email = 'you@example.com');
-```
-
-### 3. Run locally
-
-```bash
-cd worldcup-predictor
-cp .env.example .env      # then fill in your Supabase URL + anon key
-npm install
-npm run dev
-```
-
-Open http://localhost:5173.
-
-### 4. Deploy to GitHub Pages
-
-1. Push this repo to GitHub.
-2. In the repo: **Settings → Pages → Build and deployment → Source = GitHub Actions**.
-3. In **Settings → Secrets and variables → Actions**, add two repository secrets:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-4. Push to `main` (or run the **Deploy** workflow manually). The included
-   [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) builds `worldcup-predictor/` and publishes it.
-
-The app uses `HashRouter` and a relative asset base, so it works at any
-`https://user.github.io/repo/` path with no extra config.
-
----
-
-## How the pieces fit
+## Architecture
 
 | Concern | Where |
 | --- | --- |
-| Tables, functions, RLS, scoring views | `supabase/migrations/0001_init.sql` |
-| Rounds, default config, 32 fixtures | `supabase/seed.sql` |
+| Tables, functions, RLS, scoring views | [`supabase/migrations/`](supabase/migrations/) |
+| Rounds, default config, seed fixtures | [`supabase/seed.sql`](supabase/seed.sql) |
 | Auth/session state | `src/context/AuthContext.tsx` |
 | Routing & profile gate | `src/App.tsx` |
 | Player screens | `src/pages/*` |
-| Admin screen | `src/pages/AdminPage.tsx`, `src/components/AdminMatchRow.tsx` |
+| Admin screen | `src/pages/AdminPage.tsx`, `src/components/Admin*.tsx` |
+| Results / fixtures sync | `scripts/*`, `src/lib/espn.ts`, `src/lib/openfootball.ts` |
 
-### Security model
+## Security model
 
-- **Predictions**: a user can only `select/insert/update/delete` rows where
-  `user_id = auth.uid()`, and only while `match_is_open()` is true (before lock). Enforced in Postgres, not just the UI.
-- **Matches / rounds / config**: readable by any signed-in user, writable only when `is_admin()`.
-- **Admin escalation**: a trigger prevents non-admins from flipping their own `is_admin` flag.
-- **Leaderboard**: a Postgres view aggregates everyone's points without exposing individual predictions.
+- **Predictions:** a user can only read/write rows where `user_id = auth.uid()`, and only before the match locks — enforced in Postgres, not just the UI. Other players' picks are hidden until the match locks.
+- **Matches / rounds / config:** readable by any signed-in user, writable only by admins.
+- **Admin escalation:** a trigger prevents non-admins from granting themselves admin (or flipping the guest/official flag).
+- **Leaderboard & stats:** Postgres views aggregate points without exposing anyone's individual predictions.
 
-## Extending later
+## Legal
 
-- Swap manual result entry for a sports API by writing into the same `matches` columns.
-- Add group-stage matches by inserting new `rounds` + `matches`.
-- Link bracket positions (`feeds_into`) on matches to draw true connector lines between rounds.
+The app includes template **Terms of Service** and **Privacy Policy** pages (English/Spanish), reachable at `/#/terms` and `/#/privacy` and linked from the sign-in and Rules screens. See [`src/pages/LegalPage.tsx`](src/pages/LegalPage.tsx).
+
+> ⚠️ These are **drafts for review, not legal advice.** Before any public or official launch, have a qualified professional review them and complete the bracketed placeholders (`[OPERATOR]`, `[CONTACT EMAIL]`, `[JURISDICTION]`, `[AGE]`). This project is **not affiliated with, endorsed by, or sponsored by FIFA or the FIFA World Cup**; all trademarks belong to their respective owners.
+
+## License
+
+Proprietary — all rights reserved. See [`LICENSE`](LICENSE). Viewing this repository grants no rights to use, copy, or distribute the software. (If you decide to open-source it later, replace `LICENSE` with a standard permissive license such as MIT.)
+
+## Path to launch
+
+This is a strong single-group app, not yet a multi-tenant product. Before an official release, the main gaps are:
+
+- **Legal & brand:** finalise the Terms/Privacy templates; choose a launch-safe, tournament-agnostic name and a custom domain.
+- **Reliability:** add error monitoring and privacy-respecting analytics, a CI quality gate (typecheck, lint, tests for the scoring math and results sync), and atomic deploys with rollback.
+- **Results resilience:** health-check and alert the sync pipeline; keep manual entry as the documented fallback.
+- **Multi-tenancy (only if productising):** pools as first-class, isolated entities with self-serve creation, invites, and per-pool roles.

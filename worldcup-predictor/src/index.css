@@ -3166,6 +3166,53 @@ button.form-card.pp-clickable {
   color: var(--muted);
 }
 
+/* ---------- Legal pages (Terms / Privacy) ---------- */
+.legal-page {
+  max-width: 720px;
+}
+.legal-draft {
+  margin-bottom: 1.2rem;
+}
+.legal-section {
+  margin-top: 1.4rem;
+}
+.legal-section h2 {
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+.legal-section p {
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.legal-page .rules-list-plain {
+  margin-top: 0.3rem;
+}
+.legal-page .rules-list-plain li {
+  line-height: 1.45;
+}
+.legal-foot {
+  margin-top: 1.6rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line-soft);
+}
+.legal-links {
+  margin-top: 1.2rem;
+  text-align: center;
+}
+.login-legal {
+  margin-top: 1.1rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.login-legal a,
+.legal-links a,
+.legal-foot a {
+  color: var(--info);
+  font-weight: 600;
+}
+
 /* ---------- Reduced motion ----------
    Honour the OS "reduce motion" setting everywhere: neutralise entrance,
    looping and hover animations/transitions (fadeUp, shimmer, pulsing dots,
