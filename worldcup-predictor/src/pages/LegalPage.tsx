@@ -35,8 +35,8 @@ function LegalDoc({
 
       <div className="notice notice-info legal-draft">
         {t(
-          '⚠️ Draft template for review — not legal advice. Have a qualified professional review and complete the bracketed [PLACEHOLDER] fields before an official launch.',
-          '⚠️ Plantilla preliminar para revisión — no es asesoramiento legal. Haz que un profesional cualificado la revise y complete los campos entre corchetes [PLACEHOLDER] antes de un lanzamiento oficial.',
+          '⚠️ Working draft — not legal advice. The details below are sensible defaults; please confirm them and have a qualified professional review this document before an official launch.',
+          '⚠️ Borrador de trabajo — no es asesoramiento legal. Los datos a continuación son valores razonables por defecto; por favor confírmalos y haz que un profesional cualificado revise este documento antes de un lanzamiento oficial.',
         )}
       </div>
 
@@ -80,8 +80,8 @@ export function TermsPage() {
       title={['Terms of Service', 'Términos del Servicio']}
       intro={[
         [
-          'Polla LDF ("the Service") is a free, private, for-entertainment prediction game operated by [OPERATOR]. By creating an account or using the Service, you agree to these Terms. If you do not agree, please do not use the Service.',
-          'Polla LDF ("el Servicio") es un juego de pronósticos gratuito, privado y con fines de entretenimiento, operado por [OPERATOR]. Al crear una cuenta o usar el Servicio, aceptas estos Términos. Si no estás de acuerdo, no uses el Servicio.',
+          'Polla LDF ("the Service") is a free, private, for-entertainment prediction game operated by José Montegú. By creating an account or using the Service, you agree to these Terms. If you do not agree, please do not use the Service.',
+          'Polla LDF ("el Servicio") es un juego de pronósticos gratuito, privado y con fines de entretenimiento, operado por José Montegú. Al crear una cuenta o usar el Servicio, aceptas estos Términos. Si no estás de acuerdo, no uses el Servicio.',
         ],
       ]}
       sections={[
@@ -89,8 +89,8 @@ export function TermsPage() {
           h: ['1. Eligibility', '1. Elegibilidad'],
           p: [
             [
-              'You must be at least [AGE] years old and able to form a binding agreement to use the Service. You agree to provide accurate information and to keep it up to date.',
-              'Debes tener al menos [AGE] años y capacidad para celebrar un acuerdo vinculante para usar el Servicio. Aceptas proporcionar información veraz y mantenerla actualizada.',
+              'You must be at least 18 years old and able to form a binding agreement to use the Service. You agree to provide accurate information and to keep it up to date.',
+              'Debes tener al menos 18 años y capacidad para celebrar un acuerdo vinculante para usar el Servicio. Aceptas proporcionar información veraz y mantenerla actualizada.',
             ],
           ],
         },
@@ -152,8 +152,8 @@ export function TermsPage() {
           h: ['6. Your content', '6. Tu contenido'],
           p: [
             [
-              'You retain your nickname, emoji and predictions. You grant [OPERATOR] a non-exclusive licence to store, process and display them to the members of your pool as needed to operate the game.',
-              'Conservas tu apodo, emoji y pronósticos. Otorgas a [OPERATOR] una licencia no exclusiva para almacenarlos, procesarlos y mostrarlos a los miembros de tu grupo según sea necesario para operar el juego.',
+              'You retain your nickname, emoji and predictions. You grant José Montegú a non-exclusive licence to store, process and display them to the members of your pool as needed to operate the game.',
+              'Conservas tu apodo, emoji y pronósticos. Otorgas a José Montegú una licencia no exclusiva para almacenarlos, procesarlos y mostrarlos a los miembros de tu grupo según sea necesario para operar el juego.',
             ],
           ],
         },
@@ -179,8 +179,8 @@ export function TermsPage() {
           h: ['9. Intellectual property', '9. Propiedad intelectual'],
           p: [
             [
-              'The Service, including its code, design and content (other than your own content and third-party data), is owned by [OPERATOR] and protected by law. No rights are granted to you except the limited right to use the Service under these Terms.',
-              'El Servicio, incluidos su código, diseño y contenido (salvo tu propio contenido y los datos de terceros), es propiedad de [OPERATOR] y está protegido por la ley. No se te otorga ningún derecho salvo el derecho limitado a usar el Servicio conforme a estos Términos.',
+              'The Service, including its code, design and content (other than your own content and third-party data), is owned by José Montegú and protected by law. No rights are granted to you except the limited right to use the Service under these Terms.',
+              'El Servicio, incluidos su código, diseño y contenido (salvo tu propio contenido y los datos de terceros), es propiedad de José Montegú y está protegido por la ley. No se te otorga ningún derecho salvo el derecho limitado a usar el Servicio conforme a estos Términos.',
             ],
           ],
         },
@@ -206,8 +206,8 @@ export function TermsPage() {
           h: ['12. Disclaimers and limitation of liability', '12. Renuncias y limitación de responsabilidad'],
           p: [
             [
-              'To the fullest extent permitted by law, the Service is provided without warranties of any kind, express or implied. [OPERATOR] will not be liable for any indirect, incidental, special or consequential damages, or for any loss of data, arising from your use of the Service. Nothing in these Terms limits liability that cannot be limited by law.',
-              'En la máxima medida permitida por la ley, el Servicio se ofrece sin garantías de ningún tipo, expresas o implícitas. [OPERATOR] no será responsable de daños indirectos, incidentales, especiales o consecuentes, ni de la pérdida de datos, derivados de tu uso del Servicio. Nada en estos Términos limita la responsabilidad que no pueda limitarse por ley.',
+              'To the fullest extent permitted by law, the Service is provided without warranties of any kind, express or implied. José Montegú will not be liable for any indirect, incidental, special or consequential damages, or for any loss of data, arising from your use of the Service. Nothing in these Terms limits liability that cannot be limited by law.',
+              'En la máxima medida permitida por la ley, el Servicio se ofrece sin garantías de ningún tipo, expresas o implícitas. José Montegú no será responsable de daños indirectos, incidentales, especiales o consecuentes, ni de la pérdida de datos, derivados de tu uso del Servicio. Nada en estos Términos limita la responsabilidad que no pueda limitarse por ley.',
             ],
           ],
         },
@@ -215,8 +215,8 @@ export function TermsPage() {
           h: ['13. Governing law', '13. Ley aplicable'],
           p: [
             [
-              'These Terms are governed by the laws of [JURISDICTION], without regard to its conflict-of-law rules. Disputes will be subject to the courts of [JURISDICTION], except where mandatory local law provides otherwise.',
-              'Estos Términos se rigen por las leyes de [JURISDICTION], sin perjuicio de sus normas de conflicto de leyes. Las controversias se someterán a los tribunales de [JURISDICTION], salvo que la ley local imperativa disponga otra cosa.',
+              'These Terms are governed by the laws of Chile, without regard to its conflict-of-law rules. Disputes will be subject to the courts of Chile, except where mandatory local law provides otherwise.',
+              'Estos Términos se rigen por las leyes de Chile, sin perjuicio de sus normas de conflicto de leyes. Las controversias se someterán a los tribunales de Chile, salvo que la ley local imperativa disponga otra cosa.',
             ],
           ],
         },
@@ -233,8 +233,8 @@ export function TermsPage() {
           h: ['15. Contact', '15. Contacto'],
           p: [
             [
-              'Questions about these Terms? Contact us at [CONTACT EMAIL].',
-              '¿Preguntas sobre estos Términos? Escríbenos a [CONTACT EMAIL].',
+              'Questions about these Terms? Contact us at jpmontegu@gmail.com.',
+              '¿Preguntas sobre estos Términos? Escríbenos a jpmontegu@gmail.com.',
             ],
           ],
         },
@@ -250,8 +250,8 @@ export function PrivacyPage() {
       title={['Privacy Policy', 'Política de Privacidad']}
       intro={[
         [
-          'This Privacy Policy explains what personal data Polla LDF (the "Service", operated by [OPERATOR]) collects, how it is used, and your rights. We aim to collect as little as possible.',
-          'Esta Política de Privacidad explica qué datos personales recopila Polla LDF (el "Servicio", operado por [OPERATOR]), cómo se utilizan y cuáles son tus derechos. Buscamos recopilar lo mínimo posible.',
+          'This Privacy Policy explains what personal data Polla LDF (the "Service", operated by José Montegú) collects, how it is used, and your rights. We aim to collect as little as possible.',
+          'Esta Política de Privacidad explica qué datos personales recopila Polla LDF (el "Servicio", operado por José Montegú), cómo se utilizan y cuáles son tus derechos. Buscamos recopilar lo mínimo posible.',
         ],
       ]}
       sections={[
@@ -340,8 +340,8 @@ export function PrivacyPage() {
           h: ['8. Your rights', '8. Tus derechos'],
           p: [
             [
-              'Subject to applicable law, you may request access to, correction of, deletion of, or a copy of your personal data, and object to or restrict certain processing. To exercise any of these, contact us at [CONTACT EMAIL]. You also have the right to lodge a complaint with your local data protection authority.',
-              'Sujeto a la ley aplicable, puedes solicitar el acceso, la rectificación, la eliminación o una copia de tus datos personales, y oponerte o restringir ciertos tratamientos. Para ejercer cualquiera de estos derechos, escríbenos a [CONTACT EMAIL]. También tienes derecho a presentar una reclamación ante tu autoridad local de protección de datos.',
+              'Subject to applicable law, you may request access to, correction of, deletion of, or a copy of your personal data, and object to or restrict certain processing. To exercise any of these, contact us at jpmontegu@gmail.com. You also have the right to lodge a complaint with your local data protection authority.',
+              'Sujeto a la ley aplicable, puedes solicitar el acceso, la rectificación, la eliminación o una copia de tus datos personales, y oponerte o restringir ciertos tratamientos. Para ejercer cualquiera de estos derechos, escríbenos a jpmontegu@gmail.com. También tienes derecho a presentar una reclamación ante tu autoridad local de protección de datos.',
             ],
           ],
         },
@@ -367,8 +367,8 @@ export function PrivacyPage() {
           h: ['11. Children', '11. Menores'],
           p: [
             [
-              'The Service is not directed to children under [AGE]. We do not knowingly collect personal data from them. If you believe a child has provided us data, contact us and we will delete it.',
-              'El Servicio no está dirigido a menores de [AGE] años. No recopilamos conscientemente datos personales de ellos. Si crees que un menor nos ha proporcionado datos, contáctanos y los eliminaremos.',
+              'The Service is not directed to children under 18. We do not knowingly collect personal data from them. If you believe a child has provided us data, contact us and we will delete it.',
+              'El Servicio no está dirigido a menores de 18 años. No recopilamos conscientemente datos personales de ellos. Si crees que un menor nos ha proporcionado datos, contáctanos y los eliminaremos.',
             ],
           ],
         },
@@ -385,8 +385,8 @@ export function PrivacyPage() {
           h: ['13. Contact', '13. Contacto'],
           p: [
             [
-              'For any privacy question or request, contact us at [CONTACT EMAIL].',
-              'Para cualquier consulta o solicitud de privacidad, escríbenos a [CONTACT EMAIL].',
+              'For any privacy question or request, contact us at jpmontegu@gmail.com.',
+              'Para cualquier consulta o solicitud de privacidad, escríbenos a jpmontegu@gmail.com.',
             ],
           ],
         },

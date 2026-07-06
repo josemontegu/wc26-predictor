@@ -109,7 +109,7 @@ Only the **anon/publishable** Supabase key belongs in the client. Keep the servi
 
 The app includes template **Terms of Service** and **Privacy Policy** pages (English/Spanish), reachable at `/#/terms` and `/#/privacy` and linked from the sign-in and Rules screens. See [`src/pages/LegalPage.tsx`](src/pages/LegalPage.tsx).
 
-> ⚠️ These are **drafts for review, not legal advice.** Before any public or official launch, have a qualified professional review them and complete the bracketed placeholders (`[OPERATOR]`, `[CONTACT EMAIL]`, `[JURISDICTION]`, `[AGE]`). This project is **not affiliated with, endorsed by, or sponsored by FIFA or the FIFA World Cup**; all trademarks belong to their respective owners.
+> ⚠️ These are **drafts for review, not legal advice.** They are pre-filled with sensible defaults — operator **José Montegú**, contact **jpmontegu@gmail.com**, governing law **Chile**, minimum age **18** — which should be confirmed and reviewed by a qualified professional before any public or official launch. This project is **not affiliated with, endorsed by, or sponsored by FIFA or the FIFA World Cup**; all trademarks belong to their respective owners.
 
 ## License
 
