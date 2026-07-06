@@ -185,3 +185,48 @@ export function isLocked(match: Pick<Match, 'lock_time'>): boolean {
 export function hasResult(match: Pick<Match, 'home_score' | 'away_score'>): boolean {
   return match.home_score !== null && match.away_score !== null
 }
+
+// ---- ⚡ Bullets: yes/no prop bets on a specific match ----------------------
+export interface Bullet {
+  id: string
+  match_id: string
+  question_en: string
+  question_es: string
+  emoji: string
+  points: number
+  answer: boolean | null
+  created_at: string
+}
+
+export interface BulletPick {
+  bullet_id: string
+  user_id: string
+  choice: boolean
+  created_at: string
+}
+
+/** Who's required (official predictors of the match) and whether they answered. */
+export interface BulletParticipation {
+  bullet_id: string
+  user_id: string
+  nickname: string
+  emoji: string
+  answered: boolean
+}
+
+/** Derived: is the bullet locked, and was everyone required in by lock? */
+export interface BulletValidity {
+  bullet_id: string
+  locked: boolean
+  everyone_in: boolean
+}
+
+/** Everyone's revealed pick, once the match has locked. */
+export interface LockedBulletPick {
+  bullet_id: string
+  user_id: string
+  nickname: string
+  display_name: string
+  emoji: string
+  choice: boolean
+}

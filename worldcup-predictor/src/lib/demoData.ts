@@ -2,6 +2,8 @@ import type {
   AppConfig,
   Award,
   AwardPrediction,
+  Bullet,
+  BulletPick,
   Match,
   Prediction,
   Profile,
@@ -140,6 +142,8 @@ const PREDS: Record<string, Tup[]> = {
   m76: [[1, 1, 'Morocco'], [0, 0, 'Spain'], [0, 0, 'Morocco'], [2, 1, 'Spain'], [1, 0, 'Spain'], [0, 0, 'Morocco']],
   m77: [[2, 0, 'Germany'], [1, 0, 'Germany'], [2, 1, 'Germany'], [0, 1, 'Japan'], [3, 1, 'Germany'], [1, 1, 'Germany']],
   m78: [[2, 1, 'Portugal'], [3, 2, 'Portugal'], [1, 0, 'Portugal'], [2, 2, 'Croatia'], [3, 2, 'Portugal'], [1, 2, 'Croatia']],
+  // open (future) — predicted early so the bullet has a "waiting on" tracker
+  m82: [[1, 0, 'Italy'], [2, 1, 'Italy'], [0, 0, 'Italy'], [1, 1, 'Italy'], [2, 0, 'Italy'], [0, 1, 'Canada']],
   // locked, no result yet
   m79: [[2, 1, 'Netherlands'], [1, 1, 'Netherlands'], [0, 1, 'Mexico'], [2, 0, 'Netherlands'], [1, 0, 'Netherlands'], [2, 2, 'Mexico']],
   m80: [[2, 0, 'England'], [3, 1, 'England'], [1, 0, 'England'], [1, 1, 'England'], [2, 1, 'England'], [0, 0, 'Ecuador']],
@@ -199,3 +203,31 @@ for (const [uid, picks] of Object.entries(AWARD_PICKS)) {
     })
   })
 }
+
+// ---- ⚡ Bullets (demo) ------------------------------------------------------
+// db1: open (m82, Italy v Canada) — pick + "waiting on" tracker.
+// db2: resolved & valid (m73, played) — all official predictors answered → counts.
+// db3: void (m74, played) — not everyone answered → counts for no one.
+export const demoBullets: Bullet[] = [
+  { id: 'db1', match_id: 'm82', question_en: 'Will there be a red card?', question_es: '¿Habrá tarjeta roja?', emoji: '🟥', points: 3, answer: null, created_at: '' },
+  { id: 'db2', match_id: 'm73', question_en: 'Will Messi score?', question_es: '¿Messi marcará?', emoji: '⚽', points: 3, answer: true, created_at: '' },
+  { id: 'db3', match_id: 'm74', question_en: 'Will there be an own goal?', question_es: '¿Habrá autogol?', emoji: '🤦', points: 3, answer: false, created_at: '' },
+]
+
+export const demoBulletPicks: BulletPick[] = [
+  // db1 (open): 3 of 5 official in; Alex & Lu still out
+  { bullet_id: 'db1', user_id: 'u2', choice: true, created_at: '' },
+  { bullet_id: 'db1', user_id: 'u3', choice: false, created_at: '' },
+  { bullet_id: 'db1', user_id: 'u4', choice: true, created_at: '' },
+  // db2 (valid): all 5 official in (+ guest for fun)
+  { bullet_id: 'db2', user_id: DEMO_USER_ID, choice: true, created_at: '' },
+  { bullet_id: 'db2', user_id: 'u2', choice: true, created_at: '' },
+  { bullet_id: 'db2', user_id: 'u3', choice: false, created_at: '' },
+  { bullet_id: 'db2', user_id: 'u4', choice: true, created_at: '' },
+  { bullet_id: 'db2', user_id: 'u5', choice: false, created_at: '' },
+  { bullet_id: 'db2', user_id: 'u6', choice: true, created_at: '' },
+  // db3 (void): only 3 of 5 official in
+  { bullet_id: 'db3', user_id: 'u2', choice: false, created_at: '' },
+  { bullet_id: 'db3', user_id: 'u3', choice: true, created_at: '' },
+  { bullet_id: 'db3', user_id: 'u4', choice: false, created_at: '' },
+]

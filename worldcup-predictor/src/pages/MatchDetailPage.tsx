@@ -11,6 +11,7 @@ import { scorePrediction } from '../lib/scoring'
 import { useT, type TFn } from '../lib/i18n'
 import Spinner from '../components/Spinner'
 import Scoreline from '../components/Scoreline'
+import BulletCard from '../components/BulletCard'
 
 function clampScore(n: number): number {
   if (Number.isNaN(n)) return 0
@@ -307,6 +308,8 @@ export default function MatchDetailPage() {
           )}
         </div>
       )}
+
+      <BulletCard match={match} />
 
       <form onSubmit={handleSave} className="form-card">
         <h2>{prediction ? t('Your prediction', 'Tu pronóstico') : t('Make your prediction', 'Haz tu pronóstico')}</h2>

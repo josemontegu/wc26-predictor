@@ -1,9 +1,20 @@
-import type { AppConfig, LeaderboardRow, Match, MyScore, Prediction, Profile } from './types'
+import type {
+  AppConfig,
+  Bullet,
+  BulletPick,
+  LeaderboardRow,
+  Match,
+  MyScore,
+  Prediction,
+  Profile,
+} from './types'
 import {
   DEMO_EMAIL,
   DEMO_USER_ID,
   demoAwardPredictions,
   demoAwards,
+  demoBulletPicks,
+  demoBullets,
   demoConfig,
   demoMatches,
   demoOtherPredictions,
@@ -25,6 +36,8 @@ interface Store {
   app_config: AppConfig[]
   awards: typeof demoAwards
   award_predictions: typeof demoAwardPredictions
+  bullets: Bullet[]
+  bullet_picks: BulletPick[]
 }
 
 const store: Store = {
@@ -35,9 +48,11 @@ const store: Store = {
   app_config: [structuredClone(demoConfig)],
   awards: structuredClone(demoAwards),
   award_predictions: structuredClone(demoAwardPredictions),
+  bullets: structuredClone(demoBullets),
+  bullet_picks: structuredClone(demoBulletPicks),
 }
 
-type Filter = { col: string; val: unknown }
+type Filter = { col: string; val: unknown; isIn?: boolean }
 
 function computeScore(p: Prediction, m: Match, cfg: AppConfig, mult: number) {
   const advance =
@@ -142,6 +157,8 @@ function leaderboard(): LeaderboardRow[] {
         total += a.points
       }
     }
+    // ⚡ Bullet points (valid + answered + pick matches).
+    total += bulletPoints(pr.id)
     return {
       user_id: pr.id,
       display_name: pr.display_name,
@@ -220,6 +237,68 @@ function lockedAwardPredictions() {
   return out
 }
 
+// ⚡ Bullet views (mirror the SQL views) ------------------------------------
+const bulletLocked = (b: Bullet) => {
+  const m = store.matches.find((x) => x.id === b.match_id)
+  return !!m?.lock_time && Date.now() >= new Date(m.lock_time).getTime()
+}
+function bulletParticipation(): any[] {
+  const out: any[] = []
+  for (const b of store.bullets) {
+    const predictorIds = new Set(
+      store.predictions.filter((p) => p.match_id === b.match_id).map((p) => p.user_id),
+    )
+    for (const pr of store.profiles) {
+      if (pr.official === false || !predictorIds.has(pr.id)) continue
+      out.push({
+        bullet_id: b.id,
+        user_id: pr.id,
+        nickname: pr.nickname,
+        emoji: pr.emoji,
+        answered: store.bullet_picks.some((bp) => bp.bullet_id === b.id && bp.user_id === pr.id),
+      })
+    }
+  }
+  return out
+}
+function bulletValidity(): any[] {
+  const part = bulletParticipation()
+  return store.bullets.map((b) => ({
+    bullet_id: b.id,
+    locked: bulletLocked(b),
+    everyone_in: !part.some((p) => p.bullet_id === b.id && !p.answered),
+  }))
+}
+function lockedBulletPicks(): any[] {
+  const out: any[] = []
+  for (const bp of store.bullet_picks) {
+    const b = store.bullets.find((x) => x.id === bp.bullet_id)
+    if (!b || !bulletLocked(b)) continue
+    const pr = store.profiles.find((x) => x.id === bp.user_id)
+    out.push({
+      bullet_id: bp.bullet_id,
+      user_id: bp.user_id,
+      nickname: pr?.nickname,
+      display_name: pr?.display_name,
+      emoji: pr?.emoji,
+      choice: bp.choice,
+    })
+  }
+  return out
+}
+function bulletPoints(userId: string): number {
+  const valid = new Map(bulletValidity().map((v) => [v.bullet_id, v]))
+  let pts = 0
+  for (const bp of store.bullet_picks.filter((x) => x.user_id === userId)) {
+    const b = store.bullets.find((x) => x.id === bp.bullet_id)
+    const v = valid.get(bp.bullet_id)
+    if (b && b.answer !== null && v?.locked && v?.everyone_in && bp.choice === b.answer) {
+      pts += b.points
+    }
+  }
+  return pts
+}
+
 function tableRows(table: string): any[] {
   switch (table) {
     case 'leaderboard':
@@ -232,13 +311,19 @@ function tableRows(table: string): any[] {
       return playerStats()
     case 'locked_award_predictions':
       return lockedAwardPredictions()
+    case 'bullet_participation':
+      return bulletParticipation()
+    case 'bullet_validity':
+      return bulletValidity()
+    case 'locked_bullet_picks':
+      return lockedBulletPicks()
     default:
       return (store as any)[table] ?? []
   }
 }
 
 class QueryBuilder<T = any> {
-  private op: 'select' | 'update' | 'upsert' | 'delete' = 'select'
+  private op: 'select' | 'insert' | 'update' | 'upsert' | 'delete' = 'select'
   private payload: any = null
   private filters: Filter[] = []
   private orderCol: string | null = null
@@ -258,6 +343,15 @@ class QueryBuilder<T = any> {
   }
   eq(col: string, val: unknown) {
     this.filters.push({ col, val })
+    return this
+  }
+  in(col: string, vals: unknown[]) {
+    this.filters.push({ col, val: vals, isIn: true })
+    return this
+  }
+  insert(payload: any) {
+    this.op = 'insert'
+    this.payload = payload
     return this
   }
   update(payload: any) {
@@ -281,12 +375,29 @@ class QueryBuilder<T = any> {
   }
 
   private match(row: any) {
-    return this.filters.every((f) => row[f.col] === f.val)
+    return this.filters.every((f) =>
+      f.isIn ? (f.val as unknown[]).includes(row[f.col]) : row[f.col] === f.val,
+    )
   }
 
   private run(): { data: T | T[] | null; error: null } {
     let rows = tableRows(this.table)
 
+    if (this.op === 'insert') {
+      const arr = (store as any)[this.table] as any[]
+      const items: any[] = Array.isArray(this.payload) ? this.payload : [this.payload]
+      const created = items.map((item) => {
+        const row = {
+          id: `gen-${Math.round(performance.now())}-${arr.length}`,
+          created_at: new Date().toISOString(),
+          ...item,
+        }
+        arr.push(row)
+        return row
+      })
+      emitChange()
+      return this.finish(created)
+    }
     if (this.op === 'update') {
       const targets = (store as any)[this.table].filter((r: any) => this.match(r))
       targets.forEach((r: any) => Object.assign(r, this.payload, { updated_at: new Date().toISOString() }))

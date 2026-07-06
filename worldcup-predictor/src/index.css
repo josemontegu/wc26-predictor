@@ -3213,6 +3213,236 @@ button.form-card.pp-clickable {
   font-weight: 600;
 }
 
+/* ---------- ⚡ Bullets ---------- */
+.bullet-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  background: linear-gradient(120deg, rgba(245, 179, 1, 0.18), rgba(245, 179, 1, 0.05));
+  border: 1px solid rgba(245, 179, 1, 0.55);
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+.bullet-banner-ico {
+  font-size: 1.4rem;
+}
+.bullet-banner-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+.bullet-banner-cta {
+  font-weight: 700;
+  color: var(--accent-dark);
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+.bullet-card {
+  border: 1px solid rgba(245, 179, 1, 0.55);
+  background: linear-gradient(180deg, rgba(245, 179, 1, 0.09), transparent 55%), var(--card);
+}
+.bullet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.bullet-tag {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8a5a00;
+  background: var(--gold-soft);
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+}
+.bullet-pts {
+  font-family: var(--display);
+  font-weight: 800;
+  color: var(--accent-dark);
+  font-size: 0.9rem;
+}
+.bullet-q {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+}
+.bullet-emoji {
+  font-size: 1.5rem;
+}
+.bullet-choices {
+  display: flex;
+  gap: 0.6rem;
+}
+.bullet-choice {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.12s, background 0.12s;
+  color: var(--ink);
+}
+.bullet-choice:active {
+  transform: scale(0.97);
+}
+.bullet-yes.bullet-on {
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(7, 160, 106, 0.3);
+}
+.bullet-no.bullet-on {
+  background: linear-gradient(135deg, #f27a7a, var(--danger));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(224, 70, 74, 0.28);
+}
+.bullet-tracker {
+  margin-top: 0.7rem;
+}
+.bullet-tracker-count {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.bullet-waiting {
+  font-weight: 600;
+  color: #a06a00;
+}
+[data-theme='dark'] .bullet-waiting {
+  color: var(--gold);
+}
+.bullet-rule {
+  margin: 0.25rem 0 0;
+}
+.bullet-status {
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.7rem;
+  text-align: center;
+}
+.bullet-void {
+  background: var(--bg-2);
+  color: var(--muted);
+}
+.bullet-live {
+  background: var(--gold-soft);
+  color: #8a5a00;
+}
+.bullet-win {
+  background: rgba(7, 160, 106, 0.14);
+  color: var(--accent-dark);
+}
+.bullet-done {
+  background: var(--bg-2);
+  color: var(--ink);
+}
+.bullet-my-result {
+  font-weight: 600;
+}
+.bullet-reveal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.bullet-side {
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  padding: 0.6rem;
+  background: var(--card-tint);
+}
+.bullet-side-win {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(7, 160, 106, 0.18);
+}
+.bullet-side-head {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.85rem;
+  margin-bottom: 0.4rem;
+}
+.bullet-side-n {
+  color: var(--muted);
+}
+.bullet-side-people {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.bullet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+}
+.bullet-chip-me {
+  font-weight: 700;
+  color: var(--accent-dark);
+}
+.bullet-chip-emoji {
+  font-size: 0.95rem;
+}
+/* admin */
+.bullet-admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.6rem 0 1rem;
+}
+.bullet-admin-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.bullet-admin-emoji {
+  width: 3rem;
+  text-align: center;
+}
+.bullet-admin-pts {
+  width: 4rem;
+}
+.bullet-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.bullet-admin-item {
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  padding: 0.6rem;
+}
+.bullet-admin-q {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: 0.4rem;
+}
+.bullet-admin-answer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.bullet-admin-del {
+  margin-left: auto;
+}
+
 /* ---------- Reduced motion ----------
    Honour the OS "reduce motion" setting everywhere: neutralise entrance,
    looping and hover animations/transitions (fadeUp, shimmer, pulsing dots,

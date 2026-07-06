@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { Match, MyScore, Prediction, RoundCode } from '../lib/types'
+import type { Bullet, Match, MyScore, Prediction, RoundCode } from '../lib/types'
 import { isLocked, hasResult } from '../lib/types'
 import { isTBD } from '../lib/teamMeta'
 import { roundName, ROUND_ORDER, formatDay, timeUntilLock } from '../lib/format'
@@ -15,6 +15,7 @@ export default function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>([])
   const [predictions, setPredictions] = useState<Record<string, Prediction>>({})
   const [points, setPoints] = useState<Record<string, number>>({})
+  const [bullets, setBullets] = useState<Bullet[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   // Keep the selected round in the URL so it survives navigating into a match
@@ -32,13 +33,16 @@ export default function MatchesPage() {
   }
 
   const load = useCallback(async () => {
-    const [matchRes, predRes, scoreRes] = await Promise.all([
+    const [matchRes, predRes, scoreRes, bulletRes] = await Promise.all([
       supabase.from('matches').select('*').order('match_no', { ascending: true }),
       supabase.from('predictions').select('*').eq('user_id', session!.user.id),
       supabase.from('my_scores').select('*'),
+      supabase.from('bullets').select('*'),
     ])
     if (matchRes.error) setError(matchRes.error.message)
     else setMatches((matchRes.data as Match[]) ?? [])
+    // Gracefully empty if the bullets table isn't migrated yet.
+    setBullets(bulletRes.error ? [] : ((bulletRes.data as Bullet[]) ?? []))
 
     const byMatch: Record<string, Prediction> = {}
     for (const p of (predRes.data as Prediction[]) ?? []) byMatch[p.match_id] = p
@@ -108,6 +112,19 @@ export default function MatchesPage() {
     return ROUND_ORDER.filter((r) => set.has(r))
   }, [matches])
 
+  // The soonest open bullet (its match not locked/played yet) — surfaced as a
+  // banner so people don't miss the all-or-nothing call.
+  const activeBullet = useMemo(() => {
+    const ms = (n: string | null) => (n ? new Date(n).getTime() : Infinity)
+    return bullets
+      .map((b) => ({ b, m: matches.find((mm) => mm.id === b.match_id) }))
+      .filter(
+        (x): x is { b: Bullet; m: Match } =>
+          !!x.m && !isLocked(x.m) && !hasResult(x.m) && !isTBD(x.m.home_team) && !isTBD(x.m.away_team),
+      )
+      .sort((a, b) => ms(a.m.lock_time) - ms(b.m.lock_time))[0]
+  }, [bullets, matches])
+
   // The round the tournament is currently on: the first present round that still
   // has a match without a final result. Once every round is played, fall back to
   // the last one. This is the default view so opening the app lands on what's
@@ -174,6 +191,16 @@ export default function MatchesPage() {
     <div className="page">
       <h1>{t('Knockout matches', 'Partidos de eliminación')}</h1>
       {error && <div className="notice notice-err">{error}</div>}
+
+      {activeBullet && (
+        <Link to={`/match/${activeBullet.m.id}`} className="bullet-banner">
+          <span className="bullet-banner-ico">⚡</span>
+          <span className="bullet-banner-text">
+            <b>{t('Bullet', 'Bullet')}:</b> {t(activeBullet.b.question_en, activeBullet.b.question_es)}
+          </span>
+          <span className="bullet-banner-cta">{t('Call it', 'Elige')} →</span>
+        </Link>
+      )}
 
       {needsPick.length > 0 && (
         <div className="pick-nudge">
