@@ -2177,6 +2177,19 @@ button.form-card.pp-clickable {
   min-width: 40px;
   text-align: right;
 }
+/* Subtle points-earned tag once the match is played. */
+.pick-pts {
+  min-width: 32px;
+  text-align: right;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--accent-dark);
+}
+.pick-pts-zero {
+  color: var(--muted);
+  opacity: 0.65;
+}
 .pick-hit {
   color: var(--accent-dark);
 }

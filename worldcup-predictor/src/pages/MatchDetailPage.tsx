@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { LockedPrediction, Match, MyScore, Prediction } from '../lib/types'
+import type { AppConfig, LockedPrediction, Match, MyScore, Prediction, Round } from '../lib/types'
 import { isLocked, hasResult, resolveOutcome } from '../lib/types'
 import { roundName, formatKickoff } from '../lib/format'
 import { teamFlag, teamColor, teamName, avatarGradient } from '../lib/teamMeta'
@@ -41,6 +41,8 @@ export default function MatchDetailPage() {
   const [prediction, setPrediction] = useState<Prediction | null>(null)
   const [score, setScore] = useState<MyScore | null>(null)
   const [picks, setPicks] = useState<LockedPrediction[]>([])
+  const [config, setConfig] = useState<AppConfig | null>(null)
+  const [roundMult, setRoundMult] = useState(1)
   const [shadowIds, setShadowIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -59,7 +61,7 @@ export default function MatchDetailPage() {
     async function load() {
       if (!id) return
       setLoading(true)
-      const [matchRes, predRes, scoreRes, picksRes, profRes] = await Promise.all([
+      const [matchRes, predRes, scoreRes, picksRes, profRes, cfgRes, roundRes] = await Promise.all([
         supabase.from('matches').select('*').eq('id', id).maybeSingle(),
         supabase
           .from('predictions')
@@ -70,6 +72,8 @@ export default function MatchDetailPage() {
         supabase.from('my_scores').select('*').eq('match_id', id).maybeSingle(),
         supabase.from('locked_predictions').select('*').eq('match_id', id),
         supabase.from('profiles').select('id, official'),
+        supabase.from('app_config').select('*').eq('id', 1).maybeSingle(),
+        supabase.from('rounds').select('code, multiplier'),
       ])
       if (!active) return
       if (matchRes.error) setError(matchRes.error.message)
@@ -79,6 +83,9 @@ export default function MatchDetailPage() {
       setPrediction(p)
       setScore((scoreRes.data as MyScore) ?? null)
       setPicks((picksRes.data as LockedPrediction[]) ?? [])
+      setConfig((cfgRes.data as AppConfig) ?? null)
+      const mult = ((roundRes.data as Round[]) ?? []).find((r) => r.code === m?.round)?.multiplier
+      setRoundMult(mult ?? 1)
       setShadowIds(
         new Set(
           ((profRes.data as { id: string; official: boolean }[]) ?? [])
@@ -214,6 +221,22 @@ export default function MatchDetailPage() {
 
   const teamsKnown = match.home_team !== 'TBD' && match.away_team !== 'TBD'
   const canEdit = !locked && teamsKnown
+
+  // Points a pick earned on this (finished) match — same formula as the DB's
+  // prediction_scores view (which clients can't read), × the round multiplier.
+  const pointsFor = (p: LockedPrediction): number => {
+    if (!played || !config) return 0
+    let pts = 0
+    if (match.advancing_team && p.advancing_team === match.advancing_team)
+      pts += config.points_advance * roundMult
+    if (p.home_score === match.home_score && p.away_score === match.away_score)
+      pts += config.points_exact * roundMult
+    if (Math.sign(p.home_score - p.away_score) === Math.sign(match.home_score! - match.away_score!))
+      pts += config.points_tendency * roundMult
+    if (match.went_to_penalties != null && p.penalties === match.went_to_penalties)
+      pts += config.points_penalties * roundMult
+    return pts
+  }
   const homeN = home === '' ? null : Number(home)
   const awayN = away === '' ? null : Number(away)
   const bothSet = homeN !== null && awayN !== null
@@ -463,6 +486,14 @@ export default function MatchDetailPage() {
                     <span className={`pick-adv ${advRight ? 'pick-hit' : ''}`}>
                       {teamFlag(p.advancing_team)}
                     </span>
+                    {played && (
+                      <span
+                        className={`pick-pts ${pointsFor(p) === 0 ? 'pick-pts-zero' : ''}`}
+                        aria-label={t(`${pointsFor(p)} points`, `${pointsFor(p)} puntos`)}
+                      >
+                        +{pointsFor(p)}
+                      </span>
+                    )}
                   </div>
                 )
               })}
