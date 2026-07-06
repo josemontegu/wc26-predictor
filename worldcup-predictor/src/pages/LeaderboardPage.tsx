@@ -11,6 +11,7 @@ import type {
 } from '../lib/types'
 import { avatarGradient, teamFlag, teamName } from '../lib/teamMeta'
 import { roundName, ROUND_ORDER } from '../lib/format'
+import { scorePrediction } from '../lib/scoring'
 import { fireConfetti } from '../lib/confetti'
 import Spinner from '../components/Spinner'
 import { useT } from '../lib/i18n'
@@ -205,23 +206,17 @@ export default function LeaderboardPage() {
       const m = matchById.get(p.match_id)
       if (!m || m.home_score == null || m.away_score == null) continue
       const mult = multByRound.get(m.round) ?? 1
-      const exact = p.home_score === m.home_score && p.away_score === m.away_score ? 1 : 0
-      const adv = m.advancing_team && p.advancing_team === m.advancing_team ? 1 : 0
-      let pts = 0
-      if (adv) pts += config.points_advance * mult
-      if (exact) pts += config.points_exact * mult
-      if (Math.sign(p.home_score - p.away_score) === Math.sign(m.home_score - m.away_score))
-        pts += config.points_tendency * mult
-      if (m.went_to_penalties != null && p.penalties === m.went_to_penalties)
-        pts += config.points_penalties * mult
-      if (pts === 0 && exact === 0 && adv === 0) continue
+      const s = scorePrediction(p, m, config, mult)
+      const exact = s.exact ? 1 : 0
+      const adv = s.advancingRight ? 1 : 0
+      if (s.points === 0 && exact === 0 && adv === 0) continue
       let um = out.get(p.user_id)
       if (!um) {
         um = new Map()
         out.set(p.user_id, um)
       }
       const cur = um.get(m.round) ?? { pts: 0, exact: 0, adv: 0 }
-      cur.pts += pts
+      cur.pts += s.points
       cur.exact += exact
       cur.adv += adv
       um.set(m.round, cur)
@@ -234,15 +229,16 @@ export default function LeaderboardPage() {
   // explains equal totals with different exact-score counts.
   const resultsByUser = useMemo(() => {
     const out = new Map<string, number>()
+    if (!config) return out
     const matchById = new Map(matches.map((m) => [m.id, m]))
     for (const p of picks) {
       const m = matchById.get(p.match_id)
-      if (!m || m.home_score == null || m.away_score == null) continue
-      if (Math.sign(p.home_score - p.away_score) === Math.sign(m.home_score - m.away_score))
+      if (!m) continue
+      if (scorePrediction(p, m, config).rightResult)
         out.set(p.user_id, (out.get(p.user_id) ?? 0) + 1)
     }
     return out
-  }, [picks, matches])
+  }, [picks, matches, config])
 
   // Every scored match for the open player, with what they got right and the
   // points it earned — the source for the per-tile drill-down. Ordered by
@@ -257,16 +253,7 @@ export default function LeaderboardPage() {
       const m = matchById.get(p.match_id)
       if (!m || m.home_score == null || m.away_score == null) continue
       const mult = multByRound.get(m.round) ?? 1
-      const exact = p.home_score === m.home_score && p.away_score === m.away_score
-      const rightResult =
-        Math.sign(p.home_score - p.away_score) === Math.sign(m.home_score - m.away_score)
-      const advancingRight = !!m.advancing_team && p.advancing_team === m.advancing_team
-      let points = 0
-      if (advancingRight) points += config.points_advance * mult
-      if (exact) points += config.points_exact * mult
-      if (rightResult) points += config.points_tendency * mult
-      if (m.went_to_penalties != null && p.penalties === m.went_to_penalties)
-        points += config.points_penalties * mult
+      const { exact, rightResult, advancingRight, points } = scorePrediction(p, m, config, mult)
       rows.push({ m, p, exact, rightResult, advancingRight, points })
     }
     rows.sort((a, b) => (a.m.match_no ?? 0) - (b.m.match_no ?? 0))

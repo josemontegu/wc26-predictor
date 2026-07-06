@@ -7,6 +7,7 @@ import { isLocked, hasResult, resolveOutcome } from '../lib/types'
 import { roundName, formatKickoff } from '../lib/format'
 import { teamFlag, teamColor, teamName, avatarGradient } from '../lib/teamMeta'
 import { fireConfetti } from '../lib/confetti'
+import { scorePrediction } from '../lib/scoring'
 import { useT, type TFn } from '../lib/i18n'
 import Spinner from '../components/Spinner'
 import Scoreline from '../components/Scoreline'
@@ -222,21 +223,10 @@ export default function MatchDetailPage() {
   const teamsKnown = match.home_team !== 'TBD' && match.away_team !== 'TBD'
   const canEdit = !locked && teamsKnown
 
-  // Points a pick earned on this (finished) match — same formula as the DB's
-  // prediction_scores view (which clients can't read), × the round multiplier.
-  const pointsFor = (p: LockedPrediction): number => {
-    if (!played || !config) return 0
-    let pts = 0
-    if (match.advancing_team && p.advancing_team === match.advancing_team)
-      pts += config.points_advance * roundMult
-    if (p.home_score === match.home_score && p.away_score === match.away_score)
-      pts += config.points_exact * roundMult
-    if (Math.sign(p.home_score - p.away_score) === Math.sign(match.home_score! - match.away_score!))
-      pts += config.points_tendency * roundMult
-    if (match.went_to_penalties != null && p.penalties === match.went_to_penalties)
-      pts += config.points_penalties * roundMult
-    return pts
-  }
+  // Points a pick earned on this (finished) match — shared scoring module,
+  // × the round multiplier.
+  const pointsFor = (p: LockedPrediction): number =>
+    played && config ? scorePrediction(p, match, config, roundMult).points : 0
   const homeN = home === '' ? null : Number(home)
   const awayN = away === '' ? null : Number(away)
   const bothSet = homeN !== null && awayN !== null

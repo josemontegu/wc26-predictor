@@ -9,6 +9,7 @@ import type {
   Round,
 } from '../lib/types'
 import { roundName, ROUND_ORDER } from '../lib/format'
+import { scorePrediction } from '../lib/scoring'
 import Spinner from '../components/Spinner'
 import { useT, type TFn } from '../lib/i18n'
 
@@ -235,13 +236,7 @@ export default function StatsPage() {
       const m = matchById.get(p.match_id)
       if (!m || m.home_score == null || m.away_score == null) continue
       const mult = multByRound.get(m.round) ?? 1
-      let pts = 0
-      if (m.advancing_team && p.advancing_team === m.advancing_team) pts += config.points_advance * mult
-      if (p.home_score === m.home_score && p.away_score === m.away_score) pts += config.points_exact * mult
-      if (Math.sign(p.home_score - p.away_score) === Math.sign(m.home_score - m.away_score))
-        pts += config.points_tendency * mult
-      if (m.went_to_penalties != null && p.penalties === m.went_to_penalties)
-        pts += config.points_penalties * mult
+      const pts = scorePrediction(p, m, config, mult).points
       if (pts === 0) continue
       let um = out.get(p.user_id)
       if (!um) {
