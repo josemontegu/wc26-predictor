@@ -2379,14 +2379,21 @@ button.form-card.pp-clickable {
 .bk-match:active {
   transform: scale(0.97);
 }
-.bk-date {
-  align-self: flex-end;
-  font-size: 0.58rem;
+.bk-cell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.bk-when {
+  font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--muted);
   line-height: 1;
-  margin: -0.05rem 0.05rem -0.15rem 0;
+  margin: 0 0 0.25rem 0.15rem;
+}
+.bk-thirdplace .bk-cell {
+  max-width: 240px;
 }
 .bk-side {
   display: flex;

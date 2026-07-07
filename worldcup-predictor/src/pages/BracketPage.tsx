@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Match, RoundCode } from '../lib/types'
 import { hasResult } from '../lib/types'
-import { roundName, formatShortDay } from '../lib/format'
+import { roundName, formatShortDateTime } from '../lib/format'
 import { teamColor, teamFlag, isTBD, teamName } from '../lib/teamMeta'
 import Spinner from '../components/Spinner'
 import { useT } from '../lib/i18n'
@@ -201,13 +201,15 @@ function BracketMatch({ match, onClick }: { match: Match; onClick: () => void })
   const homeWon = match.advancing_team === match.home_team
   const awayWon = match.advancing_team === match.away_team
 
-  const date = formatShortDay(match.kickoff_time)
+  const when = formatShortDateTime(match.kickoff_time)
   return (
-    <button className="bk-match" onClick={onClick}>
-      {date && <span className="bk-date">{date}</span>}
-      <BracketSide team={match.home_team} score={match.home_score} won={homeWon} dim={played && awayWon} />
-      <BracketSide team={match.away_team} score={match.away_score} won={awayWon} dim={played && homeWon} />
-    </button>
+    <div className="bk-cell">
+      {when && <div className="bk-when">{when}</div>}
+      <button className="bk-match" onClick={onClick}>
+        <BracketSide team={match.home_team} score={match.home_score} won={homeWon} dim={played && awayWon} />
+        <BracketSide team={match.away_team} score={match.away_score} won={awayWon} dim={played && homeWon} />
+      </button>
+    </div>
   )
 }
 

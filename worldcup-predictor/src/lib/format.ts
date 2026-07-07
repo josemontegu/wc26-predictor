@@ -63,10 +63,13 @@ export function formatDay(iso: string | null): string {
   })
 }
 
-/** Compact date for tight spots, e.g. "3 Jul" / "3 jul". Empty when undated. */
-export function formatShortDay(iso: string | null): string {
+/** Compact date + time for tight spots, e.g. "3 Jul · 21:00". Empty when undated. */
+export function formatShortDateTime(iso: string | null): string {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short' })
+  const d = new Date(iso)
+  const date = d.toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short' })
+  const time = d.toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
+  return `${date} · ${time}`
 }
 
 export function formatLock(iso: string | null): string {
