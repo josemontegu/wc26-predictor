@@ -299,10 +299,31 @@ function bulletPoints(userId: string): number {
   return pts
 }
 
+// Admin prediction-status (demo is always signed in as an admin).
+function matchParticipation(): any[] {
+  const out: any[] = []
+  const active = store.profiles.filter((pr) => (pr.nickname || '').trim() !== '')
+  for (const m of store.matches) {
+    for (const pr of active) {
+      out.push({
+        match_id: m.id,
+        user_id: pr.id,
+        nickname: pr.nickname,
+        emoji: pr.emoji,
+        official: pr.official,
+        predicted: store.predictions.some((p) => p.match_id === m.id && p.user_id === pr.id),
+      })
+    }
+  }
+  return out
+}
+
 function tableRows(table: string): any[] {
   switch (table) {
     case 'leaderboard':
       return leaderboard()
+    case 'match_participation':
+      return matchParticipation()
     case 'my_scores':
       return myScores()
     case 'locked_predictions':

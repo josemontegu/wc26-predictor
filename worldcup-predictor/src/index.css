@@ -3459,6 +3459,57 @@ button.form-card.pp-clickable {
   margin-left: auto;
 }
 
+/* ---------- Admin: prediction status ---------- */
+.pstatus-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.pstatus-row {
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+}
+.pstatus-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.pstatus-teams {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.pstatus-ok {
+  margin-top: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent-dark);
+}
+.pstatus-missing {
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--ink);
+  line-height: 1.9;
+}
+.pstatus-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: var(--gold-soft);
+  color: #8a5a00;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font-weight: 600;
+  margin-right: 0.3rem;
+  white-space: nowrap;
+}
+[data-theme='dark'] .pstatus-chip {
+  background: rgba(245, 179, 1, 0.16);
+  color: var(--gold);
+}
+
 /* ---------- Reduced motion ----------
    Honour the OS "reduce motion" setting everywhere: neutralise entrance,
    looping and hover animations/transitions (fadeUp, shimmer, pulsing dots,

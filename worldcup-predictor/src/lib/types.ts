@@ -230,3 +230,13 @@ export interface LockedBulletPick {
   emoji: string
   choice: boolean
 }
+
+/** Admin-only: whether a player has predicted a match (no pick content). */
+export interface MatchParticipation {
+  match_id: string
+  user_id: string
+  nickname: string
+  emoji: string
+  official: boolean
+  predicted: boolean
+}

@@ -11,6 +11,7 @@ import { isoToLocalInput, localInputToIso } from '../lib/datetime'
 import { useT } from '../lib/i18n'
 import AdminMatchRow from '../components/AdminMatchRow'
 import AdminBullets from '../components/AdminBullets'
+import AdminPredictionStatus from '../components/AdminPredictionStatus'
 import AdminPlayerRow from '../components/AdminPlayerRow'
 import AwardPicker from '../components/AwardPicker'
 import Spinner from '../components/Spinner'
@@ -277,6 +278,8 @@ export default function AdminPage() {
     <div className="page">
       <h1>{t('Admin', 'Admin')}</h1>
       {error && <div className="notice notice-err">{error}</div>}
+
+      <AdminPredictionStatus matches={matches} />
 
       <AdminBullets matches={matches} />
 
