@@ -147,6 +147,39 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
+          <span className="rule-icon">⚡</span>
+          <h2>{t('Bullets', 'Bullets')}</h2>
+        </div>
+        <ul className="rules-list-plain">
+          <li>
+            {t(
+              'Every so often a big match gets a Bullet: a quick yes/no call, like "Will Ronaldo score?".',
+              'De vez en cuando un partido grande tiene un Bullet: una apuesta rápida de sí/no, como "¿Marcará Ronaldo?".',
+            )}
+          </li>
+          <li>
+            {t(
+              'It\'s worth a flat bonus (shown on the card) — never multiplied by the round.',
+              'Vale un bono fijo (indicado en la tarjeta) — nunca se multiplica por la ronda.',
+            )}
+          </li>
+          <li>
+            {t(
+              'All or nothing: it only counts if everyone who predicted that match also answers the Bullet before kick-off. If anyone misses it, it counts for no one.',
+              'Todo o nada: solo cuenta si todos los que pronosticaron ese partido también responden el Bullet antes del inicio. Si alguien no responde, no cuenta para nadie.',
+            )}
+          </li>
+          <li>
+            {t(
+              'It locks with the match, everyone\'s calls are revealed afterwards, and answering is optional.',
+              'Se cierra con el partido, las respuestas de todos se revelan después, y responder es opcional.',
+            )}
+          </li>
+        </ul>
+      </div>
+
+      <div className="form-card">
+        <div className="rule-card-head">
           <span className="rule-icon">📈</span>
           <h2>{t('Round multipliers', 'Multiplicadores de ronda')}</h2>
         </div>
