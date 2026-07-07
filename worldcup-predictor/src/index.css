@@ -3459,6 +3459,45 @@ button.form-card.pp-clickable {
   margin-left: auto;
 }
 
+/* ---------- Admin: collapsible sections ---------- */
+.admin-section {
+  padding: 0;
+}
+.admin-section-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.1rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.admin-section-summary::-webkit-details-marker {
+  display: none;
+}
+.admin-section-summary h2 {
+  margin: 0;
+  flex: 1;
+}
+.admin-section-summary .rule-icon {
+  margin: 0;
+}
+.admin-caret {
+  color: var(--muted);
+  font-size: 0.9rem;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+.admin-section[open] .admin-caret {
+  transform: rotate(90deg);
+}
+.admin-section-summary:hover .admin-caret {
+  color: var(--ink);
+}
+.admin-section-body {
+  padding: 0 1.1rem 1.1rem;
+}
+
 /* ---------- Admin: prediction status ---------- */
 .pstatus-list {
   display: flex;

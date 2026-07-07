@@ -5,6 +5,7 @@ import { isLocked, hasResult } from '../lib/types'
 import { teamName } from '../lib/teamMeta'
 import { roundName } from '../lib/format'
 import { useT } from '../lib/i18n'
+import AdminSection from './AdminSection'
 
 const matchLabel = (m: Match) =>
   `${roundName(m.round)} · ${teamName(m.home_team)} v ${teamName(m.away_team)}`
@@ -84,8 +85,7 @@ export default function AdminBullets({ matches }: { matches: Match[] }) {
   const byId = new Map(matches.map((m) => [m.id, m]))
 
   return (
-    <section className="form-card">
-      <h2>⚡ {t('Bullets', 'Bullets')}</h2>
+    <AdminSection icon="⚡" title={t('Bullets', 'Bullets')}>
       <p className="muted small">
         {t(
           'Yes/No prop bets on a match. Flat points, and only counts if every official player who predicted the match also answered before kick-off.',
@@ -200,6 +200,6 @@ export default function AdminBullets({ matches }: { matches: Match[] }) {
           })}
         </div>
       )}
-    </section>
+    </AdminSection>
   )
 }

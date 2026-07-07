@@ -5,6 +5,7 @@ import { isLocked, hasResult } from '../lib/types'
 import { teamFlag, teamName, isTBD } from '../lib/teamMeta'
 import { roundName, timeUntilLock } from '../lib/format'
 import { useT } from '../lib/i18n'
+import AdminSection from './AdminSection'
 
 /**
  * Admin: who still needs to predict each upcoming match, so late-comers can be
@@ -42,8 +43,7 @@ export default function AdminPredictionStatus({ matches }: { matches: Match[] })
   )
 
   return (
-    <section className="form-card">
-      <h2>📋 {t('Prediction status', 'Estado de pronósticos')}</h2>
+    <AdminSection icon="📋" title={t('Prediction status', 'Estado de pronósticos')}>
       <p className="muted small">
         {t(
           "Who still needs to predict each upcoming match. You can't see anyone's pick — only whether they've submitted.",
@@ -92,6 +92,6 @@ export default function AdminPredictionStatus({ matches }: { matches: Match[] })
           })}
         </div>
       )}
-    </section>
+    </AdminSection>
   )
 }

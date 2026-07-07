@@ -12,6 +12,7 @@ import { useT } from '../lib/i18n'
 import AdminMatchRow from '../components/AdminMatchRow'
 import AdminBullets from '../components/AdminBullets'
 import AdminPredictionStatus from '../components/AdminPredictionStatus'
+import AdminSection from '../components/AdminSection'
 import AdminPlayerRow from '../components/AdminPlayerRow'
 import AwardPicker from '../components/AwardPicker'
 import Spinner from '../components/Spinner'
@@ -283,11 +284,7 @@ export default function AdminPage() {
 
       <AdminBullets matches={matches} />
 
-      <div className="form-card">
-        <div className="rule-card-head">
-          <span className="rule-icon">🔄</span>
-          <h2>{t('Auto-fill bracket', 'Autocompletar llave')}</h2>
-        </div>
+      <AdminSection icon="🔄" title={t('Auto-fill bracket', 'Autocompletar llave')}>
         <p className="muted small">
           {t(
             'Pull live knockout matchups & kick-off times from the free, public-domain',
@@ -378,13 +375,9 @@ export default function AdminPage() {
             </div>
           </div>
         )}
-      </div>
+      </AdminSection>
 
-      <div className="form-card">
-        <div className="rule-card-head">
-          <span className="rule-icon">⚽</span>
-          <h2>{t('Fetch live results', 'Traer resultados en vivo')}</h2>
-        </div>
+      <AdminSection icon="⚽" title={t('Fetch live results', 'Traer resultados en vivo')}>
         <p className="muted small">
           {t(
             'Pull finished knockout scores — including extra time & penalties — from the live feed and fill them in right now. Fill-only: never overwrites a result you entered by hand. Results also sync automatically in the background around each match.',
@@ -399,9 +392,9 @@ export default function AdminPage() {
         {resMsg && (
           <div className={`notice ${resMsg.ok ? 'notice-ok' : 'notice-err'}`}>{resMsg.text}</div>
         )}
-      </div>
+      </AdminSection>
 
-      <h2>{t('Matches & results', 'Partidos y resultados')}</h2>
+      <AdminSection icon="🗓️" title={t('Matches & results', 'Partidos y resultados')}>
       <div className="round-tabs">
         {ROUND_ORDER.map((r) => (
           <button
@@ -429,10 +422,11 @@ export default function AdminPage() {
           ))}
         </div>
       )}
+      </AdminSection>
 
-      <h2 className="mt-lg">{t('Scoring & lock settings', 'Puntaje y cierre')}</h2>
+      <AdminSection icon="⚙️" title={t('Scoring & lock settings', 'Puntaje y cierre')}>
       {cfgDraft && (
-        <div className="form-card">
+        <>
           <div className="admin-grid">
             <label>
               {t('Pts: advancing team', 'Pts: equipo que avanza')}
@@ -504,10 +498,11 @@ export default function AdminPage() {
           <button className="btn btn-primary" onClick={saveConfig} disabled={cfgBusy}>
             {cfgBusy ? t('Saving…', 'Guardando…') : t('Save settings', 'Guardar ajustes')}
           </button>
-        </div>
+        </>
       )}
+      </AdminSection>
 
-      <h2 className="mt-lg">{t('Tournament awards', 'Premios del torneo')}</h2>
+      <AdminSection icon="🏅" title={t('Tournament awards', 'Premios del torneo')}>
       {awards.length === 0 ? (
         <p className="muted small">
           {t(
@@ -516,7 +511,7 @@ export default function AdminPage() {
           )}
         </p>
       ) : (
-        <div className="form-card">
+        <>
           {awards.map((a) => (
             <div key={a.id} className="admin-award">
               <div className="admin-section-label">{a.name}</div>
@@ -554,10 +549,11 @@ export default function AdminPage() {
           <button className="btn btn-primary" onClick={saveAwards} disabled={awardBusy}>
             {awardBusy ? t('Saving…', 'Guardando…') : t('Save awards', 'Guardar premios')}
           </button>
-        </div>
+        </>
       )}
+      </AdminSection>
 
-      <h2 className="mt-lg">{t('Players', 'Jugadores')}</h2>
+      <AdminSection icon="🧑" title={t('Players', 'Jugadores')}>
       <p className="muted small">
         {t(
           'Nicknames & emojis are set once by each player; edit them here if needed.',
@@ -578,6 +574,7 @@ export default function AdminPage() {
           />
         ))}
       </div>
+      </AdminSection>
     </div>
   )
 }
