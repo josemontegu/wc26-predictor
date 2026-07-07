@@ -28,11 +28,11 @@ function catLabel(label: string, t: TFn) {
 // Four clearly-separated hues (green / blue / purple / gold) so the stacked
 // bars stay legible — the old palette used two near-identical greens.
 const CATS = [
-  { key: 'pts_advance', label: 'Advance', color: '#12b886' },
-  { key: 'pts_exact', label: 'Exact', color: '#4c6ef5' },
-  { key: 'pts_tendency', label: 'Result', color: '#cc5de8' },
-  { key: 'pts_awards', label: 'Awards', color: '#f59f00' },
-  { key: 'pts_bullet', label: 'Bullets', color: '#e8590c' },
+  { key: 'pts_advance', label: 'Advance', color: 'var(--cat-advance)' },
+  { key: 'pts_exact', label: 'Exact', color: 'var(--cat-exact)' },
+  { key: 'pts_tendency', label: 'Result', color: 'var(--cat-result)' },
+  { key: 'pts_awards', label: 'Awards', color: 'var(--cat-awards)' },
+  { key: 'pts_bullet', label: 'Bullets', color: 'var(--cat-bullet)' },
 ] as const
 
 // One colour per knockout round, for the "by round" points breakdown.
