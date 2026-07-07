@@ -63,6 +63,12 @@ export function formatDay(iso: string | null): string {
   })
 }
 
+/** Compact date for tight spots, e.g. "3 Jul" / "3 jul". Empty when undated. */
+export function formatShortDay(iso: string | null): string {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString(dateLocale(), { day: 'numeric', month: 'short' })
+}
+
 export function formatLock(iso: string | null): string {
   if (!iso) return getLang() === 'es' ? 'Sin hora de cierre' : 'No lock time set'
   return new Date(iso).toLocaleString(dateLocale(), {
