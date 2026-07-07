@@ -3478,6 +3478,13 @@ button.form-card.pp-clickable {
   --cat-result: #b23a9e;
   --cat-awards: #b8770c;
   --cat-bullet: #d83a3a;
+  /* Rounds = sequential blue ramp (light R32 → dark Final); TP = neutral gray. */
+  --round-r32: #86b6ef;
+  --round-r16: #3987e5;
+  --round-qf: #256abf;
+  --round-sf: #184f95;
+  --round-f: #0d366b;
+  --round-tp: #8a94a8;
 }
 [data-theme='dark'] {
   --cat-advance: #159e73;
@@ -3485,6 +3492,13 @@ button.form-card.pp-clickable {
   --cat-result: #bd57ad;
   --cat-awards: #b57d10;
   --cat-bullet: #dd5555;
+  /* Dark card needs the lighter half of the ramp so the Final step stays visible. */
+  --round-r32: #b7d3f6;
+  --round-r16: #6da7ec;
+  --round-qf: #3987e5;
+  --round-sf: #256abf;
+  --round-f: #184f95;
+  --round-tp: #9aa6bd;
 }
 
 /* ---------- Admin: collapsible sections ---------- */

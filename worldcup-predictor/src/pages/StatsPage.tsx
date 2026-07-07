@@ -35,14 +35,16 @@ const CATS = [
   { key: 'pts_bullet', label: 'Bullets', color: 'var(--cat-bullet)' },
 ] as const
 
-// One colour per knockout round, for the "by round" points breakdown.
+// Rounds are an ordered progression, so they read as a sequential blue ramp
+// (light R32 → dark Final). TP is the odd one out (a consolation match, not on
+// the path to the Final) — a neutral gray. Theme-aware; validated with --ordinal.
 const ROUND_COLORS: Record<string, string> = {
-  R32: '#15aabf',
-  R16: '#4263eb',
-  QF: '#7048e8',
-  SF: '#e8590c',
-  TP: '#868e96',
-  F: '#f59f00',
+  R32: 'var(--round-r32)',
+  R16: 'var(--round-r16)',
+  QF: 'var(--round-qf)',
+  SF: 'var(--round-sf)',
+  TP: 'var(--round-tp)',
+  F: 'var(--round-f)',
 }
 
 export default function StatsPage() {
