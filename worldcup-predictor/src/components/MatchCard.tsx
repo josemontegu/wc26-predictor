@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import type { Match, Prediction } from '../lib/types'
 import { isLocked, hasResult } from '../lib/types'
 import { formatTime, timeUntilLock } from '../lib/format'
-import { teamFlag, isTBD, teamColor, teamName } from '../lib/teamMeta'
+import { teamFlag, isTBD, teamColors, teamName } from '../lib/teamMeta'
 import { useT } from '../lib/i18n'
 import Scoreline from './Scoreline'
 
@@ -23,6 +23,11 @@ export default function MatchCard({ match, prediction, points }: Props) {
   const needsPick =
     !locked && !played && !prediction && !isTBD(match.home_team) && !isTBD(match.away_team)
 
+  // Each team shown in its two main colours: primary at its own (outer) edge
+  // near the flag, fading to the secondary toward the centre split.
+  const [h1, h2] = teamColors(match.home_team)
+  const [a1, a2] = teamColors(match.away_team)
+
   return (
     <Link
       to={`/match/${match.id}`}
@@ -31,9 +36,7 @@ export default function MatchCard({ match, prediction, points }: Props) {
       <span
         className="mcard-stripe"
         style={{
-          background: `linear-gradient(90deg, ${teamColor(match.home_team)} 0 50%, ${teamColor(
-            match.away_team,
-          )} 50% 100%)`,
+          background: `linear-gradient(90deg, ${h1} 0%, ${h2} 50%, ${a2} 50%, ${a1} 100%)`,
         }}
       />
       <div className="mcard-head">

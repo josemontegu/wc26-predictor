@@ -118,9 +118,37 @@ const COLORS: Record<string, string> = {
   'Bosnia-Herzegovina': '#1a4c9e', Bosnia: '#1a4c9e',
 }
 
+// Secondary kit / flag colour per nation, to show each team in its two main
+// colours (e.g. Argentina light-blue + white, Switzerland red + white).
+const COLORS2: Record<string, string> = {
+  Argentina: '#ffffff', Nigeria: '#ffffff', France: '#ef4135', Senegal: '#fdef42',
+  Brazil: '#ffdf00', 'South Korea': '#cd2e3a', Spain: '#ffc400', Morocco: '#006233',
+  Germany: '#dd0000', Japan: '#bc002d', Portugal: '#0a6b2e', Croatia: '#ffffff',
+  Netherlands: '#ffffff', Mexico: '#ce1126', England: '#ffffff', Ecuador: '#ffdd00',
+  Belgium: '#f3c300', USA: '#b31942', 'United States': '#b31942', Italy: '#ffffff',
+  Canada: '#ffffff', Uruguay: '#ffffff', Colombia: '#003893', Switzerland: '#ffffff',
+  Denmark: '#ffffff', Poland: '#ffffff', Australia: '#ffcd00', Qatar: '#ffffff',
+  'Saudi Arabia': '#ffffff', Iran: '#ffffff', Ghana: '#fcd116', Cameroon: '#fcd116',
+  'Ivory Coast': '#009e60', Tunisia: '#ffffff', Egypt: '#ffffff', Algeria: '#ffffff',
+  Peru: '#ffffff', Chile: '#d52b1e', 'Costa Rica': '#d52b1e', Panama: '#0038a8',
+  Jamaica: '#fed100', Norway: '#ba0c2f', Sweden: '#fecb00', Austria: '#ffffff',
+  Serbia: '#ffffff', Turkey: '#ffffff', Greece: '#ffffff', Ukraine: '#ffd500',
+  'New Zealand': '#ffffff', Wales: '#ffffff', Scotland: '#ffffff', Paraguay: '#0038a8',
+  'Bosnia & Herzegovina': '#ffcd00', 'Bosnia and Herzegovina': '#ffcd00',
+  'Bosnia-Herzegovina': '#ffcd00', Bosnia: '#ffcd00',
+}
+
 export function teamColor(name: string | null | undefined): string {
   if (!name || name === 'TBD') return '#7b88a6'
   return COLORS[name] ?? '#3a59a8'
+}
+
+/** A team's two main colours [primary, secondary]. Falls back to the primary
+ * twice (a flat band) when no secondary is known. */
+export function teamColors(name: string | null | undefined): [string, string] {
+  const primary = teamColor(name)
+  if (!name || name === 'TBD') return [primary, '#9aa4bd']
+  return [primary, COLORS2[name] ?? primary]
 }
 
 export function hexToRgba(hex: string, alpha: number): string {
