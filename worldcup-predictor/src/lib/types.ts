@@ -242,3 +242,10 @@ export interface MatchParticipation {
   official: boolean
   predicted: boolean
 }
+
+/** A player's winning bullet points for one round (round attribution). */
+export interface BulletRoundPoints {
+  user_id: string
+  round: RoundCode
+  pts: number
+}

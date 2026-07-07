@@ -289,6 +289,24 @@ function lockedBulletPicks(): any[] {
   }
   return out
 }
+function bulletRoundPoints(): any[] {
+  const valid = new Map(bulletValidity().map((v) => [v.bullet_id, v]))
+  const agg = new Map<string, number>() // "user|round" -> pts
+  for (const bp of store.bullet_picks) {
+    const b = store.bullets.find((x) => x.id === bp.bullet_id)
+    const v = valid.get(bp.bullet_id)
+    if (!b || b.answer === null || !v?.locked || !v?.everyone_in || bp.choice !== b.answer) continue
+    const m = store.matches.find((x) => x.id === b.match_id)
+    if (!m) continue
+    const key = `${bp.user_id}|${m.round}`
+    agg.set(key, (agg.get(key) ?? 0) + b.points)
+  }
+  return [...agg].map(([k, pts]) => {
+    const [user_id, round] = k.split('|')
+    return { user_id, round, pts }
+  })
+}
+
 function bulletPoints(userId: string): number {
   const valid = new Map(bulletValidity().map((v) => [v.bullet_id, v]))
   let pts = 0
@@ -327,6 +345,8 @@ function tableRows(table: string): any[] {
       return leaderboard()
     case 'match_participation':
       return matchParticipation()
+    case 'bullet_round_points':
+      return bulletRoundPoints()
     case 'my_scores':
       return myScores()
     case 'locked_predictions':

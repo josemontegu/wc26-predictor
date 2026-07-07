@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type {
   AppConfig,
+  BulletRoundPoints,
   LeaderboardRow,
   LockedPrediction,
   Match,
@@ -52,6 +53,7 @@ export default function StatsPage() {
   const [matches, setMatches] = useState<Match[]>([])
   const [config, setConfig] = useState<AppConfig | null>(null)
   const [rounds, setRounds] = useState<Round[]>([])
+  const [bulletRounds, setBulletRounds] = useState<BulletRoundPoints[]>([])
   const [loading, setLoading] = useState(true)
   // How the points-distribution bars are coloured.
   const [mode, setMode] = useState<'total' | 'source' | 'round'>('total')
@@ -68,7 +70,8 @@ export default function StatsPage() {
       supabase.from('app_config').select('*').eq('id', 1).maybeSingle(),
       supabase.from('rounds').select('*').order('sort_order'),
       supabase.from('profiles').select('id, official'),
-    ]).then(([b, s, p, m, cfg, rds, prof]) => {
+      supabase.from('bullet_round_points').select('*'),
+    ]).then(([b, s, p, m, cfg, rds, prof, br]) => {
       if (!active) return
       // Exclude players who haven't set a nickname yet (incomplete sign-ups),
       // and shadow (unofficial) players — pool stats are official-only.
@@ -85,6 +88,7 @@ export default function StatsPage() {
       setMatches((m.data as Match[]) ?? [])
       setConfig((cfg.data as AppConfig) ?? null)
       setRounds((rds.data as Round[]) ?? [])
+      setBulletRounds(br.error ? [] : ((br.data as BulletRoundPoints[]) ?? []))
       setLoading(false)
     })
     return () => {
@@ -190,6 +194,7 @@ export default function StatsPage() {
         unique,
         streak: bestRun,
         reliable: s.scored ? (s.scored - s.zero_points) / s.scored : null,
+        bulletPts: s.pts_bullet,
       }
     })
     type Rec = (typeof recs)[number]
@@ -216,6 +221,7 @@ export default function StatsPage() {
       { icon: '🎯', title: t('Sniper', 'Francotirador'), desc: t('Highest exact-score rate', 'Mayor tasa de marcadores exactos'), win: winner(skillQ, (r) => r.exactRate, 'max', true), fmt: (r: Rec) => t(`${r.exact} exact`, `${r.exact} exactos`) },
       { icon: '🔮', title: t('Oracle', 'Oráculo'), desc: t('Best advance accuracy (correct ÷ scored)', 'Mejor precisión de avance (aciertos ÷ puntuados)'), win: winner(skillQ, (r) => r.advanceAcc, 'max', true), fmt: (r: Rec) => t(`${Math.round((r.advanceAcc ?? 0) * 100)}% right`, `${Math.round((r.advanceAcc ?? 0) * 100)}% acertados`) },
       { icon: '🔥', title: t('On Fire', 'En Racha'), desc: t('Longest streak of correct advancing picks', 'Mayor racha de aciertos de avance seguidos'), win: winner(skillQ, (r) => r.streak, 'max', true), fmt: (r: Rec) => t(`${r.streak} in a row`, `${r.streak} seguidos`) },
+      { icon: '⚡', title: t('Gunslinger', 'Pistolero'), desc: t('Most points from bullets', 'Más puntos en bullets'), win: winner(() => true, (r) => r.bulletPts, 'max', true), fmt: (r: Rec) => t(`${r.bulletPts} pts`, `${r.bulletPts} pts`) },
       { icon: '💀', title: t('Cursed', 'Maldito'), desc: t('Most blank (zero-point) matches', 'Más partidos en blanco (cero puntos)'), win: winner(skillQ, (r) => r.zero, 'max', true), fmt: (r: Rec) => t(`${r.zero} blanks`, `${r.zero} en blanco`) },
       { icon: '🪨', title: t('The Rock', 'La Roca'), desc: t('Banks points in the highest share of matches', 'Suma puntos en la mayor proporción de partidos'), win: winner(skillQ, (r) => r.reliable, 'max', true), fmt: (r: Rec) => t(`${Math.round((r.reliable ?? 0) * 100)}% on the board`, `${Math.round((r.reliable ?? 0) * 100)}% con puntos`) },
       { icon: '📈', title: t('Optimist', 'Optimista'), desc: t('Most goals predicted per game', 'Más goles pronosticados por partido'), win: winner(crowdQ, (r) => r.goalsAvg, 'max', false), fmt: (r: Rec) => t(`${(r.goalsAvg ?? 0).toFixed(1)} g/game`, `${(r.goalsAvg ?? 0).toFixed(1)} g/partido`) },
@@ -247,8 +253,17 @@ export default function StatsPage() {
       }
       um.set(m.round, (um.get(m.round) ?? 0) + pts)
     }
+    // Bullet bonuses, attributed to their match's round.
+    for (const br of bulletRounds) {
+      let um = out.get(br.user_id)
+      if (!um) {
+        um = new Map()
+        out.set(br.user_id, um)
+      }
+      um.set(br.round, (um.get(br.round) ?? 0) + br.pts)
+    }
     return out
-  }, [picks, matches, config, rounds])
+  }, [picks, matches, config, rounds, bulletRounds])
 
   // How often the pool's majority advancing pick actually went through.
   const crowd = useMemo(() => {

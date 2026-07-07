@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type {
   AppConfig,
+  BulletRoundPoints,
   LeaderboardRow,
   LockedPrediction,
   Match,
@@ -110,20 +111,23 @@ export default function LeaderboardPage() {
   const [matches, setMatches] = useState<Match[]>([])
   const [config, setConfig] = useState<AppConfig | null>(null)
   const [rounds, setRounds] = useState<Round[]>([])
+  const [bulletRounds, setBulletRounds] = useState<BulletRoundPoints[]>([])
   // Snapshot of ranks from the previous visit (captured once on mount).
   const prevRanks = useRef<Record<string, number>>(loadPrevRanks())
 
   const fetchRoundData = useCallback(async () => {
-    const [p, m, cfg, rds] = await Promise.all([
+    const [p, m, cfg, rds, br] = await Promise.all([
       supabase.from('locked_predictions').select('*'),
       supabase.from('matches').select('*'),
       supabase.from('app_config').select('*').eq('id', 1).maybeSingle(),
       supabase.from('rounds').select('*').order('sort_order'),
+      supabase.from('bullet_round_points').select('*'),
     ])
     setPicks((p.data as LockedPrediction[]) ?? [])
     setMatches((m.data as Match[]) ?? [])
     setConfig((cfg.data as AppConfig) ?? null)
     setRounds((rds.data as Round[]) ?? [])
+    setBulletRounds(br.error ? [] : ((br.data as BulletRoundPoints[]) ?? []))
   }, [])
 
   const fetchShadows = useCallback(async () => {
@@ -221,8 +225,19 @@ export default function LeaderboardPage() {
       cur.adv += adv
       um.set(m.round, cur)
     }
+    // Bullet bonuses, attributed to their match's round (points only).
+    for (const br of bulletRounds) {
+      let um = out.get(br.user_id)
+      if (!um) {
+        um = new Map()
+        out.set(br.user_id, um)
+      }
+      const cur = um.get(br.round) ?? { pts: 0, exact: 0, adv: 0 }
+      cur.pts += br.pts
+      um.set(br.round, cur)
+    }
     return out
-  }, [picks, matches, config, rounds])
+  }, [picks, matches, config, rounds, bulletRounds])
 
   // Correct results (right winner/draw) per player — a right result earns the
   // tendency points even when the exact score is missed, so it's the piece that
