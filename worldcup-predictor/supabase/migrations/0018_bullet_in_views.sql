@@ -51,8 +51,10 @@ select
   coalesce(mp.scored, 0)                                       as scored_predictions,
   coalesce(mp.adv, 0)                                          as correct_advances,
   coalesce(mp.exact, 0)                                        as exact_scores,
-  coalesce(bwp.pts, 0)                                         as bullet_points,
-  pr.emoji
+  pr.emoji,
+  -- NOTE: appended at the END. CREATE OR REPLACE VIEW only allows adding new
+  -- columns after the existing ones; inserting mid-list errors out.
+  coalesce(bwp.pts, 0)                                         as bullet_points
 from public.profiles pr
 left join match_pts mp   on mp.user_id = pr.id
 left join award_pts awp  on awp.user_id = pr.id
@@ -96,12 +98,13 @@ select
   coalesce(sum(pt.pts_penalties), 0)             as pts_penalties,
   coalesce(sum(pt.pts_exact_aet), 0)             as pts_exact_aet,
   coalesce(max(awp.pts), 0)                      as pts_awards,
-  coalesce(max(bwp.pts), 0)                      as pts_bullet,
   count(pt.prediction_id)                        as scored,
   coalesce(sum((pt.pts_advance > 0)::int), 0)    as correct_advances,
   coalesce(sum((pt.pts_exact > 0)::int), 0)      as exact_scores,
   coalesce(sum((pt.pts_tendency > 0)::int), 0)   as correct_tendencies,
-  coalesce(sum((pt.total_points = 0)::int), 0)   as zero_points
+  coalesce(sum((pt.total_points = 0)::int), 0)   as zero_points,
+  -- appended at the END (see note above)
+  coalesce(max(bwp.pts), 0)                      as pts_bullet
 from public.profiles pr
 left join public.prediction_totals pt on pt.user_id = pr.id
 left join award_pts awp on awp.user_id = pr.id
