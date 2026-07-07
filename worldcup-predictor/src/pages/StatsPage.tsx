@@ -18,6 +18,7 @@ const CAT_ES: Record<string, string> = {
   Exact: 'Exacto',
   Result: 'Resultado',
   Awards: 'Premios',
+  Bullets: 'Bullets',
 }
 function catLabel(label: string, t: TFn) {
   return t(label, CAT_ES[label] ?? label)
@@ -30,6 +31,7 @@ const CATS = [
   { key: 'pts_exact', label: 'Exact', color: '#4c6ef5' },
   { key: 'pts_tendency', label: 'Result', color: '#cc5de8' },
   { key: 'pts_awards', label: 'Awards', color: '#f59f00' },
+  { key: 'pts_bullet', label: 'Bullets', color: '#e8590c' },
 ] as const
 
 // One colour per knockout round, for the "by round" points breakdown.
@@ -354,7 +356,7 @@ export default function StatsPage() {
             const um = pointsByRound.get(r.user_id)
             const segs =
               mode === 'source'
-                ? CATS.map((c) => ({ color: c.color, v: st ? (st[c.key] as number) : 0, label: catLabel(c.label, t) }))
+                ? CATS.map((c) => ({ color: c.color, v: st ? ((st[c.key] as number) ?? 0) : 0, label: catLabel(c.label, t) }))
                 : mode === 'round'
                   ? ROUND_ORDER.filter((rc) => (um?.get(rc) ?? 0) > 0).map((rc) => ({
                       color: ROUND_COLORS[rc],

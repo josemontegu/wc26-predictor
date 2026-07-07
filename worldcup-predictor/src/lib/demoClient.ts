@@ -158,7 +158,8 @@ function leaderboard(): LeaderboardRow[] {
       }
     }
     // ⚡ Bullet points (valid + answered + pick matches).
-    total += bulletPoints(pr.id)
+    const bulletPts = bulletPoints(pr.id)
+    total += bulletPts
     return {
       user_id: pr.id,
       display_name: pr.display_name,
@@ -168,6 +169,7 @@ function leaderboard(): LeaderboardRow[] {
       scored_predictions: scored,
       correct_advances: advances,
       exact_scores: exacts,
+      bullet_points: bulletPts,
     }
   })
   rows.sort(
@@ -213,6 +215,7 @@ function playerStats() {
       nickname: pr.nickname,
       emoji: pr.emoji,
       pts_advance, pts_exact, pts_tendency, pts_penalties, pts_exact_aet, pts_awards,
+      pts_bullet: bulletPoints(pr.id),
       scored, correct_advances, exact_scores, correct_tendencies, zero_points,
     }
   })

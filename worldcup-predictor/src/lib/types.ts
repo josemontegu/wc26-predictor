@@ -71,6 +71,7 @@ export interface LeaderboardRow {
   scored_predictions: number
   correct_advances: number
   exact_scores: number
+  bullet_points: number
 }
 
 export type AwardKind = 'team' | 'player' | 'goalkeeper'
@@ -124,6 +125,7 @@ export interface PlayerStat {
   pts_penalties: number
   pts_exact_aet: number
   pts_awards: number
+  pts_bullet: number
   scored: number
   correct_advances: number
   exact_scores: number

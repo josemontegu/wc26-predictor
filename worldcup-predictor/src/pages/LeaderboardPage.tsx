@@ -666,6 +666,12 @@ export default function LeaderboardPage() {
                   <span className="pcard-pts-lbl"> {t('points', 'puntos')}</span>
                 </div>
 
+                {selected.bullet_points > 0 && (
+                  <div className="pcard-bonus">
+                    ⚡ {t(`incl. +${selected.bullet_points} from bullets`, `incl. +${selected.bullet_points} de bullets`)}
+                  </div>
+                )}
+
                 <div className="pcard-stats">
                   <button
                     type="button"
