@@ -402,7 +402,7 @@ export default function LeaderboardPage() {
     exact: { ico: '🎯', label: t('exact scores', 'exactos'), keep: (r) => r.exact },
     results: { ico: '🏁', label: t('right results', 'resultados'), keep: (r) => r.rightResult },
     advancing: { ico: '✅', label: t('advancing right', 'aciertos avance'), keep: (r) => r.advancingRight },
-    scored: { ico: '📋', label: t('matches scored', 'partidos'), keep: () => true },
+    scored: { ico: '📋', label: t('matches predicted', 'partidos pronosticados'), keep: () => true },
   }
   const detailMeta = statDetail ? statMeta[statDetail] : null
   const detailList = detailMeta ? selectedRows.filter(detailMeta.keep) : []
@@ -731,7 +731,7 @@ export default function LeaderboardPage() {
                   >
                     <span className="pcard-stat-ico">📋</span>
                     <span className="pcard-stat-val">{selected.scored_predictions}</span>
-                    <span className="pcard-stat-lbl">{t('matches scored', 'partidos')}</span>
+                    <span className="pcard-stat-lbl">{t('matches predicted', 'partidos pronosticados')}</span>
                     <span className="pcard-stat-pct">
                       ({pct(selected.scored_predictions, playedCount)}%)
                     </span>
