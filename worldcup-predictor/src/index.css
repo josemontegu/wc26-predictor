@@ -12,11 +12,15 @@
   --muted: #6c7894;
   --line: #e4e8f1;
   --line-soft: #eef1f7;
-  /* Slightly desaturated green — reads more mature than the original neon,
-     and the small shift darker nudges white-on-accent contrast upward. */
-  --accent: #1b8e63;
-  --accent-2: #26ac7b;
-  --accent-dark: #13724e;
+  /* Primary = blue (interface: buttons, nav, headers, links, bars, selection). */
+  --accent: #2c63cf;
+  --accent-2: #4a83e6;
+  --accent-dark: #1e56ad;
+  /* Secondary = green, reserved for success/positive feedback (correct picks,
+     winners, "everyone's in", rank-up, live). */
+  --success: #1b8e63;
+  --success-2: #26ac7b;
+  --success-dark: #13724e;
   --gold: #f5b301;
   --gold-soft: #fff3d4;
   --danger: #e0464a;
@@ -90,7 +94,7 @@ h3 {
   flex-shrink: 0;
 }
 .ic-good {
-  color: var(--accent-dark);
+  color: var(--success-dark);
 }
 .ic-bad {
   color: var(--danger);
@@ -337,7 +341,7 @@ input:focus,
 select:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(7, 160, 106, 0.16);
+  box-shadow: 0 0 0 3px rgba(44, 99, 207, 0.2);
 }
 /* Keyboard focus ring for everything clickable. Inputs/selects keep their own
    border+glow above; this covers buttons, tabs, links and cards, which had no
@@ -385,7 +389,7 @@ label {
   font-weight: 600;
 }
 .nick-ok {
-  color: var(--accent-dark);
+  color: var(--success-dark);
 }
 .nick-bad {
   color: var(--danger);
@@ -412,7 +416,7 @@ label {
 }
 .notice-ok {
   background: #e3f7ee;
-  color: var(--accent-dark);
+  color: var(--success-dark);
 }
 .notice-err {
   background: #fdeaea;
@@ -695,7 +699,7 @@ label {
 }
 .status-open {
   background: #e3f7ee;
-  color: var(--accent-dark);
+  color: var(--success-dark);
 }
 .status-locked {
   background: #eef1f7;
@@ -800,7 +804,7 @@ label {
 }
 .sl-pen-win {
   opacity: 1;
-  color: var(--accent-2);
+  color: var(--success-2);
 }
 .score-dash {
   margin: 0 0.16em;
@@ -862,7 +866,7 @@ label {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(160px 160px at 110% -20%, rgba(11, 189, 126, 0.35), transparent 70%);
+  background: radial-gradient(160px 160px at 110% -20%, rgba(74, 131, 230, 0.32), transparent 70%);
 }
 .detail-round {
   position: relative;
@@ -2044,6 +2048,13 @@ button.form-card.pp-clickable {
   --line: #283248;
   --line-soft: #212a3d;
   --gold-soft: #3a3017;
+  /* Lighter accent/success on dark so text + icons stay legible on dark cards. */
+  --accent: #4a83e6;
+  --accent-2: #6fa0ee;
+  --accent-dark: #7aa7f0;
+  --success: #2f9e6f;
+  --success-2: #46b98a;
+  --success-dark: #57bf93;
   --shadow: 0 6px 20px rgba(0, 0, 0, 0.42);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.34);
   --shadow-lg: 0 18px 44px rgba(0, 0, 0, 0.55);
@@ -2089,7 +2100,7 @@ button.form-card.pp-clickable {
   color: var(--muted);
 }
 [data-theme='dark'] .lb-row-me {
-  background: rgba(7, 160, 106, 0.12);
+  background: rgba(44, 99, 207, 0.12);
 }
 [data-theme='dark'] .config-error code,
 [data-theme='dark'] .login-card {
@@ -2172,7 +2183,7 @@ button.form-card.pp-clickable {
   gap: 0.3rem;
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--accent-dark);
+  color: var(--success-dark);
   background: rgba(7, 160, 106, 0.14);
   padding: 0.22rem 0.6rem;
   border-radius: 999px;
@@ -2181,7 +2192,7 @@ button.form-card.pp-clickable {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--success);
   animation: pulse 1.1s infinite;
 }
 .lb-rank {
@@ -2196,7 +2207,7 @@ button.form-card.pp-clickable {
   margin-top: 1px;
 }
 .rank-up {
-  color: var(--accent);
+  color: var(--success);
 }
 .rank-down {
   color: var(--danger);
@@ -2277,7 +2288,7 @@ button.form-card.pp-clickable {
   color: var(--gold);
 }
 .pick-hit {
-  color: var(--accent-dark);
+  color: var(--success-dark);
 }
 /* penalties marker on a pick: a small "p" next to the team that advances */
 .pick-pen {
@@ -2514,7 +2525,7 @@ button.form-card.pp-clickable {
   color: var(--ink);
 }
 .bk-side-won .bk-team {
-  color: var(--accent-dark);
+  color: var(--success-dark);
   font-weight: 700;
 }
 .bk-side-dim {
@@ -2569,7 +2580,7 @@ button.form-card.pp-clickable {
 }
 .outcome-reg {
   background: #e3f7ee;
-  color: var(--accent-dark);
+  color: var(--success-dark);
 }
 .outcome-aet {
   background: #eaf2fc;
@@ -2755,7 +2766,7 @@ button.form-card.pp-clickable {
   font-weight: 600;
 }
 .award-hit {
-  color: var(--accent-dark);
+  color: var(--success-dark);
 }
 .award-miss {
   color: var(--muted);
@@ -2792,7 +2803,7 @@ button.form-card.pp-clickable {
 }
 .picker-field:focus-within {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(7, 160, 106, 0.16);
+  box-shadow: 0 0 0 3px rgba(44, 99, 207, 0.2);
 }
 .picker-disabled {
   opacity: 0.6;
@@ -2960,8 +2971,8 @@ button.form-card.pp-clickable {
 }
 .emoji-selected {
   border-color: var(--accent);
-  background: rgba(7, 160, 106, 0.14);
-  box-shadow: 0 0 0 2px rgba(7, 160, 106, 0.25);
+  background: rgba(44, 99, 207, 0.12);
+  box-shadow: 0 0 0 2px rgba(44, 99, 207, 0.28);
 }
 .emoji-opt:disabled {
   opacity: 0.28;
@@ -3456,7 +3467,7 @@ button.form-card.pp-clickable {
 }
 .bullet-win {
   background: rgba(7, 160, 106, 0.14);
-  color: var(--accent-dark);
+  color: var(--success-dark);
 }
 .bullet-done {
   background: var(--bg-2);
@@ -3477,7 +3488,7 @@ button.form-card.pp-clickable {
   background: var(--card-tint);
 }
 .bullet-side-win {
-  border-color: var(--accent);
+  border-color: var(--success);
   box-shadow: 0 0 0 2px rgba(7, 160, 106, 0.18);
 }
 .bullet-side-head {
@@ -3675,7 +3686,7 @@ button.form-card.pp-clickable {
   margin-top: 0.3rem;
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--accent-dark);
+  color: var(--success-dark);
 }
 .pstatus-missing {
   margin-top: 0.35rem;
