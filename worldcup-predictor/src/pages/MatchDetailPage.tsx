@@ -519,17 +519,21 @@ export default function MatchDetailPage() {
                       {teamFlag(p.advancing_team)}
                     </span>
                     {(played || bulletBonus[p.user_id] > 0) && (
-                      <span
-                        className={`pick-pts ${pointsFor(p) === 0 ? 'pick-pts-zero' : ''}`}
-                        aria-label={t(`${pointsFor(p)} points`, `${pointsFor(p)} puntos`)}
-                      >
-                        +{pointsFor(p)}
-                        {bulletBonus[p.user_id] > 0 && (
-                          <span className="pick-bullet" title={t('Bullet bonus included', 'Incluye bono de bullet')}>
-                            ⚡
-                          </span>
-                        )}
-                      </span>
+                      <>
+                        <span
+                          className={`pick-pts ${pointsFor(p) === 0 ? 'pick-pts-zero' : ''}`}
+                          aria-label={t(`${pointsFor(p)} points`, `${pointsFor(p)} puntos`)}
+                        >
+                          +{pointsFor(p)}
+                        </span>
+                        <span className="pick-bullet-col">
+                          {bulletBonus[p.user_id] > 0 && (
+                            <span className="pick-bullet" title={t('Bullet bonus included', 'Incluye bono de bullet')}>
+                              ⚡
+                            </span>
+                          )}
+                        </span>
+                      </>
                     )}
                   </div>
                 )
