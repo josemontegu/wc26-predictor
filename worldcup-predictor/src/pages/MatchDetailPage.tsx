@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { CheckCircle2, Eye, Goal, Medal, Timer } from 'lucide-react'
+import { CheckCircle2, Eye, Goal, Lock, Medal, Timer } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -354,7 +354,14 @@ export default function MatchDetailPage() {
       )}
 
       <form onSubmit={handleSave} className="form-card">
-        <h2>{prediction ? t('Your prediction', 'Tu pronóstico') : t('Make your prediction', 'Haz tu pronóstico')}</h2>
+        <h2 className="form-card-head">
+          {prediction ? t('Your prediction', 'Tu pronóstico') : t('Make your prediction', 'Haz tu pronóstico')}
+          {locked && (
+            <span className="status status-locked">
+              <Lock className="ic" aria-hidden="true" /> {t('Locked', 'Cerrado')}
+            </span>
+          )}
+        </h2>
 
         {canEdit && lockAt != null && (
           <div
@@ -468,11 +475,11 @@ export default function MatchDetailPage() {
             {busy ? t('Saving…', 'Guardando…') : prediction ? t('Update prediction', 'Actualizar pronóstico') : t('Submit prediction', 'Enviar pronóstico')}
           </button>
         ) : (
-          <div className="notice notice-info">
-            {locked
-              ? t('Predictions are locked for this match.', 'Los pronósticos están cerrados para este partido.')
-              : t('Predictions open once the teams are confirmed.', 'Los pronósticos se abren cuando se confirmen los equipos.')}
-          </div>
+          !locked && (
+            <div className="notice notice-info">
+              {t('Predictions open once the teams are confirmed.', 'Los pronósticos se abren cuando se confirmen los equipos.')}
+            </div>
+          )
         )}
       </form>
 

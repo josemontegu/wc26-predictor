@@ -77,6 +77,14 @@ h2 {
   margin: 0 0 0.5rem;
   font-weight: 700;
 }
+/* A section heading with a status chip pinned to the right, e.g. a "Locked"
+   badge next to "Your prediction" instead of a full-width notice below. */
+.form-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
 h3 {
   font-size: 1rem;
   margin: 0.5rem 0;
