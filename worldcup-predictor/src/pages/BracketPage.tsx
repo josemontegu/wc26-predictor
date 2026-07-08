@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Match, RoundCode } from '../lib/types'
@@ -95,6 +95,26 @@ export default function BracketPage() {
   const safeIdx = Math.min(idx, Math.max(0, pages.length - 1))
   const page = pages[safeIdx]
 
+  // Swipe left/right to step between rounds, alongside the arrow buttons.
+  // Only fires on a mostly-horizontal drag past a threshold, so it doesn't
+  // fight the page's vertical scroll or a tap on a match tile.
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0]
+    touchStart.current = { x: t.clientX, y: t.clientY }
+  }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStart.current
+    touchStart.current = null
+    if (!start) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - start.x
+    const dy = t.clientY - start.y
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return
+    if (dx < 0 && safeIdx < pages.length - 1) setIdx(safeIdx + 1)
+    else if (dx > 0 && safeIdx > 0) setIdx(safeIdx - 1)
+  }
+
   if (loading) {
     return (
       <div className="page">
@@ -122,7 +142,7 @@ export default function BracketPage() {
     <div className="page">
       <h1>{t('Knockout bracket', 'Llave de eliminación')}</h1>
       <p className="muted small">
-        {t('The two matches on the left feed the one on the right. Use the arrows to move between rounds.', 'Los dos partidos de la izquierda definen el de la derecha. Usa las flechas para cambiar de ronda.')}
+        {t('The two matches on the left feed the one on the right. Swipe or use the arrows to move between rounds.', 'Los dos partidos de la izquierda definen el de la derecha. Desliza o usa las flechas para cambiar de ronda.')}
       </p>
 
       <div className="bk-nav">
@@ -159,7 +179,7 @@ export default function BracketPage() {
         </button>
       </div>
 
-      <div className="bk-ties">
+      <div className="bk-ties" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         {dests.map((dest) => {
           const srcNos = dest.match_no != null ? FEEDS[dest.match_no] ?? [] : []
           const sources = srcNos.map((n) => byNo.get(n)).filter((m): m is Match => !!m)
