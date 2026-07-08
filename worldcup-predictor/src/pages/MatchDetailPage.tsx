@@ -523,12 +523,12 @@ export default function MatchDetailPage() {
                         className={`pick-pts ${pointsFor(p) === 0 ? 'pick-pts-zero' : ''}`}
                         aria-label={t(`${pointsFor(p)} points`, `${pointsFor(p)} puntos`)}
                       >
+                        +{pointsFor(p)}
                         {bulletBonus[p.user_id] > 0 && (
                           <span className="pick-bullet" title={t('Bullet bonus included', 'Incluye bono de bullet')}>
                             ⚡
                           </span>
                         )}
-                        +{pointsFor(p)}
                       </span>
                     )}
                   </div>

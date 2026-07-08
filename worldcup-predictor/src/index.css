@@ -2187,9 +2187,16 @@ button.form-card.pp-clickable {
   min-width: 40px;
   text-align: right;
 }
-/* Subtle points-earned tag once the match is played. */
+/* Subtle points-earned tag once the match is played. Fixed width (not
+   min-width) so the optional bullet icon doesn't shift the flag column
+   before it — every row reserves the same space whether or not it shows. */
 .pick-pts {
-  min-width: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.15rem;
+  width: 46px;
+  flex: 0 0 auto;
   text-align: right;
   font-family: var(--display);
   font-weight: 700;
@@ -2202,7 +2209,6 @@ button.form-card.pp-clickable {
 }
 .pick-bullet {
   color: var(--gold);
-  margin-right: 0.15rem;
 }
 .pick-hit {
   color: var(--accent-dark);
