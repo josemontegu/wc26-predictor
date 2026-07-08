@@ -36,8 +36,10 @@
   --shadow-sm: 0 2px 8px rgba(16, 28, 61, 0.06);
   --shadow-lg: 0 16px 40px rgba(16, 28, 61, 0.16);
   --max: 540px;
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --display: 'Space Grotesk', var(--font);
+  --font: 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* One family for everything; headings get presence from weight + tracking,
+     and Inter's optical size (opsz) auto-tightens large text. */
+  --display: var(--font);
 }
 
 * {
@@ -50,6 +52,7 @@ body {
 }
 body {
   font-family: var(--font);
+  font-optical-sizing: auto;
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
@@ -60,21 +63,22 @@ h1,
 h2,
 h3 {
   font-family: var(--display);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 h1 {
   font-size: 1.6rem;
   margin: 0 0 0.85rem;
-  font-weight: 700;
+  font-weight: 800;
 }
 h2 {
   font-size: 1.12rem;
   margin: 0 0 0.5rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 h3 {
   font-size: 1rem;
   margin: 0.5rem 0;
+  font-weight: 700;
 }
 /* Inline line-icon for section headings — sits on the text baseline, sized to
    the type and inheriting its colour (replaces the old emoji prefixes). */

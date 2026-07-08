@@ -7,6 +7,9 @@ import { AuthProvider } from './context/AuthContext'
 import { applyTheme, getInitialTheme } from './lib/theme'
 import { LangProvider, getInitialLang } from './lib/i18n'
 import { initMonitoring } from './lib/monitoring'
+// Self-hosted Inter (variable, with optical sizing) — one family for body and
+// display; no Google Fonts CDN dependency.
+import '@fontsource-variable/inter/opsz.css'
 import './index.css'
 
 applyTheme(getInitialTheme())
