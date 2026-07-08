@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Goal, Zap } from 'lucide-react'
+import { AlertTriangle, Target, Zap } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -202,7 +202,7 @@ export default function MatchesPage() {
   if (loading) {
     return (
       <div className="page">
-        <h1><Goal className="h-icon" aria-hidden="true" /> {t('Knockout matches', 'Partidos de eliminación')}</h1>
+        <h1><Target className="h-icon" aria-hidden="true" /> {t('Knockout matches', 'Partidos de eliminación')}</h1>
         <div className="skeleton-list">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="skel" />
@@ -214,7 +214,7 @@ export default function MatchesPage() {
 
   return (
     <div className="page">
-      <h1><Goal className="h-icon" aria-hidden="true" /> {t('Knockout matches', 'Partidos de eliminación')}</h1>
+      <h1><Target className="h-icon" aria-hidden="true" /> {t('Knockout matches', 'Partidos de eliminación')}</h1>
       {error && <div className="notice notice-err">{error}</div>}
 
       {activeBullets.map(({ b, m }) => (

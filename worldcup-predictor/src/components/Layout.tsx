@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { BarChart3, BookOpen, GitFork, Goal, ListOrdered, Trophy, Wrench } from 'lucide-react'
+import { BarChart3, BookOpen, GitFork, ListOrdered, Target, Trophy, Wrench } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { DEMO } from '../lib/supabase'
 import { useT } from '../lib/i18n'
@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const t = useT()
 
   const tabs = [
-    { to: '/', label: t('Matches', 'Partidos'), Icon: Goal, end: true },
+    { to: '/', label: t('Matches', 'Partidos'), Icon: Target, end: true },
     { to: '/bracket', label: t('Bracket', 'Llave'), Icon: GitFork, end: false },
     { to: '/awards', label: t('Awards', 'Premios'), Icon: Trophy, end: false },
     { to: '/leaderboard', label: t('Table', 'Tabla'), Icon: ListOrdered, end: false },
