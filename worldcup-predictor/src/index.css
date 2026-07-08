@@ -137,9 +137,8 @@ a {
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(120px 120px at 12% -30%, rgba(255, 255, 255, 0.18), transparent 70%),
-    radial-gradient(160px 160px at 100% 140%, rgba(11, 189, 126, 0.32), transparent 70%);
+  /* A single, gentle top-left sheen for a light source — no coloured glow. */
+  background: radial-gradient(140px 120px at 15% -40%, rgba(255, 255, 255, 0.1), transparent 70%);
   pointer-events: none;
 }
 .app-header-inner {
@@ -291,7 +290,7 @@ a {
   border-radius: 10px;
 }
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  background: var(--accent);
   color: #fff;
   box-shadow: 0 6px 16px rgba(7, 160, 106, 0.32);
 }
@@ -555,7 +554,7 @@ label {
   opacity: 0.8;
 }
 .round-tab-active {
-  background: linear-gradient(135deg, var(--navy), var(--indigo));
+  background: var(--navy);
   color: #fff;
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(10, 24, 52, 0.22);
@@ -660,7 +659,7 @@ label {
   transform: scale(0.985);
 }
 .mcard-played {
-  background: linear-gradient(180deg, #fff, #fbfcff);
+  background: var(--card);
 }
 /* Still open and not yet predicted — amber edge so it stands out at a glance. */
 .mcard-unpicked {
@@ -1020,7 +1019,7 @@ label {
   transform: scale(0.97);
 }
 .choice-active {
-  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  background: var(--accent);
   color: #fff;
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(7, 160, 106, 0.28);
@@ -1820,7 +1819,7 @@ button.form-card.pp-clickable {
 }
 .rules-pts {
   font-family: var(--display);
-  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  background: var(--accent);
   color: #fff;
   font-weight: 700;
   border-radius: 9px;
@@ -2892,7 +2891,7 @@ button.form-card.pp-clickable {
 .step-btn-primed {
   border-color: transparent;
   color: #fff;
-  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  background: var(--accent);
   box-shadow: 0 3px 10px rgba(7, 160, 106, 0.3);
 }
 
@@ -3050,11 +3049,11 @@ button.form-card.pp-clickable {
 .cbar-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent-2), var(--accent));
+  background: var(--accent);
   transition: width 0.4s ease;
 }
 .cbar-gold {
-  background: linear-gradient(90deg, #ffd23f, var(--gold));
+  background: var(--gold);
 }
 /* Split mode: the track holds category segments side by side. */
 .cbar-track-split {
@@ -3309,7 +3308,7 @@ button.form-card.pp-clickable {
   margin: 0 0 1rem;
   padding: 0.7rem 0.9rem;
   border-radius: 14px;
-  background: linear-gradient(120deg, rgba(245, 179, 1, 0.18), rgba(245, 179, 1, 0.05));
+  background: rgba(245, 179, 1, 0.1);
   border: 1px solid rgba(245, 179, 1, 0.55);
   color: var(--ink);
   text-decoration: none;
@@ -3335,7 +3334,7 @@ button.form-card.pp-clickable {
 
 .bullet-card {
   border: 1px solid rgba(245, 179, 1, 0.55);
-  background: linear-gradient(180deg, rgba(245, 179, 1, 0.09), transparent 55%), var(--card);
+  background: var(--card);
 }
 .bullet-head {
   display: flex;
@@ -3399,19 +3398,19 @@ button.form-card.pp-clickable {
 /* Generic selected fill for multi-option buttons; the Yes/No rules below
    override it for classic bullets (equal specificity, later in the source). */
 .bullet-choice.bullet-on {
-  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  background: var(--accent);
   color: #fff;
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(7, 160, 106, 0.3);
 }
 .bullet-yes.bullet-on {
-  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  background: var(--accent);
   color: #fff;
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(7, 160, 106, 0.3);
 }
 .bullet-no.bullet-on {
-  background: linear-gradient(135deg, #f27a7a, var(--danger));
+  background: var(--danger);
   color: #fff;
   border-color: transparent;
   box-shadow: 0 4px 12px rgba(224, 70, 74, 0.28);
