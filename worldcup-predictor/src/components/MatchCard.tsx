@@ -23,10 +23,11 @@ export default function MatchCard({ match, prediction, points }: Props) {
   const needsPick =
     !locked && !played && !prediction && !isTBD(match.home_team) && !isTBD(match.away_team)
 
-  // Each team shown in its two main colours: primary at its own (outer) edge
-  // near the flag, fading to the secondary toward the centre split.
-  const [h1, h2] = teamColors(match.home_team)
-  const [a1, a2] = teamColors(match.away_team)
+  // A subtle team-colour accent in each top corner: the home colour dabbed at
+  // the top-left, the away colour at the top-right, fading to nothing across
+  // the middle — a minimal identity hint rather than a full-width stripe.
+  const [h1] = teamColors(match.home_team)
+  const [a1] = teamColors(match.away_team)
 
   return (
     <Link
@@ -36,7 +37,7 @@ export default function MatchCard({ match, prediction, points }: Props) {
       <span
         className="mcard-stripe"
         style={{
-          background: `linear-gradient(90deg, ${h1} 0%, ${h2} 50%, ${a2} 50%, ${a1} 100%)`,
+          background: `linear-gradient(90deg, ${h1} 0%, ${h1} 11%, transparent 30%, transparent 70%, ${a1} 89%, ${a1} 100%)`,
         }}
       />
       <div className="mcard-head">
