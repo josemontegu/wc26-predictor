@@ -392,7 +392,7 @@ export default function AwardsPage() {
                             : g.pick}
                         </span>
                         <span className="pp-pick-pct">
-                          {g.count} · {g.pct}%
+                          {g.count} ({g.pct}%)
                         </span>
                       </div>
                       <div className="pp-voters">
