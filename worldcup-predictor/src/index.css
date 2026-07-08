@@ -3472,14 +3472,17 @@ button.form-card.pp-clickable {
 /* Points-distribution categorical palette — validated for colour-blind
    separation and contrast on both surfaces (dataviz skill). Theme-aware: the
    dark card needs lighter, in-band steps. */
-/* Sources = sequential purple ramp (dominant Advance light → rare Bullets dark),
-   a distinct hue from the blue round ramp. Validated with --ordinal. */
+/* Sources = one purple family (distinct hue from the blue round ramp), but the
+   five shades are INTERLEAVED across the stack (light↔dark zig-zag) so adjacent
+   segments contrast strongly — worst adjacent CVD ΔE ≈ 21. The lightest shade
+   sits on Advance (the large, well-bordered segment) so its low surface contrast
+   doesn't matter. */
 :root {
   --cat-advance: #c99ee0;
-  --cat-exact: #ab6fce;
-  --cat-result: #8f47b5;
-  --cat-awards: #6f3196;
-  --cat-bullet: #4f2072;
+  --cat-exact: #6f3196;
+  --cat-result: #ab6fce;
+  --cat-awards: #4f2072;
+  --cat-bullet: #8f47b5;
   /* Rounds = sequential blue ramp (light R32 → dark Final); TP = neutral gray. */
   --round-r32: #86b6ef;
   --round-r16: #3987e5;
@@ -3490,10 +3493,10 @@ button.form-card.pp-clickable {
 }
 [data-theme='dark'] {
   --cat-advance: #dcbff0;
-  --cat-exact: #c497df;
-  --cat-result: #aa6fce;
-  --cat-awards: #8f4fb8;
-  --cat-bullet: #6f3a9c;
+  --cat-exact: #8f4fb8;
+  --cat-result: #c497df;
+  --cat-awards: #6f3a9c;
+  --cat-bullet: #aa6fce;
   /* Dark card needs the lighter half of the ramp so the Final step stays visible. */
   --round-r32: #b7d3f6;
   --round-r16: #6da7ec;
