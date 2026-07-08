@@ -1124,7 +1124,7 @@ label {
   font-family: var(--display);
   font-weight: 700;
   font-size: 1.15rem;
-  color: var(--accent-dark);
+  color: var(--success-dark);
 }
 /* ---- podium flair: gold/silver/bronze borders + glowing, shimmering winner ---- */
 .podium-1 {
