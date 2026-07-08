@@ -1884,6 +1884,20 @@ button.form-card.pp-clickable {
   gap: 0.7rem;
   border-top: 1px solid var(--line);
 }
+/* A read-only admin-row: same card chrome as .admin-row-head, no button
+   affordance (nothing to click — just information). */
+.admin-row-static {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
 .admin-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

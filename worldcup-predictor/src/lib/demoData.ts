@@ -1,4 +1,5 @@
 import type {
+  AdminPlayerEmail,
   AppConfig,
   Award,
   AwardPrediction,
@@ -46,6 +47,15 @@ export const demoProfiles: Profile[] = [
   { id: 'u5', display_name: 'Lu', nickname: 'Lu', emoji: '🦉', is_admin: false, official: true, created_at: '' },
   // A mid-tournament joiner — shadow (unofficial) player.
   { id: 'u6', display_name: 'MarcoD', nickname: 'MarcoD', emoji: '🦁', is_admin: false, official: false, created_at: '' },
+  // Invited but never opened the app — no nickname/emoji chosen yet.
+  { id: 'u7', display_name: '', nickname: '', emoji: '', is_admin: false, official: true, created_at: '2026-06-15T09:00:00Z' },
+  { id: 'u8', display_name: '', nickname: '', emoji: '', is_admin: false, official: true, created_at: '2026-06-20T14:30:00Z' },
+]
+
+// Admin-only: signup email for the pending (no-nickname) accounts above.
+export const demoPlayerEmails: AdminPlayerEmail[] = [
+  { id: 'u7', email: 'jordan@example.com' },
+  { id: 'u8', email: 'sam@example.com' },
 ]
 
 const USERS = [DEMO_USER_ID, 'u2', 'u3', 'u4', 'u5', 'u6']

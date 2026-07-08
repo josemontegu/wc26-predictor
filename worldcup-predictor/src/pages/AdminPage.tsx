@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, DEMO } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { AppConfig, Award, Match, Profile, Round, RoundCode } from '../lib/types'
-import { roundName, ROUND_ORDER } from '../lib/format'
+import type { AdminPlayerEmail, AppConfig, Award, Match, Profile, Round, RoundCode } from '../lib/types'
+import { roundName, ROUND_ORDER, formatShortDateTime } from '../lib/format'
 import { buildUpserts, fetchFeed, isRealTeam, type SyncSummary } from '../lib/openfootball'
 import { fetchEspnResults } from '../lib/espn'
 import { buildResultUpsertsFromFd } from '../lib/footballdata'
@@ -27,6 +27,7 @@ export default function AdminPage() {
   const [awardBusy, setAwardBusy] = useState(false)
   const [awardSaved, setAwardSaved] = useState(false)
   const [players, setPlayers] = useState<Profile[]>([])
+  const [playerEmails, setPlayerEmails] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeRound, setActiveRound] = useState<RoundCode>('R32')
@@ -54,18 +55,23 @@ export default function AdminPage() {
   useEffect(() => {
     let active = true
     async function load() {
-      const [matchRes, cfgRes, roundRes, awardRes, playerRes] = await Promise.all([
+      const [matchRes, cfgRes, roundRes, awardRes, playerRes, emailRes] = await Promise.all([
         supabase.from('matches').select('*').order('match_no'),
         supabase.from('app_config').select('*').eq('id', 1).maybeSingle(),
         supabase.from('rounds').select('*').order('sort_order'),
         supabase.from('awards').select('*').order('sort_order'),
         supabase.from('profiles').select('*').order('nickname'),
+        supabase.from('admin_player_emails').select('*'),
       ])
       if (!active) return
       if (matchRes.error) setError(matchRes.error.message)
       setMatches((matchRes.data as Match[]) ?? [])
       setAwards((awardRes.data as Award[]) ?? [])
       setPlayers((playerRes.data as Profile[]) ?? [])
+      // Gracefully empty if the view isn't migrated yet.
+      const emails: Record<string, string> = {}
+      for (const e of (emailRes.data as AdminPlayerEmail[]) ?? []) if (e.email) emails[e.id] = e.email
+      setPlayerEmails(emails)
       const cfg = (cfgRes.data as AppConfig) ?? null
       setConfig(cfg)
       setCfgDraft(cfg)
@@ -84,6 +90,11 @@ export default function AdminPage() {
     () => matches.filter((m) => m.round === activeRound),
     [matches, activeRound],
   )
+
+  // Split off accounts that exist (signed up / were invited) but never
+  // claimed a nickname, so they don't clutter the real player list.
+  const claimedPlayers = useMemo(() => players.filter((p) => p.nickname), [players])
+  const pendingPlayers = useMemo(() => players.filter((p) => !p.nickname), [players])
 
   // Auto-sync the bracket from openfootball once, after the page's data loads.
   // Live mode only — demo keeps the sample bracket and previews on demand.
@@ -561,7 +572,7 @@ export default function AdminPage() {
         )}
       </p>
       <div className="admin-list">
-        {players.map((p) => (
+        {claimedPlayers.map((p) => (
           <AdminPlayerRow
             key={p.id}
             profile={p}
@@ -575,6 +586,36 @@ export default function AdminPage() {
         ))}
       </div>
       </AdminSection>
+
+      {pendingPlayers.length > 0 && (
+        <AdminSection icon="⏳" title={`${t('Pending signups', 'Registros pendientes')} (${pendingPlayers.length})`}>
+        <p className="muted small">
+          {t(
+            "Accounts that exist but haven't picked a nickname yet — likely got the invite email but never opened the app.",
+            'Cuentas que existen pero aún no eligieron un apodo — probablemente recibieron el correo de invitación pero nunca abrieron la app.',
+          )}
+        </p>
+        <div className="admin-list">
+          {pendingPlayers.map((p) => (
+            <div key={p.id} className="admin-row">
+              <div className="admin-row-static">
+                <span className="admin-row-head-l">
+                  <span className="player-emoji">–</span>
+                  <span className="admin-row-title">
+                    {playerEmails[p.id] || t('(no email on file)', '(sin correo registrado)')}
+                  </span>
+                </span>
+                {p.created_at && (
+                  <span className="admin-row-meta">
+                    {t('invited', 'invitado')} {formatShortDateTime(p.created_at)}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        </AdminSection>
+      )}
     </div>
   )
 }

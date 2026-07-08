@@ -18,6 +18,7 @@ import {
   demoConfig,
   demoMatches,
   demoOtherPredictions,
+  demoPlayerEmails,
   demoPredictions,
   demoProfiles,
   demoRounds,
@@ -345,6 +346,8 @@ function tableRows(table: string): any[] {
       return leaderboard()
     case 'match_participation':
       return matchParticipation()
+    case 'admin_player_emails':
+      return demoPlayerEmails
     case 'bullet_round_points':
       return bulletRoundPoints()
     case 'my_scores':

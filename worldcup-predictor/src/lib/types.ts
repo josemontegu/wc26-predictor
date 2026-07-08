@@ -18,6 +18,13 @@ export interface Profile {
   created_at: string
 }
 
+/** Admin-only: a player's signup email, to identify accounts that never
+ * claimed a nickname (invited but never opened the app). */
+export interface AdminPlayerEmail {
+  id: string
+  email: string | null
+}
+
 export interface AppConfig {
   id: number
   points_advance: number
