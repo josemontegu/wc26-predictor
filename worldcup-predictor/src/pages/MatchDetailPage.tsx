@@ -15,7 +15,7 @@ import type {
 } from '../lib/types'
 import { isLocked, hasResult, resolveOutcome } from '../lib/types'
 import { roundName, formatKickoff } from '../lib/format'
-import { teamFlag, teamColor, teamName, avatarGradient } from '../lib/teamMeta'
+import { teamFlag, teamColors, teamName, avatarGradient } from '../lib/teamMeta'
 import { fireConfetti } from '../lib/confetti'
 import { scorePrediction } from '../lib/scoring'
 import { useT, type TFn } from '../lib/i18n'
@@ -288,6 +288,11 @@ export default function MatchDetailPage() {
   const bumpAway = (d: number) =>
     setAway(awayN === null ? (d > 0 ? '0' : '') : awayN + d < 0 ? '' : String(clampScore(awayN + d)))
 
+  // Each side's own two-kit-colour band, meeting in the middle — same
+  // treatment as the match cards, scaled up to a header.
+  const [homeC1, homeC2] = teamColors(match.home_team)
+  const [awayC1, awayC2] = teamColors(match.away_team)
+
   return (
     <div className="page">
       <button className="btn btn-ghost back-btn" onClick={() => navigate(-1)}>
@@ -297,9 +302,7 @@ export default function MatchDetailPage() {
       <div
         className="detail-top"
         style={{
-          background: `linear-gradient(135deg, ${teamColor(match.home_team)}, ${teamColor(
-            match.away_team,
-          )})`,
+          background: `linear-gradient(135deg, ${homeC2} 0%, ${homeC1} 38%, ${awayC1} 62%, ${awayC2} 100%)`,
         }}
       >
         <span className="detail-scrim" />
