@@ -3067,18 +3067,6 @@ button.form-card.pp-clickable {
   color: var(--muted);
   margin-top: 0.15rem;
 }
-.award-tile-label {
-  font-size: 0.72rem;
-  color: var(--muted);
-  font-weight: 600;
-}
-.award-tile-pick {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 0.95rem;
-  margin: 0.25rem 0 0.1rem;
-}
-
 /* per-player breakdown */
 .pstat-list {
   display: flex;

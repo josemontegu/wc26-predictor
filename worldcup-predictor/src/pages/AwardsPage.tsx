@@ -46,13 +46,15 @@ function awardDesc(key: string, fallback: string | null, t: TFn): string | null 
   }
 }
 
-function topPick(list: LockedAwardPrediction[]) {
+// Group an award's picks by choice into bar-chart rows, most popular first,
+// capped so a long tail of one-off picks doesn't dwarf the card.
+function bars(list: LockedAwardPrediction[], limit = 5) {
   const counts = new Map<string, number>()
   for (const p of list) counts.set(p.pick, (counts.get(p.pick) ?? 0) + 1)
-  let best = ''
-  let n = 0
-  for (const [k, v] of counts) if (v > n) ((best = k), (n = v))
-  return { pick: best, n, total: list.length }
+  return [...counts.entries()]
+    .map(([pick, n]) => ({ pick, n, pct: list.length ? Math.round((n / list.length) * 100) : 0 }))
+    .sort((a, b) => b.n - a.n || a.pick.localeCompare(b.pick))
+    .slice(0, limit)
 }
 
 // Group an award's picks by choice, with the voters behind each, most popular first.
@@ -74,27 +76,32 @@ function breakdown(list: LockedAwardPrediction[]) {
     .sort((a, b) => b.count - a.count || a.pick.localeCompare(b.pick))
 }
 
-function PoolAwardTile({
-  icon,
-  label,
-  pick,
-  t,
+function PoolBarCard({
+  title,
+  rows,
+  kind,
   onOpen,
 }: {
-  icon: string
-  label: string
-  pick: { pick: string; n: number; total: number }
-  t: TFn
+  title: string
+  rows: { pick: string; n: number; pct: number }[]
+  kind: 'team' | 'player' | 'goalkeeper'
   onOpen: () => void
 }) {
-  const pct = pick.total ? Math.round((pick.n / pick.total) * 100) : 0
+  if (!rows.length) return null
   return (
-    <button type="button" className="stat-tile pp-clickable" onClick={onOpen}>
-      <div className="award-tile-label">
-        {icon} {label}
-      </div>
-      <div className="award-tile-pick">{pick.pick || '—'}</div>
-      {pick.pick && <div className="stat-cap">{t(`${pct}% of the pool`, `${pct}% del grupo`)}</div>}
+    <button type="button" className="form-card pp-clickable" onClick={onOpen}>
+      <div className="stat-title">{title}</div>
+      {rows.map((b) => (
+        <div key={b.pick} className="cbar-row">
+          <span className="cbar-label">
+            {kind === 'team' ? `${teamFlag(b.pick)} ${teamName(b.pick)}` : b.pick}
+          </span>
+          <div className="cbar-track">
+            <div className="cbar-fill" style={{ width: `${b.pct}%` }} />
+          </div>
+          <span className="cbar-pct">{b.pct}%</span>
+        </div>
+      ))}
     </button>
   )
 }
@@ -144,21 +151,15 @@ export default function AwardsPage() {
 
   // What the whole pool backs — only visible once award picks lock (the
   // locked_award_predictions view stays empty until then).
-  const pulse = useMemo(() => {
-    const champ = awardPicks.filter((a) => a.award_key === 'champion')
-    const champCounts = new Map<string, number>()
-    for (const c of champ) champCounts.set(c.pick, (champCounts.get(c.pick) ?? 0) + 1)
-    const champBars = [...champCounts.entries()]
-      .map(([team, n]) => ({ team, n, pct: champ.length ? Math.round((n / champ.length) * 100) : 0 }))
-      .sort((a, b) => b.n - a.n)
-      .slice(0, 5)
-    return {
-      champBars,
-      ball: topPick(awardPicks.filter((a) => a.award_key === 'golden_ball')),
-      boot: topPick(awardPicks.filter((a) => a.award_key === 'golden_boot')),
-      glove: topPick(awardPicks.filter((a) => a.award_key === 'golden_glove')),
-    }
-  }, [awardPicks])
+  const pulse = useMemo(
+    () => ({
+      champBars: bars(awardPicks.filter((a) => a.award_key === 'champion')),
+      ballBars: bars(awardPicks.filter((a) => a.award_key === 'golden_ball')),
+      bootBars: bars(awardPicks.filter((a) => a.award_key === 'golden_boot')),
+      gloveBars: bars(awardPicks.filter((a) => a.award_key === 'golden_glove')),
+    }),
+    [awardPicks],
+  )
 
   useEffect(() => {
     if (!poolDetail) return
@@ -300,64 +301,43 @@ export default function AwardsPage() {
               'Lo que eligió cada uno para los premios del torneo — toca una tarjeta para ver el detalle.',
             )}
           </p>
-          {pulse.champBars.length > 0 && (
-            <button
-              type="button"
-              className="form-card pp-clickable"
-              onClick={() =>
-                setPoolDetail({
-                  key: 'champion',
-                  kind: 'team',
-                  icon: AWARD_ICON.champion,
-                  label: awardName('champion', 'Champion', t),
-                })
-              }
-            >
-              <div className="stat-title">
-                {t('Who the pool backs to win it', 'A quién apuesta el grupo para ganar')}
-              </div>
-              {pulse.champBars.map((b) => (
-                <div key={b.team} className="cbar-row">
-                  <span className="cbar-label">
-                    {teamFlag(b.team)} {teamName(b.team)}
-                  </span>
-                  <div className="cbar-track">
-                    <div className="cbar-fill" style={{ width: `${b.pct}%` }} />
-                  </div>
-                  <span className="cbar-pct">{b.pct}%</span>
-                </div>
-              ))}
-            </button>
-          )}
-          <div className="stat-tiles">
-            <PoolAwardTile
-              icon="⚽"
-              label={t('Golden Ball', 'Balón de Oro')}
-              pick={pulse.ball}
-              t={t}
-              onOpen={() =>
-                setPoolDetail({ key: 'golden_ball', kind: 'player', icon: '⚽', label: t('Golden Ball', 'Balón de Oro') })
-              }
-            />
-            <PoolAwardTile
-              icon="👟"
-              label={t('Golden Boot', 'Bota de Oro')}
-              pick={pulse.boot}
-              t={t}
-              onOpen={() =>
-                setPoolDetail({ key: 'golden_boot', kind: 'player', icon: '👟', label: t('Golden Boot', 'Bota de Oro') })
-              }
-            />
-            <PoolAwardTile
-              icon="🧤"
-              label={t('Golden Glove', 'Guante de Oro')}
-              pick={pulse.glove}
-              t={t}
-              onOpen={() =>
-                setPoolDetail({ key: 'golden_glove', kind: 'goalkeeper', icon: '🧤', label: t('Golden Glove', 'Guante de Oro') })
-              }
-            />
-          </div>
+          <PoolBarCard
+            title={t('Who the pool backs to win it', 'A quién apuesta el grupo para ganar')}
+            rows={pulse.champBars}
+            kind="team"
+            onOpen={() =>
+              setPoolDetail({
+                key: 'champion',
+                kind: 'team',
+                icon: AWARD_ICON.champion,
+                label: awardName('champion', 'Champion', t),
+              })
+            }
+          />
+          <PoolBarCard
+            title={t('Who the pool backs for Golden Ball', 'A quién apuesta el grupo para el Balón de Oro')}
+            rows={pulse.ballBars}
+            kind="player"
+            onOpen={() =>
+              setPoolDetail({ key: 'golden_ball', kind: 'player', icon: '⚽', label: t('Golden Ball', 'Balón de Oro') })
+            }
+          />
+          <PoolBarCard
+            title={t('Who the pool backs for Golden Boot', 'A quién apuesta el grupo para la Bota de Oro')}
+            rows={pulse.bootBars}
+            kind="player"
+            onOpen={() =>
+              setPoolDetail({ key: 'golden_boot', kind: 'player', icon: '👟', label: t('Golden Boot', 'Bota de Oro') })
+            }
+          />
+          <PoolBarCard
+            title={t('Who the pool backs for Golden Glove', 'A quién apuesta el grupo para el Guante de Oro')}
+            rows={pulse.gloveBars}
+            kind="goalkeeper"
+            onOpen={() =>
+              setPoolDetail({ key: 'golden_glove', kind: 'goalkeeper', icon: '🧤', label: t('Golden Glove', 'Guante de Oro') })
+            }
+          />
         </>
       )}
 
