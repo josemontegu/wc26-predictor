@@ -9,19 +9,20 @@ import type {
   LockedBulletPick,
   Match,
 } from '../lib/types'
-import { isLocked } from '../lib/types'
+import { bulletOptions, isLocked } from '../lib/types'
 import { useT } from '../lib/i18n'
 
 /**
- * ⚡ Bullet — a yes/no prop bet on a specific match. Editable until the match
- * locks; then everyone's calls are revealed. A bullet only counts if every
- * official player who predicted the match also answered it before lock.
+ * ⚡ Bullet — a prop bet on a specific match, Yes/No or multiple-choice.
+ * Editable until the match locks; then everyone's calls are revealed. A bullet
+ * only counts if every official player who predicted the match also answered it
+ * before lock.
  */
 export default function BulletCard({ match }: { match: Match }) {
   const { session } = useAuth()
   const t = useT()
   const [bullets, setBullets] = useState<Bullet[]>([])
-  const [myChoice, setMyChoice] = useState<Record<string, boolean>>({})
+  const [myChoice, setMyChoice] = useState<Record<string, string>>({})
   const [participation, setParticipation] = useState<BulletParticipation[]>([])
   const [validity, setValidity] = useState<Record<string, BulletValidity>>({})
   const [reveal, setReveal] = useState<LockedBulletPick[]>([])
@@ -47,7 +48,7 @@ export default function BulletCard({ match }: { match: Match }) {
       supabase.from('bullet_validity').select('*').in('bullet_id', ids),
       supabase.from('locked_bullet_picks').select('*').in('bullet_id', ids),
     ])
-    const mc: Record<string, boolean> = {}
+    const mc: Record<string, string> = {}
     for (const p of (mine.data as BulletPick[]) ?? []) mc[p.bullet_id] = p.choice
     setMyChoice(mc)
     setParticipation((part.data as BulletParticipation[]) ?? [])
@@ -69,7 +70,7 @@ export default function BulletCard({ match }: { match: Match }) {
     }
   }, [load, match.id])
 
-  async function pick(bulletId: string, choice: boolean) {
+  async function pick(bulletId: string, choice: string) {
     if (locked || !myId) return
     setBusy(bulletId)
     setMyChoice((m) => ({ ...m, [bulletId]: choice }))
@@ -85,6 +86,8 @@ export default function BulletCard({ match }: { match: Match }) {
   return (
     <>
       {bullets.map((b) => {
+        const opts = bulletOptions(b)
+        const isClassic = !b.options || b.options.length === 0
         const mine = myChoice[b.id]
         const answered = mine !== undefined
         const part = participation.filter((p) => p.bullet_id === b.id)
@@ -93,10 +96,12 @@ export default function BulletCard({ match }: { match: Match }) {
         const v = validity[b.id]
         const everyoneIn = v?.everyone_in ?? false
         const picks = reveal.filter((r) => r.bullet_id === b.id)
-        const yes = picks.filter((p) => p.choice)
-        const no = picks.filter((p) => !p.choice)
         const resolved = b.answer !== null
         const iWon = resolved && everyoneIn && answered && mine === b.answer
+        const winningLabel = () => {
+          const o = opts.find((x) => x.key === b.answer)
+          return o ? t(o.label_en, o.label_es) : ''
+        }
 
         return (
           <div className="form-card bullet-card" key={b.id}>
@@ -111,23 +116,20 @@ export default function BulletCard({ match }: { match: Match }) {
 
             {!locked ? (
               <>
-                <div className="bullet-choices">
-                  <button
-                    type="button"
-                    className={`bullet-choice bullet-yes ${mine === true ? 'bullet-on' : ''}`}
-                    disabled={busy === b.id}
-                    onClick={() => pick(b.id, true)}
-                  >
-                    {t('Yes', 'Sí')}
-                  </button>
-                  <button
-                    type="button"
-                    className={`bullet-choice bullet-no ${mine === false ? 'bullet-on' : ''}`}
-                    disabled={busy === b.id}
-                    onClick={() => pick(b.id, false)}
-                  >
-                    {t('No', 'No')}
-                  </button>
+                <div className={`bullet-choices ${isClassic ? '' : 'bullet-choices-multi'}`}>
+                  {opts.map((o) => (
+                    <button
+                      key={o.key}
+                      type="button"
+                      className={`bullet-choice ${
+                        o.key === 'yes' ? 'bullet-yes' : o.key === 'no' ? 'bullet-no' : ''
+                      } ${mine === o.key ? 'bullet-on' : ''}`}
+                      disabled={busy === b.id}
+                      onClick={() => pick(b.id, o.key)}
+                    >
+                      {t(o.label_en, o.label_es)}
+                    </button>
+                  ))}
                 </div>
                 <div className="bullet-tracker">
                   <div className="bullet-tracker-count">
@@ -173,9 +175,11 @@ export default function BulletCard({ match }: { match: Match }) {
                   </div>
                 ) : (
                   <div className={`bullet-status ${iWon ? 'bullet-win' : 'bullet-done'}`}>
-                    {b.answer
-                      ? t('✅ Yes — it happened', '✅ Sí — ocurrió')
-                      : t('❌ No — it didn’t', '❌ No — no ocurrió')}
+                    {isClassic
+                      ? b.answer === 'yes'
+                        ? t('✅ Yes — it happened', '✅ Sí — ocurrió')
+                        : t('❌ No — it didn’t', '❌ No — no ocurrió')
+                      : t(`✅ ${winningLabel()}`, `✅ ${winningLabel()}`)}
                     {answered && (
                       <span className="bullet-my-result">
                         {' · '}
@@ -187,22 +191,17 @@ export default function BulletCard({ match }: { match: Match }) {
                   </div>
                 )}
 
-                {/* Reveal: who said what */}
+                {/* Reveal: who called what */}
                 <div className="bullet-reveal">
-                  <BulletSide
-                    label={t('Yes', 'Sí')}
-                    cls="bullet-side-yes"
-                    people={yes}
-                    meId={myId}
-                    win={resolved && everyoneIn && b.answer === true}
-                  />
-                  <BulletSide
-                    label={t('No', 'No')}
-                    cls="bullet-side-no"
-                    people={no}
-                    meId={myId}
-                    win={resolved && everyoneIn && b.answer === false}
-                  />
+                  {opts.map((o) => (
+                    <BulletSide
+                      key={o.key}
+                      label={t(o.label_en, o.label_es)}
+                      people={picks.filter((p) => p.choice === o.key)}
+                      meId={myId}
+                      win={resolved && everyoneIn && b.answer === o.key}
+                    />
+                  ))}
                 </div>
               </div>
             )}
@@ -215,19 +214,17 @@ export default function BulletCard({ match }: { match: Match }) {
 
 function BulletSide({
   label,
-  cls,
   people,
   meId,
   win,
 }: {
   label: string
-  cls: string
   people: LockedBulletPick[]
   meId?: string
   win: boolean
 }) {
   return (
-    <div className={`bullet-side ${cls} ${win ? 'bullet-side-win' : ''}`}>
+    <div className={`bullet-side ${win ? 'bullet-side-win' : ''}`}>
       <div className="bullet-side-head">
         {label} <span className="bullet-side-n">{people.length}</span>
       </div>

@@ -195,7 +195,16 @@ export function hasResult(match: Pick<Match, 'home_score' | 'away_score'>): bool
   return match.home_score !== null && match.away_score !== null
 }
 
-// ---- ⚡ Bullets: yes/no prop bets on a specific match ----------------------
+// ---- ⚡ Bullets: prop bets on a specific match -----------------------------
+// A bullet is Yes/No by default (options === null) or multiple-choice when it
+// carries an ordered options list. Both answer and pick are stored as an
+// option *key* ('yes'/'no' for the classic case).
+export interface BulletOption {
+  key: string
+  label_en: string
+  label_es: string
+}
+
 export interface Bullet {
   id: string
   match_id: string
@@ -203,15 +212,28 @@ export interface Bullet {
   question_es: string
   emoji: string
   points: number
-  answer: boolean | null
+  answer: string | null
+  /** null (or empty) = a classic Yes/No bullet. */
+  options: BulletOption[] | null
   created_at: string
 }
 
 export interface BulletPick {
   bullet_id: string
   user_id: string
-  choice: boolean
+  choice: string
   created_at: string
+}
+
+/** The options to render for a bullet: its own list, or the implicit Yes/No
+ * pair for a classic bullet. Labels are localized by the caller. */
+export function bulletOptions(b: Pick<Bullet, 'options'>): BulletOption[] {
+  return b.options && b.options.length > 0
+    ? b.options
+    : [
+        { key: 'yes', label_en: 'Yes', label_es: 'Sí' },
+        { key: 'no', label_en: 'No', label_es: 'No' },
+      ]
 }
 
 /** Who's required (official predictors of the match) and whether they answered. */
@@ -237,7 +259,7 @@ export interface LockedBulletPick {
   nickname: string
   display_name: string
   emoji: string
-  choice: boolean
+  choice: string
 }
 
 /** Admin-only: whether a player has predicted a match (no pick content). */

@@ -215,29 +215,62 @@ for (const [uid, picks] of Object.entries(AWARD_PICKS)) {
 }
 
 // ---- ⚡ Bullets (demo) ------------------------------------------------------
-// db1: open (m82, Italy v Canada) — pick + "waiting on" tracker.
-// db2: resolved & valid (m73, played) — all official predictors answered → counts.
-// db3: void (m74, played) — not everyone answered → counts for no one.
+// db1: open Yes/No (m82, Italy v Canada) — pick + "waiting on" tracker.
+// db2: resolved & valid Yes/No (m73, played) — everyone answered → counts.
+// db3: void Yes/No (m74, played) — not everyone answered → counts for no one.
+// db4: resolved & valid multiple-choice (m75, played) — the N-option reveal.
+// db5: open multiple-choice (m82) — the N-button pick state + tracker.
 export const demoBullets: Bullet[] = [
-  { id: 'db1', match_id: 'm82', question_en: 'Will there be a red card?', question_es: '¿Habrá tarjeta roja?', emoji: '🟥', points: 3, answer: null, created_at: '' },
-  { id: 'db2', match_id: 'm73', question_en: 'Will Messi score?', question_es: '¿Messi marcará?', emoji: '⚽', points: 3, answer: true, created_at: '' },
-  { id: 'db3', match_id: 'm74', question_en: 'Will there be an own goal?', question_es: '¿Habrá autogol?', emoji: '🤦', points: 3, answer: false, created_at: '' },
+  { id: 'db1', match_id: 'm82', question_en: 'Will there be a red card?', question_es: '¿Habrá tarjeta roja?', emoji: '🟥', points: 3, answer: null, options: null, created_at: '' },
+  { id: 'db2', match_id: 'm73', question_en: 'Will Messi score?', question_es: '¿Messi marcará?', emoji: '⚽', points: 3, answer: 'yes', options: null, created_at: '' },
+  { id: 'db3', match_id: 'm74', question_en: 'Will there be an own goal?', question_es: '¿Habrá autogol?', emoji: '🤦', points: 3, answer: 'no', options: null, created_at: '' },
+  {
+    id: 'db4', match_id: 'm75', question_en: 'How many goals in total?', question_es: '¿Cuántos goles en total?', emoji: '🔢', points: 4, answer: 'g4',
+    options: [
+      { key: 'g01', label_en: '0–1', label_es: '0–1' },
+      { key: 'g2', label_en: '2', label_es: '2' },
+      { key: 'g3', label_en: '3', label_es: '3' },
+      { key: 'g4', label_en: '4+', label_es: '4+' },
+    ],
+    created_at: '',
+  },
+  {
+    id: 'db5', match_id: 'm82', question_en: 'Who scores first?', question_es: '¿Quién marca primero?', emoji: '🥇', points: 4, answer: null,
+    options: [
+      { key: 'ita', label_en: 'Italy', label_es: 'Italia' },
+      { key: 'can', label_en: 'Canada', label_es: 'Canadá' },
+      { key: 'none', label_en: 'No goals', label_es: 'Sin goles' },
+      { key: 'og', label_en: 'Own goal', label_es: 'Autogol' },
+    ],
+    created_at: '',
+  },
 ]
 
 export const demoBulletPicks: BulletPick[] = [
   // db1 (open): 3 of 5 official in; Alex & Lu still out
-  { bullet_id: 'db1', user_id: 'u2', choice: true, created_at: '' },
-  { bullet_id: 'db1', user_id: 'u3', choice: false, created_at: '' },
-  { bullet_id: 'db1', user_id: 'u4', choice: true, created_at: '' },
+  { bullet_id: 'db1', user_id: 'u2', choice: 'yes', created_at: '' },
+  { bullet_id: 'db1', user_id: 'u3', choice: 'no', created_at: '' },
+  { bullet_id: 'db1', user_id: 'u4', choice: 'yes', created_at: '' },
   // db2 (valid): all 5 official in (+ guest for fun)
-  { bullet_id: 'db2', user_id: DEMO_USER_ID, choice: true, created_at: '' },
-  { bullet_id: 'db2', user_id: 'u2', choice: true, created_at: '' },
-  { bullet_id: 'db2', user_id: 'u3', choice: false, created_at: '' },
-  { bullet_id: 'db2', user_id: 'u4', choice: true, created_at: '' },
-  { bullet_id: 'db2', user_id: 'u5', choice: false, created_at: '' },
-  { bullet_id: 'db2', user_id: 'u6', choice: true, created_at: '' },
+  { bullet_id: 'db2', user_id: DEMO_USER_ID, choice: 'yes', created_at: '' },
+  { bullet_id: 'db2', user_id: 'u2', choice: 'yes', created_at: '' },
+  { bullet_id: 'db2', user_id: 'u3', choice: 'no', created_at: '' },
+  { bullet_id: 'db2', user_id: 'u4', choice: 'yes', created_at: '' },
+  { bullet_id: 'db2', user_id: 'u5', choice: 'no', created_at: '' },
+  { bullet_id: 'db2', user_id: 'u6', choice: 'yes', created_at: '' },
   // db3 (void): only 3 of 5 official in
-  { bullet_id: 'db3', user_id: 'u2', choice: false, created_at: '' },
-  { bullet_id: 'db3', user_id: 'u3', choice: true, created_at: '' },
-  { bullet_id: 'db3', user_id: 'u4', choice: false, created_at: '' },
+  { bullet_id: 'db3', user_id: 'u2', choice: 'no', created_at: '' },
+  { bullet_id: 'db3', user_id: 'u3', choice: 'yes', created_at: '' },
+  { bullet_id: 'db3', user_id: 'u4', choice: 'no', created_at: '' },
+  // db4 (valid multiple-choice): all 5 official in (+ guest), split across options
+  { bullet_id: 'db4', user_id: DEMO_USER_ID, choice: 'g4', created_at: '' },
+  { bullet_id: 'db4', user_id: 'u2', choice: 'g4', created_at: '' },
+  { bullet_id: 'db4', user_id: 'u3', choice: 'g3', created_at: '' },
+  { bullet_id: 'db4', user_id: 'u4', choice: 'g2', created_at: '' },
+  { bullet_id: 'db4', user_id: 'u5', choice: 'g4', created_at: '' },
+  { bullet_id: 'db4', user_id: 'u6', choice: 'g01', created_at: '' },
+  // db5 (open multiple-choice): 3 of 5 official in; Alex & Lu still out
+  { bullet_id: 'db5', user_id: 'u2', choice: 'ita', created_at: '' },
+  { bullet_id: 'db5', user_id: 'u3', choice: 'can', created_at: '' },
+  { bullet_id: 'db5', user_id: 'u4', choice: 'ita', created_at: '' },
 ]
