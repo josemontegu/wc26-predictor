@@ -698,8 +698,8 @@ label {
   letter-spacing: 0.02em;
 }
 .status-open {
-  background: #e3f7ee;
-  color: var(--success-dark);
+  background: #eaf2fc;
+  color: var(--info);
 }
 .status-locked {
   background: #eef1f7;
@@ -2081,8 +2081,8 @@ button.form-card.pp-clickable {
   color: #84b4f5;
 }
 [data-theme='dark'] .status-open {
-  background: rgba(11, 189, 126, 0.16);
-  color: #5fe0aa;
+  background: rgba(47, 111, 208, 0.16);
+  color: #84b4f5;
 }
 [data-theme='dark'] .status-locked {
   background: rgba(255, 255, 255, 0.08);
@@ -2579,8 +2579,8 @@ button.form-card.pp-clickable {
   text-align: center;
 }
 .outcome-reg {
-  background: #e3f7ee;
-  color: var(--success-dark);
+  background: #eaf2fc;
+  color: var(--info);
 }
 .outcome-aet {
   background: #eaf2fc;
@@ -2591,8 +2591,8 @@ button.form-card.pp-clickable {
   color: #8a6400;
 }
 [data-theme='dark'] .outcome-reg {
-  background: rgba(11, 189, 126, 0.16);
-  color: #5fe0aa;
+  background: rgba(47, 111, 208, 0.16);
+  color: #84b4f5;
 }
 [data-theme='dark'] .outcome-aet {
   background: rgba(47, 111, 208, 0.16);
