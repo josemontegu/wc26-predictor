@@ -113,9 +113,10 @@ export default function MatchesPage() {
   }, [matches])
   const roundsForNav = roundsPresent.length ? roundsPresent : ROUND_ORDER
 
-  // The soonest open bullet (its match not locked/played yet) — surfaced as a
-  // banner so people don't miss the all-or-nothing call.
-  const activeBullet = useMemo(() => {
+  // Every open bullet (its match not locked/played yet) — each surfaced as a
+  // banner so people don't miss any of the all-or-nothing calls. Soonest to
+  // close first.
+  const activeBullets = useMemo(() => {
     const ms = (n: string | null) => (n ? new Date(n).getTime() : Infinity)
     return bullets
       .map((b) => ({ b, m: matches.find((mm) => mm.id === b.match_id) }))
@@ -123,7 +124,7 @@ export default function MatchesPage() {
         (x): x is { b: Bullet; m: Match } =>
           !!x.m && !isLocked(x.m) && !hasResult(x.m) && !isTBD(x.m.home_team) && !isTBD(x.m.away_team),
       )
-      .sort((a, b) => ms(a.m.lock_time) - ms(b.m.lock_time))[0]
+      .sort((a, b) => ms(a.m.lock_time) - ms(b.m.lock_time))
   }, [bullets, matches])
 
   // The round the tournament is currently on: the first present round that still
@@ -215,15 +216,15 @@ export default function MatchesPage() {
       <h1>{t('Knockout matches', 'Partidos de eliminación')}</h1>
       {error && <div className="notice notice-err">{error}</div>}
 
-      {activeBullet && (
-        <Link to={`/match/${activeBullet.m.id}`} className="bullet-banner">
+      {activeBullets.map(({ b, m }) => (
+        <Link key={b.id} to={`/match/${m.id}`} className="bullet-banner">
           <span className="bullet-banner-ico">⚡</span>
           <span className="bullet-banner-text">
-            <b>{t('Bullet', 'Bullet')}:</b> {t(activeBullet.b.question_en, activeBullet.b.question_es)}
+            <b>{t('Bullet', 'Bullet')}:</b> {t(b.question_en, b.question_es)}
           </span>
           <span className="bullet-banner-cta">{t('Call it', 'Elige')} →</span>
         </Link>
-      )}
+      ))}
 
       {needsPick.length > 0 && (
         <div className="pick-nudge">
