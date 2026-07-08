@@ -12,16 +12,22 @@
   --muted: #6c7894;
   --line: #e4e8f1;
   --line-soft: #eef1f7;
-  --accent: #07a06a;
-  --accent-2: #0bbd7e;
-  --accent-dark: #057a51;
+  /* Slightly desaturated green — reads more mature than the original neon,
+     and the small shift darker nudges white-on-accent contrast upward. */
+  --accent: #1b8e63;
+  --accent-2: #26ac7b;
+  --accent-dark: #13724e;
   --gold: #f5b301;
   --gold-soft: #fff3d4;
   --danger: #e0464a;
   --info: #2f6fd0;
   --live: #e23b4e;
-  --radius: 18px;
+  /* One corner-radius scale (px kept close to the old values so nothing jumps). */
+  --radius-xs: 10px;
   --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius: 18px;
+  --radius-lg: 22px;
   --shadow: 0 6px 20px rgba(16, 28, 61, 0.08);
   --shadow-sm: 0 2px 8px rgba(16, 28, 61, 0.06);
   --shadow-lg: 0 16px 40px rgba(16, 28, 61, 0.16);
@@ -189,7 +195,7 @@ a {
   background: var(--gold);
   color: #5a3d00;
   padding: 0.18rem 0.45rem;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
 }
 
 .app-main {
@@ -265,7 +271,7 @@ a {
   justify-content: center;
   gap: 0.4rem;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 0.85rem 1rem;
   font-family: var(--font);
   font-size: 0.96rem;
@@ -287,12 +293,12 @@ a {
   padding: 0.5rem 0.8rem;
   font-size: 0.82rem;
   width: auto;
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
 }
 .btn-primary {
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 6px 16px rgba(7, 160, 106, 0.32);
+  box-shadow: var(--shadow);
 }
 /* Not a faded green (which still reads "go") — a flat, muted surface that
    clearly says "not ready yet". */
@@ -320,7 +326,7 @@ select {
   width: 100%;
   padding: 0.7rem 0.75rem;
   border: 1.5px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   font-family: var(--font);
   background: var(--card);
@@ -398,7 +404,7 @@ label {
 
 /* ---------- notices ---------- */
 .notice {
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 0.7rem 0.85rem;
   font-size: 0.9rem;
   font-weight: 500;
@@ -429,7 +435,7 @@ label {
 }
 .login-card {
   background: var(--card);
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   padding: 2rem 1.6rem;
   max-width: 380px;
@@ -478,7 +484,7 @@ label {
 .config-error code {
   background: #f0f2f7;
   padding: 0.1rem 0.35rem;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
 }
 
 /* ---------- round tabs ---------- */
@@ -535,7 +541,7 @@ label {
   border: 1px solid rgba(245, 179, 1, 0.45);
   border-left: 4px solid var(--gold);
   color: var(--ink);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 0.6rem 0.8rem;
   font-size: 0.85rem;
   font-weight: 600;
@@ -759,7 +765,7 @@ label {
   font-size: 1.05rem;
   background: var(--navy);
   color: #fff;
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   padding: 0.35rem 0.6rem;
   min-width: 58px;
   text-align: center;
@@ -908,7 +914,7 @@ label {
   font-weight: 700;
   font-size: 1.5rem;
   background: rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   padding: 0.2rem 0.55rem;
 }
 .detail-meta {
@@ -960,7 +966,7 @@ label {
 .step-btn {
   width: 38px;
   height: 38px;
-  border-radius: 11px;
+  border-radius: var(--radius-xs);
   border: 1.5px solid var(--line);
   background: var(--card);
   font-size: 1.3rem;
@@ -1003,7 +1009,7 @@ label {
   flex: 1;
   border: 1.5px solid var(--line);
   background: var(--card);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 0.7rem 0.5rem;
   font-weight: 600;
   font-size: 0.92rem;
@@ -1022,7 +1028,7 @@ label {
   background: var(--accent);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 4px 12px rgba(7, 160, 106, 0.28);
+  box-shadow: var(--shadow-sm);
 }
 .choice:disabled {
   opacity: 0.55;
@@ -1039,7 +1045,7 @@ label {
 }
 .podium-col {
   background: var(--card);
-  border-radius: 16px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   padding: 0.95rem 0.5rem 1.05rem;
   text-align: center;
@@ -1219,7 +1225,7 @@ label {
 }
 .lb-row {
   background: var(--card);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
@@ -1363,7 +1369,7 @@ button.lb-row:active {
   width: 100%;
   max-width: 340px;
   background: var(--card);
-  border-radius: 18px;
+  border-radius: var(--radius);
   box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.45);
   padding: 1.4rem 1.2rem 1.2rem;
   animation: pcardPop 0.18s ease;
@@ -1456,7 +1462,7 @@ button.lb-row:active {
 .pcard-stat {
   background: var(--card-tint);
   border: 1px solid var(--line-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 0.7rem 0.35rem;
   display: flex;
   flex-direction: column;
@@ -1573,7 +1579,7 @@ button.lb-row:active {
 .pcard-detail-row {
   background: var(--card-tint);
   border: 1px solid var(--line-soft);
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   padding: 0.5rem 0.6rem;
 }
 .pcard-detail-line {
@@ -1785,7 +1791,7 @@ button.form-card.pp-clickable {
   background: var(--accent);
   color: #fff;
   padding: 0.1rem 0.4rem;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   margin-left: 0.35rem;
   vertical-align: middle;
 }
@@ -1822,7 +1828,7 @@ button.form-card.pp-clickable {
   background: var(--accent);
   color: #fff;
   font-weight: 700;
-  border-radius: 9px;
+  border-radius: var(--radius-xs);
   min-width: 32px;
   text-align: center;
   padding: 0.25rem 0.45rem;
@@ -1864,7 +1870,7 @@ button.form-card.pp-clickable {
   gap: 0.75rem;
   padding: 0.45rem 0.65rem;
   background: var(--bg-2);
-  border-radius: 9px;
+  border-radius: var(--radius-xs);
   font-size: 0.9rem;
 }
 .mult-x {
@@ -1882,7 +1888,7 @@ button.form-card.pp-clickable {
 }
 .admin-row {
   background: var(--card);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   border: 1px solid var(--line-soft);
@@ -2446,7 +2452,7 @@ button.form-card.pp-clickable {
 .bk-match {
   background: var(--card);
   border: 1px solid var(--line-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
   padding: 0.45rem;
   display: flex;
@@ -2540,7 +2546,7 @@ button.form-card.pp-clickable {
   margin: 0.1rem 0 0;
   color: var(--gold-ink, #8a5a00);
   background: var(--gold-soft);
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   padding: 0.4rem 0.6rem;
   font-weight: 700;
 }
@@ -2555,7 +2561,7 @@ button.form-card.pp-clickable {
 
 /* outcome chip (derived knockout resolution) */
 .outcome-chip {
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 0.6rem 0.8rem;
   font-size: 0.88rem;
   font-weight: 600;
@@ -2594,7 +2600,7 @@ button.form-card.pp-clickable {
   flex-wrap: wrap;
   margin: -0.15rem 0 0.9rem;
   padding: 0.45rem 0.7rem;
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   font-size: 0.85rem;
   font-weight: 600;
   background: var(--bg-2);
@@ -2650,7 +2656,7 @@ button.form-card.pp-clickable {
 .brand-badge {
   width: 30px;
   height: 30px;
-  border-radius: 9px;
+  border-radius: var(--radius-xs);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2670,13 +2676,13 @@ button.form-card.pp-clickable {
   width: 76px;
   height: 76px;
   margin: 0 auto;
-  border-radius: 22px;
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2.6rem;
   background: linear-gradient(135deg, #ffd23f, var(--gold) 55%, #ff9d2e);
-  box-shadow: 0 12px 26px rgba(245, 179, 1, 0.45);
+  box-shadow: 0 6px 18px rgba(245, 179, 1, 0.26);
   transform: rotate(-7deg);
 }
 .login-title {
@@ -2713,7 +2719,7 @@ button.form-card.pp-clickable {
 .award-icon {
   width: 42px;
   height: 42px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2779,7 +2785,7 @@ button.form-card.pp-clickable {
   align-items: center;
   gap: 0.4rem;
   border: 1.5px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: var(--card);
   padding: 0 0.55rem;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -2816,7 +2822,7 @@ button.form-card.pp-clickable {
   right: 0;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-lg);
   max-height: 290px;
   overflow-y: auto;
@@ -2833,7 +2839,7 @@ button.form-card.pp-clickable {
   background: transparent;
   border: none;
   padding: 0.5rem 0.55rem;
-  border-radius: 9px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
 }
 .picker-opt:hover {
@@ -2892,7 +2898,7 @@ button.form-card.pp-clickable {
   border-color: transparent;
   color: #fff;
   background: var(--accent);
-  box-shadow: 0 3px 10px rgba(7, 160, 106, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ---------- profile emoji picker ---------- */
@@ -2940,7 +2946,7 @@ button.form-card.pp-clickable {
   aspect-ratio: 1;
   border: 1.5px solid var(--line);
   background: var(--card);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
@@ -3110,7 +3116,7 @@ button.form-card.pp-clickable {
 }
 .stat-tile {
   background: var(--card);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line-soft);
   padding: 0.8rem 0.7rem;
@@ -3136,7 +3142,7 @@ button.form-card.pp-clickable {
 }
 .pstat {
   background: var(--card);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line-soft);
   padding: 0.7rem 0.85rem;
@@ -3200,7 +3206,7 @@ button.form-card.pp-clickable {
 }
 .super {
   background: var(--card);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--line-soft);
   padding: 0.75rem 0.85rem;
@@ -3307,7 +3313,7 @@ button.form-card.pp-clickable {
   gap: 0.6rem;
   margin: 0 0 1rem;
   padding: 0.7rem 0.9rem;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: rgba(245, 179, 1, 0.1);
   border: 1px solid rgba(245, 179, 1, 0.55);
   color: var(--ink);
@@ -3382,7 +3388,7 @@ button.form-card.pp-clickable {
 .bullet-choice {
   flex: 1;
   padding: 0.8rem;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   border: 1.5px solid var(--line);
   background: var(--card);
   font-family: var(--display);
@@ -3401,19 +3407,19 @@ button.form-card.pp-clickable {
   background: var(--accent);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 4px 12px rgba(7, 160, 106, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 .bullet-yes.bullet-on {
   background: var(--accent);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 4px 12px rgba(7, 160, 106, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 .bullet-no.bullet-on {
   background: var(--danger);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 4px 12px rgba(224, 70, 74, 0.28);
+  box-shadow: var(--shadow-sm);
 }
 .bullet-tracker {
   margin-top: 0.7rem;
@@ -3433,7 +3439,7 @@ button.form-card.pp-clickable {
   margin: 0.25rem 0 0;
 }
 .bullet-status {
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   padding: 0.55rem 0.7rem;
   font-weight: 700;
   font-size: 0.9rem;
@@ -3466,7 +3472,7 @@ button.form-card.pp-clickable {
 }
 .bullet-side {
   border: 1px solid var(--line-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 0.6rem;
   background: var(--card-tint);
 }
@@ -3527,7 +3533,7 @@ button.form-card.pp-clickable {
 }
 .bullet-admin-item {
   border: 1px solid var(--line-soft);
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   padding: 0.6rem;
 }
 .bullet-admin-q {
@@ -3555,7 +3561,7 @@ button.form-card.pp-clickable {
   gap: 0.4rem;
   padding: 0.5rem;
   border: 1px dashed var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
 }
 .bullet-admin-opt-row {
   display: flex;
@@ -3651,7 +3657,7 @@ button.form-card.pp-clickable {
 }
 .pstatus-row {
   border: 1px solid var(--line-soft);
-  border-radius: 10px;
+  border-radius: var(--radius-xs);
   padding: 0.55rem 0.7rem;
 }
 .pstatus-head {
