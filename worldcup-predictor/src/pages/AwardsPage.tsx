@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from 'react'
 import { Crown, Footprints, Hand, Lock, LockOpen, Sparkles, Star, Trophy, type LucideIcon } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -81,21 +81,32 @@ function PoolBarCard({
   title,
   rows,
   kind,
+  tone,
+  playerFlags,
   onOpen,
 }: {
   title: string
   rows: { pick: string; n: number; pct: number }[]
   kind: 'team' | 'player' | 'goalkeeper'
+  tone: string
+  playerFlags: Record<string, string>
   onOpen: () => void
 }) {
   if (!rows.length) return null
   return (
-    <button type="button" className="form-card pp-clickable" onClick={onOpen}>
+    <button
+      type="button"
+      className="form-card pp-clickable"
+      style={{ '--cbar-color': tone } as CSSProperties}
+      onClick={onOpen}
+    >
       <div className="stat-title">{title}</div>
       {rows.map((b) => (
         <div key={b.pick} className="cbar-row">
           <span className="cbar-label">
-            {kind === 'team' ? `${teamFlag(b.pick)} ${teamName(b.pick)}` : b.pick}
+            {kind === 'team'
+              ? `${teamFlag(b.pick)} ${teamName(b.pick)}`
+              : `${playerFlags[b.pick] || '🏳️'} ${b.pick}`}
           </span>
           <div className="cbar-track">
             <div className="cbar-fill" style={{ width: `${b.pct}%` }} />
@@ -125,6 +136,9 @@ export default function AwardsPage() {
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Player name → flag, for the Pool Pulse bars. Lazy-loaded (squads.ts is
+  // ~130KB) since it's only needed once picks are actually locked and shown.
+  const [playerFlags, setPlayerFlags] = useState<Record<string, string>>({})
 
   useEffect(() => {
     let active = true
@@ -149,6 +163,20 @@ export default function AwardsPage() {
       active = false
     }
   }, [session])
+
+  useEffect(() => {
+    if (awardPicks.length === 0) return
+    let active = true
+    import('../lib/squads').then((m) => {
+      if (!active) return
+      const flags: Record<string, string> = {}
+      for (const p of m.PLAYERS) flags[p.name] = p.flag
+      setPlayerFlags(flags)
+    })
+    return () => {
+      active = false
+    }
+  }, [awardPicks])
 
   // What the whole pool backs — only visible once award picks lock (the
   // locked_award_predictions view stays empty until then).
@@ -304,9 +332,11 @@ export default function AwardsPage() {
             )}
           </p>
           <PoolBarCard
-            title={t('Who the pool backs to win it', 'A quién apuesta el grupo para ganar')}
+            title={awardName('champion', 'Champion', t)}
             rows={pulse.champBars}
             kind="team"
+            tone="var(--round-r16)"
+            playerFlags={playerFlags}
             onOpen={() =>
               setPoolDetail({
                 key: 'champion',
@@ -317,25 +347,31 @@ export default function AwardsPage() {
             }
           />
           <PoolBarCard
-            title={t('Who the pool backs for Golden Ball', 'A quién apuesta el grupo para el Balón de Oro')}
+            title={t('Golden Ball', 'Balón de Oro')}
             rows={pulse.ballBars}
             kind="player"
+            tone="var(--round-qf)"
+            playerFlags={playerFlags}
             onOpen={() =>
               setPoolDetail({ key: 'golden_ball', kind: 'player', icon: AWARD_ICON.golden_ball, label: t('Golden Ball', 'Balón de Oro') })
             }
           />
           <PoolBarCard
-            title={t('Who the pool backs for Golden Boot', 'A quién apuesta el grupo para la Bota de Oro')}
+            title={t('Golden Boot', 'Bota de Oro')}
             rows={pulse.bootBars}
             kind="player"
+            tone="var(--round-sf)"
+            playerFlags={playerFlags}
             onOpen={() =>
               setPoolDetail({ key: 'golden_boot', kind: 'player', icon: AWARD_ICON.golden_boot, label: t('Golden Boot', 'Bota de Oro') })
             }
           />
           <PoolBarCard
-            title={t('Who the pool backs for Golden Glove', 'A quién apuesta el grupo para el Guante de Oro')}
+            title={t('Golden Glove', 'Guante de Oro')}
             rows={pulse.gloveBars}
             kind="goalkeeper"
+            tone="var(--round-f)"
+            playerFlags={playerFlags}
             onOpen={() =>
               setPoolDetail({ key: 'golden_glove', kind: 'goalkeeper', icon: AWARD_ICON.golden_glove, label: t('Golden Glove', 'Guante de Oro') })
             }
@@ -371,7 +407,7 @@ export default function AwardsPage() {
                         <span className="pp-pick">
                           {poolDetail.kind === 'team'
                             ? `${teamFlag(g.pick)} ${teamName(g.pick)}`
-                            : g.pick}
+                            : `${playerFlags[g.pick] || '🏳️'} ${g.pick}`}
                         </span>
                         <span className="pp-pick-pct">
                           {g.count} ({g.pct}%)

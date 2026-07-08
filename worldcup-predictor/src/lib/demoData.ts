@@ -195,7 +195,7 @@ const AWARD_PICKS: Record<string, [string, string, string, string]> = {
   [DEMO_USER_ID]: ['Argentina', 'Lamine Yamal', 'Kylian Mbappé', 'Emiliano Martínez'],
   u2: ['Brazil', 'Vinícius Júnior', 'Vinícius Júnior', 'Alisson'],
   u3: ['France', 'Kylian Mbappé', 'Kylian Mbappé', 'Mike Maignan'],
-  u4: ['Argentina', 'Lionel Messi', 'Julián Álvarez', 'Emiliano Martínez'],
+  u4: ['Argentina', 'Lionel Messi', 'Julián Alvarez', 'Emiliano Martínez'],
   u5: ['Spain', 'Lamine Yamal', 'Harry Kane', 'Unai Simón'],
   u6: ['Brazil', 'Jude Bellingham', 'Kylian Mbappé', 'Gianluigi Donnarumma'],
 }

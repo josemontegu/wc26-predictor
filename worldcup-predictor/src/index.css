@@ -3082,7 +3082,9 @@ button.form-card.pp-clickable {
 .cbar-fill {
   height: 100%;
   border-radius: 999px;
-  background: var(--accent);
+  /* Cards can set --cbar-color to give each chart its own tone (e.g. Pool
+     Pulse's per-award blues); defaults to the accent everywhere else. */
+  background: var(--cbar-color, var(--accent));
   transition: width 0.4s ease;
 }
 .cbar-gold {
