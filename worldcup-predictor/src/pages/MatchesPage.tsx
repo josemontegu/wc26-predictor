@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -111,6 +111,7 @@ export default function MatchesPage() {
     const set = new Set(matches.map((m) => m.round))
     return ROUND_ORDER.filter((r) => set.has(r))
   }, [matches])
+  const roundsForNav = roundsPresent.length ? roundsPresent : ROUND_ORDER
 
   // The soonest open bullet (its match not locked/played yet) — surfaced as a
   // banner so people don't miss the all-or-nothing call.
@@ -137,6 +138,28 @@ export default function MatchesPage() {
   }, [matches, roundsPresent])
 
   const effectiveRound = activeRound ?? currentRound
+
+  // Swipe left/right to step between rounds, alongside the round tabs. Only
+  // fires on a mostly-horizontal drag past a threshold, so it doesn't fight
+  // the page's vertical scroll or a tap on a match card.
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0]
+    touchStart.current = { x: t.clientX, y: t.clientY }
+  }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStart.current
+    touchStart.current = null
+    if (!start) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - start.x
+    const dy = t.clientY - start.y
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return
+    const i = roundsForNav.indexOf(effectiveRound)
+    if (i === -1) return
+    if (dx < 0 && i < roundsForNav.length - 1) selectRound(roundsForNav[i + 1])
+    else if (dx > 0 && i > 0) selectRound(roundsForNav[i - 1])
+  }
 
   const visible = useMemo(
     () => matches.filter((m) => m.round === effectiveRound),
@@ -244,49 +267,51 @@ export default function MatchesPage() {
         })}
       </div>
 
-      <h2 className="round-title">
-        {roundName(effectiveRound)}
-        <span className="count">
-          {visible.length} {visible.length === 1 ? t('match', 'partido') : t('matches', 'partidos')}
-        </span>
-      </h2>
+      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+        <h2 className="round-title">
+          {roundName(effectiveRound)}
+          <span className="count">
+            {visible.length} {visible.length === 1 ? t('match', 'partido') : t('matches', 'partidos')}
+          </span>
+        </h2>
 
-      {visible.length === 0 ? (
-        <p className="muted">{t('No matches in this round yet.', 'Aún no hay partidos en esta ronda.')}</p>
-      ) : (
-        <div className="match-list">
-          {dayGroups.map((g, i) => {
-            const zoneLabels: Record<number, string> = {
-              0: t('Today', 'Hoy'),
-              1: t('Upcoming', 'Próximos'),
-              2: t('Played', 'Jugados'),
-              3: t('To be scheduled', 'Por definir'),
-            }
-            const zoneNames = ['today', 'future', 'past', 'tbd']
-            const newZone = i === 0 || dayGroups[i - 1].zone !== g.zone
-            return (
-              <div key={g.key} className="match-day-group">
-                {newZone && (
-                  <div className={`match-zone match-zone-${zoneNames[g.zone]}`}>
-                    <span className="match-zone-line" />
-                    <span className="match-zone-label">{zoneLabels[g.zone]}</span>
-                    <span className="match-zone-line" />
-                  </div>
-                )}
-                <div className="match-day">{formatDay(g.items[0].kickoff_time)}</div>
-                {g.items.map((m) => (
-                  <MatchCard
-                    key={m.id}
-                    match={m}
-                    prediction={predictions[m.id]}
-                    points={points[m.id]}
-                  />
-                ))}
-              </div>
-            )
-          })}
-        </div>
-      )}
+        {visible.length === 0 ? (
+          <p className="muted">{t('No matches in this round yet.', 'Aún no hay partidos en esta ronda.')}</p>
+        ) : (
+          <div className="match-list">
+            {dayGroups.map((g, i) => {
+              const zoneLabels: Record<number, string> = {
+                0: t('Today', 'Hoy'),
+                1: t('Upcoming', 'Próximos'),
+                2: t('Played', 'Jugados'),
+                3: t('To be scheduled', 'Por definir'),
+              }
+              const zoneNames = ['today', 'future', 'past', 'tbd']
+              const newZone = i === 0 || dayGroups[i - 1].zone !== g.zone
+              return (
+                <div key={g.key} className="match-day-group">
+                  {newZone && (
+                    <div className={`match-zone match-zone-${zoneNames[g.zone]}`}>
+                      <span className="match-zone-line" />
+                      <span className="match-zone-label">{zoneLabels[g.zone]}</span>
+                      <span className="match-zone-line" />
+                    </div>
+                  )}
+                  <div className="match-day">{formatDay(g.items[0].kickoff_time)}</div>
+                  {g.items.map((m) => (
+                    <MatchCard
+                      key={m.id}
+                      match={m}
+                      prediction={predictions[m.id]}
+                      points={points[m.id]}
+                    />
+                  ))}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
