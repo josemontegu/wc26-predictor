@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { BarChart3, Trophy } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type {
   AppConfig,
@@ -336,7 +337,7 @@ export default function StatsPage() {
 
   return (
     <div className="page">
-      <h1>📊 {t('Stats', 'Estadísticas')}</h1>
+      <h1><BarChart3 className="h-icon" aria-hidden="true" /> {t('Stats', 'Estadísticas')}</h1>
 
       {board.length > 0 && (
         <div className="form-card">
@@ -431,7 +432,7 @@ export default function StatsPage() {
       )}
 
       {/* ---------------- Superlatives ---------------- */}
-      <h2 className="stat-h mt-lg">🏅 {t('Superlatives', 'Superlativos')}</h2>
+      <h2 className="stat-h mt-lg"><Trophy className="h-icon" aria-hidden="true" /> {t('Superlatives', 'Superlativos')}</h2>
       {!hasSupers ? (
         <p className="muted small">{t('Titles are awarded once there are enough picks & results.', 'Los títulos se otorgan cuando hay suficientes pronósticos y resultados.')}</p>
       ) : (

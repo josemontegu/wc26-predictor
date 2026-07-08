@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import { captureError } from '../lib/monitoring'
 import { getLang } from '../lib/i18n'
 
@@ -30,7 +31,7 @@ export default class ErrorBoundary extends Component<Props, State> {
     return (
       <div className="center-screen">
         <div className="login-card" style={{ textAlign: 'center' }}>
-          <div className="login-badge">⚠️</div>
+          <div className="login-badge"><AlertTriangle size={28} aria-hidden="true" /></div>
           <h1 className="login-title">
             {es ? 'Algo salió mal' : 'Something went wrong'}
           </h1>

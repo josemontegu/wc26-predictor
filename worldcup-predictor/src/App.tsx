@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { Settings } from 'lucide-react'
 import { useAuth } from './context/AuthContext'
 import { supabaseConfigured } from './lib/supabase'
 import { useT } from './lib/i18n'
@@ -23,7 +24,7 @@ export default function App() {
   if (!supabaseConfigured) {
     return (
       <div className="config-error">
-        <h1>{t('⚙️ Configuration needed', '⚙️ Configuración necesaria')}</h1>
+        <h1><Settings className="h-icon" aria-hidden="true" /> {t('Configuration needed', 'Configuración necesaria')}</h1>
         <p>
           {t('This app needs Supabase credentials. Set ', 'Esta app necesita credenciales de Supabase. Define ')}
           <code>VITE_SUPABASE_URL</code>{t(' and ', ' y ')}

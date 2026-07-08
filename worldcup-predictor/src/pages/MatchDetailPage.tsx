@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { CheckCircle2, Eye, Goal, Medal, Timer } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -332,12 +333,13 @@ export default function MatchDetailPage() {
             decided on penalties. A decisive score speaks for itself. */}
         {played && match.went_to_penalties && match.advancing_team && (
           <div className="detail-meta">
-            <span>✅ {t('Advanced on penalties', 'Avanzó por penales')}: {teamName(match.advancing_team)}</span>
+            <span><CheckCircle2 className="ic" aria-hidden="true" /> {t('Advanced on penalties', 'Avanzó por penales')}: {teamName(match.advancing_team)}</span>
           </div>
         )}
         {played && score && (
           <div className="detail-pts">
-            {t(`🏅 You scored ${score.total_points} pts on this match`, `🏅 Sumaste ${score.total_points} pts en este partido`)}
+            <Medal className="ic" aria-hidden="true" />{' '}
+            {t(`You scored ${score.total_points} pts on this match`, `Sumaste ${score.total_points} pts en este partido`)}
           </div>
         )}
       </div>
@@ -364,9 +366,7 @@ export default function MatchDetailPage() {
                   : ''
             }`}
           >
-            <span className="lock-countdown-ico" aria-hidden="true">
-              ⏱️
-            </span>
+            <Timer className="lock-countdown-ico" aria-hidden="true" />
             {t('Closes in', 'Cierra en')} <strong>{formatCountdown(msToLock)}</strong>
             <span className="lock-countdown-sub">
               {' · '}
@@ -433,8 +433,8 @@ export default function MatchDetailPage() {
             {canEdit && needsWinner && (
               <p className="small hint hint-needed">
                 {t(
-                  '👆 One more step — pick who wins the shootout to submit.',
-                  '👆 Un paso más: elige quién gana la tanda para enviar.',
+                  'One more step — pick who wins the shootout to submit.',
+                  'Un paso más: elige quién gana la tanda para enviar.',
                 )}
               </p>
             )}
@@ -446,8 +446,12 @@ export default function MatchDetailPage() {
             )}
 
             <div className={`outcome-chip outcome-${outcome.phase}`}>
-              {outcome.phase === 'reg' && t('✅ Decided in normal or extra time — no penalties', '✅ Se define en el tiempo reglamentario o extra: sin penales')}
-              {outcome.phase === 'shootout' && t('🥅 Goes to a penalty shootout', '🥅 Se va a tanda de penales')}
+              {outcome.phase === 'reg' && (
+                <><CheckCircle2 className="ic" aria-hidden="true" /> {t('Decided in normal or extra time — no penalties', 'Se define en el tiempo reglamentario o extra: sin penales')}</>
+              )}
+              {outcome.phase === 'shootout' && (
+                <><Goal className="ic" aria-hidden="true" /> {t('Goes to a penalty shootout', 'Se va a tanda de penales')}</>
+              )}
             </div>
           </>
         )}
@@ -477,7 +481,7 @@ export default function MatchDetailPage() {
       {locked && picks.length > 0 && (
         <div className="form-card">
           <div className="rule-card-head">
-            <span className="rule-icon">👀</span>
+            <Eye className="rule-icon" size={20} aria-hidden="true" />
             <h2>{t("Everyone's picks", 'Pronósticos de todos')} ({picks.length})</h2>
           </div>
           <div className="picks-list">

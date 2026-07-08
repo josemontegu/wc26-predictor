@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { AlertTriangle, BookOpen, Pencil } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -109,7 +110,7 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
         <>
           {!isAdmin && (
             <div className="notice notice-info">
-              ⚠️{' '}
+              <AlertTriangle className="ic" aria-hidden="true" />{' '}
               {t(
                 'Choose carefully — your nickname and emoji are set',
                 'Elige con cuidado — tu apodo y emoji se definen',
@@ -168,7 +169,7 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
                   className="btn btn-ghost btn-emoji-change"
                   onClick={() => setPickerOpen(true)}
                 >
-                  ✏️ {t('Change emoji', 'Cambiar emoji')}
+                  <Pencil className="ic" aria-hidden="true" /> {t('Change emoji', 'Cambiar emoji')}
                 </button>
               )}
             </div>
@@ -200,7 +201,7 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
       )}
 
       <Link to="/rules" className="btn btn-ghost">
-        📖 {t('Rules & scoring', 'Reglas y puntuación')}
+        <BookOpen className="ic" aria-hidden="true" /> {t('Rules & scoring', 'Reglas y puntuación')}
       </Link>
 
       <div className="form-card" style={{ marginTop: '1rem' }}>

@@ -66,6 +66,38 @@ h3 {
   font-size: 1rem;
   margin: 0.5rem 0;
 }
+/* Inline line-icon for section headings — sits on the text baseline, sized to
+   the type and inheriting its colour (replaces the old emoji prefixes). */
+.h-icon {
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.15em;
+  margin-right: 0.4rem;
+  color: var(--accent-dark);
+}
+/* Inline status line-icons (replace ✅ ❌ ⚠️ 🔥 🔒 in flowing text/labels).
+   Size to the surrounding type; colour by role. */
+.ic {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  flex-shrink: 0;
+}
+.ic-good {
+  color: var(--accent-dark);
+}
+.ic-bad {
+  color: var(--danger);
+}
+.ic-warn {
+  color: #a06a00;
+}
+[data-theme='dark'] .ic-warn {
+  color: var(--gold);
+}
+.ic-gold {
+  color: var(--gold);
+}
 a {
   color: inherit;
   text-decoration: none;
@@ -220,9 +252,11 @@ a {
   border-radius: 0 0 3px 3px;
   background: var(--accent);
 }
+/* Line icon; stroke inherits the tab's currentColor, so it goes muted →
+   accent with the active state for free. */
 .tab-icon {
-  font-size: 1.25rem;
-  line-height: 1;
+  width: 22px;
+  height: 22px;
 }
 
 /* ---------- buttons ---------- */
@@ -510,7 +544,12 @@ label {
 }
 .pick-nudge-ico {
   flex: 0 0 auto;
-  font-size: 1rem;
+  width: 18px;
+  height: 18px;
+  color: #a06a00;
+}
+[data-theme='dark'] .pick-nudge-ico {
+  color: var(--gold);
 }
 .pick-nudge-when {
   opacity: 0.8;
@@ -1426,7 +1465,9 @@ button.lb-row:active {
   gap: 0.15rem;
 }
 .pcard-stat-ico {
-  font-size: 1.05rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--accent-dark);
 }
 .pcard-stat-val {
   font-family: var(--display);
@@ -1758,7 +1799,10 @@ button.form-card.pp-clickable {
   margin-bottom: 0.2rem;
 }
 .rule-icon {
-  font-size: 1.3rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  flex-shrink: 0;
+  color: var(--accent-dark);
 }
 .rules-list {
   list-style: none;
@@ -2562,7 +2606,10 @@ button.form-card.pp-clickable {
   font-variant-numeric: tabular-nums;
 }
 .lock-countdown-ico {
-  font-size: 0.95rem;
+  width: 15px;
+  height: 15px;
+  vertical-align: -0.15em;
+  margin-right: 0.15rem;
 }
 .lock-countdown-sub {
   color: var(--muted);
@@ -2665,7 +2712,6 @@ button.form-card.pp-clickable {
   gap: 0.6rem;
 }
 .award-icon {
-  font-size: 1.7rem;
   width: 42px;
   height: 42px;
   border-radius: 12px;
@@ -2673,6 +2719,7 @@ button.form-card.pp-clickable {
   align-items: center;
   justify-content: center;
   background: var(--gold-soft);
+  color: var(--gold-ink, #8a5a00);
   flex: 0 0 auto;
 }
 .award-title {
@@ -3269,7 +3316,10 @@ button.form-card.pp-clickable {
   box-shadow: var(--shadow-sm);
 }
 .bullet-banner-ico {
-  font-size: 1.4rem;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  color: var(--gold);
 }
 .bullet-banner-text {
   flex: 1;

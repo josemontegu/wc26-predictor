@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { CalendarDays, Clock, Radio, RefreshCw, SlidersHorizontal, Trophy, Users } from 'lucide-react'
 import { supabase, DEMO } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { AdminPlayerEmail, AppConfig, Award, Match, Profile, Round, RoundCode } from '../lib/types'
@@ -295,7 +296,7 @@ export default function AdminPage() {
 
       <AdminBullets matches={matches} />
 
-      <AdminSection icon="🔄" title={t('Auto-fill bracket', 'Autocompletar llave')}>
+      <AdminSection icon={RefreshCw} title={t('Auto-fill bracket', 'Autocompletar llave')}>
         <p className="muted small">
           {t(
             'Pull live knockout matchups & kick-off times from the free, public-domain',
@@ -388,7 +389,7 @@ export default function AdminPage() {
         )}
       </AdminSection>
 
-      <AdminSection icon="⚽" title={t('Fetch live results', 'Traer resultados en vivo')}>
+      <AdminSection icon={Radio} title={t('Fetch live results', 'Traer resultados en vivo')}>
         <p className="muted small">
           {t(
             'Pull finished knockout scores — including extra time & penalties — from the live feed and fill them in right now. Fill-only: never overwrites a result you entered by hand. Results also sync automatically in the background around each match.',
@@ -405,7 +406,7 @@ export default function AdminPage() {
         )}
       </AdminSection>
 
-      <AdminSection icon="🗓️" title={t('Matches & results', 'Partidos y resultados')}>
+      <AdminSection icon={CalendarDays} title={t('Matches & results', 'Partidos y resultados')}>
       <div className="round-tabs">
         {ROUND_ORDER.map((r) => (
           <button
@@ -435,7 +436,7 @@ export default function AdminPage() {
       )}
       </AdminSection>
 
-      <AdminSection icon="⚙️" title={t('Scoring & lock settings', 'Puntaje y cierre')}>
+      <AdminSection icon={SlidersHorizontal} title={t('Scoring & lock settings', 'Puntaje y cierre')}>
       {cfgDraft && (
         <>
           <div className="admin-grid">
@@ -513,7 +514,7 @@ export default function AdminPage() {
       )}
       </AdminSection>
 
-      <AdminSection icon="🏅" title={t('Tournament awards', 'Premios del torneo')}>
+      <AdminSection icon={Trophy} title={t('Tournament awards', 'Premios del torneo')}>
       {awards.length === 0 ? (
         <p className="muted small">
           {t(
@@ -564,7 +565,7 @@ export default function AdminPage() {
       )}
       </AdminSection>
 
-      <AdminSection icon="🧑" title={t('Players', 'Jugadores')}>
+      <AdminSection icon={Users} title={t('Players', 'Jugadores')}>
       <p className="muted small">
         {t(
           'Nicknames & emojis are set once by each player; edit them here if needed.',
@@ -588,7 +589,7 @@ export default function AdminPage() {
       </AdminSection>
 
       {pendingPlayers.length > 0 && (
-        <AdminSection icon="⏳" title={`${t('Pending signups', 'Registros pendientes')} (${pendingPlayers.length})`}>
+        <AdminSection icon={Clock} title={`${t('Pending signups', 'Registros pendientes')} (${pendingPlayers.length})`}>
         <p className="muted small">
           {t(
             "Accounts that exist but haven't picked a nickname yet — likely got the invite email but never opened the app.",

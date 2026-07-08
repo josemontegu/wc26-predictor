@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Calculator, Goal, Handshake, HelpCircle, Pin, Target, TrendingUp, Trophy, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { AppConfig, Round } from '../lib/types'
@@ -49,7 +50,7 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <span className="rule-icon">🎯</span>
+          <Target className="rule-icon" size={20} aria-hidden="true" />
           <h2>{t('The game', 'El juego')}</h2>
         </div>
         <ul className="rules-list-plain">
@@ -84,7 +85,7 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <span className="rule-icon">⚽</span>
+          <Goal className="rule-icon" size={20} aria-hidden="true" />
           <h2>{t('Points per match', 'Puntos por partido')}</h2>
         </div>
         {c ? (
@@ -121,7 +122,7 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <span className="rule-icon">🏅</span>
+          <Trophy className="rule-icon" size={20} aria-hidden="true" />
           <h2>{t('Tournament awards', 'Premios del torneo')}</h2>
         </div>
         <ul className="rules-list-plain">
@@ -147,7 +148,7 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <span className="rule-icon">⚡</span>
+          <Zap className="rule-icon" size={20} aria-hidden="true" />
           <h2>{t('Bullets', 'Bullets')}</h2>
         </div>
         <ul className="rules-list-plain">
@@ -180,7 +181,7 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <span className="rule-icon">📈</span>
+          <TrendingUp className="rule-icon" size={20} aria-hidden="true" />
           <h2>{t('Round multipliers', 'Multiplicadores de ronda')}</h2>
         </div>
         <p>
@@ -201,7 +202,7 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <span className="rule-icon">🧮</span>
+          <Calculator className="rule-icon" size={20} aria-hidden="true" />
           <h2>{t('Worked example', 'Ejemplo resuelto')}</h2>
         </div>
         {c && (
@@ -226,7 +227,7 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <span className="rule-icon">🤝</span>
+          <Handshake className="rule-icon" size={20} aria-hidden="true" />
           <h2>{t('Fair play', 'Juego limpio')}</h2>
         </div>
         <ul className="rules-list-plain">
@@ -238,7 +239,7 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <span className="rule-icon">❓</span>
+          <HelpCircle className="rule-icon" size={20} aria-hidden="true" />
           <h2>{t('FAQ', 'Preguntas frecuentes')}</h2>
         </div>
         <div className="faq">
@@ -286,7 +287,7 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <span className="rule-icon">📌</span>
+          <Pin className="rule-icon" size={20} aria-hidden="true" />
           <h2>{t('Good to know', 'Para tener en cuenta')}</h2>
         </div>
         <ul className="rules-list-plain">

@@ -1,3 +1,4 @@
+import { AlertTriangle, FileText, Lock, type LucideIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useT } from '../lib/i18n'
 
@@ -12,12 +13,12 @@ interface Section {
 const UPDATED: Bi = ['Last updated: 6 July 2026', 'Última actualización: 6 de julio de 2026']
 
 function LegalDoc({
-  icon,
+  icon: Icon,
   title,
   intro,
   sections,
 }: {
-  icon: string
+  icon: LucideIcon
   title: Bi
   intro: Bi[]
   sections: Section[]
@@ -29,14 +30,15 @@ function LegalDoc({
         ← {t('Back', 'Atrás')}
       </Link>
       <h1>
-        {icon} {t(title[0], title[1])}
+        <Icon className="h-icon" aria-hidden="true" /> {t(title[0], title[1])}
       </h1>
       <p className="muted small">{t(UPDATED[0], UPDATED[1])}</p>
 
       <div className="notice notice-info legal-draft">
+        <AlertTriangle className="ic" aria-hidden="true" />{' '}
         {t(
-          '⚠️ Working draft — not legal advice. The details below are sensible defaults; please confirm them and have a qualified professional review this document before an official launch.',
-          '⚠️ Borrador de trabajo — no es asesoramiento legal. Los datos a continuación son valores razonables por defecto; por favor confírmalos y haz que un profesional cualificado revise este documento antes de un lanzamiento oficial.',
+          'Working draft — not legal advice. The details below are sensible defaults; please confirm them and have a qualified professional review this document before an official launch.',
+          'Borrador de trabajo — no es asesoramiento legal. Los datos a continuación son valores razonables por defecto; por favor confírmalos y haz que un profesional cualificado revise este documento antes de un lanzamiento oficial.',
         )}
       </div>
 
@@ -62,8 +64,8 @@ function LegalDoc({
 
       <p className="muted small legal-foot">
         {t('See also our ', 'Consulta también nuestra ')}
-        <Link to={icon === '📄' ? '/privacy' : '/terms'}>
-          {icon === '📄'
+        <Link to={Icon === FileText ? '/privacy' : '/terms'}>
+          {Icon === FileText
             ? t('Privacy Policy', 'Política de Privacidad')
             : t('Terms of Service', 'Términos del Servicio')}
         </Link>
@@ -76,7 +78,7 @@ function LegalDoc({
 export function TermsPage() {
   return (
     <LegalDoc
-      icon="📄"
+      icon={FileText}
       title={['Terms of Service', 'Términos del Servicio']}
       intro={[
         [
@@ -246,7 +248,7 @@ export function TermsPage() {
 export function PrivacyPage() {
   return (
     <LegalDoc
-      icon="🔒"
+      icon={Lock}
       title={['Privacy Policy', 'Política de Privacidad']}
       intro={[
         [

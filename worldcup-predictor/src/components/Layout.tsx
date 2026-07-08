@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { BarChart3, BookOpen, GitFork, Goal, ListOrdered, Trophy, Wrench } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { DEMO } from '../lib/supabase'
 import { useT } from '../lib/i18n'
@@ -11,12 +12,12 @@ export default function Layout({ children }: { children: ReactNode }) {
   const t = useT()
 
   const tabs = [
-    { to: '/', label: t('Matches', 'Partidos'), icon: '⚽', end: true },
-    { to: '/bracket', label: t('Bracket', 'Llave'), icon: '🗺️', end: false },
-    { to: '/awards', label: t('Awards', 'Premios'), icon: '🏅', end: false },
-    { to: '/leaderboard', label: t('Table', 'Tabla'), icon: '🏆', end: false },
-    { to: '/stats', label: t('Stats', 'Stats'), icon: '📊', end: false },
-    { to: '/rules', label: t('Rules', 'Reglas'), icon: '📖', end: false },
+    { to: '/', label: t('Matches', 'Partidos'), Icon: Goal, end: true },
+    { to: '/bracket', label: t('Bracket', 'Llave'), Icon: GitFork, end: false },
+    { to: '/awards', label: t('Awards', 'Premios'), Icon: Trophy, end: false },
+    { to: '/leaderboard', label: t('Table', 'Tabla'), Icon: ListOrdered, end: false },
+    { to: '/stats', label: t('Stats', 'Stats'), Icon: BarChart3, end: false },
+    { to: '/rules', label: t('Rules', 'Reglas'), Icon: BookOpen, end: false },
   ]
 
   return (
@@ -46,15 +47,15 @@ export default function Layout({ children }: { children: ReactNode }) {
       <main className="app-main">{children}</main>
 
       <nav className="tab-bar">
-        {tabs.map((t) => (
+        {tabs.map((tab) => (
           <NavLink
-            key={t.to}
-            to={t.to}
-            end={t.end}
+            key={tab.to}
+            to={tab.to}
+            end={tab.end}
             className={({ isActive }) => `tab ${isActive ? 'tab-active' : ''}`}
           >
-            <span className="tab-icon">{t.icon}</span>
-            <span className="tab-label">{t.label}</span>
+            <tab.Icon className="tab-icon" size={22} strokeWidth={2} aria-hidden="true" />
+            <span className="tab-label">{tab.label}</span>
           </NavLink>
         ))}
         {isAdmin && (
@@ -62,7 +63,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             to="/admin"
             className={({ isActive }) => `tab ${isActive ? 'tab-active' : ''}`}
           >
-            <span className="tab-icon">🛠️</span>
+            <Wrench className="tab-icon" size={22} strokeWidth={2} aria-hidden="true" />
             <span className="tab-label">{t('Admin', 'Admin')}</span>
           </NavLink>
         )}

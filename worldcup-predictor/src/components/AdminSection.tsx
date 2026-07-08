@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import type { LucideIcon } from 'lucide-react'
 
 /**
  * A collapsible admin section — collapsed by default, expanded by choice.
@@ -6,12 +7,12 @@ import { useState, type ReactNode } from 'react'
  * plain uncontrolled <details> would snap shut whenever the parent updates).
  */
 export default function AdminSection({
-  icon,
+  icon: Icon,
   title,
   defaultOpen = false,
   children,
 }: {
-  icon: string
+  icon: LucideIcon
   title: string
   defaultOpen?: boolean
   children: ReactNode
@@ -24,7 +25,7 @@ export default function AdminSection({
       onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
     >
       <summary className="admin-section-summary">
-        <span className="rule-icon">{icon}</span>
+        <Icon className="rule-icon" size={20} aria-hidden="true" />
         <h2>{title}</h2>
         <span className="admin-caret" aria-hidden="true">
           ▸

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Search } from 'lucide-react'
 import type { AwardKind } from '../lib/types'
 import { useT } from '../lib/i18n'
 import { teamName } from '../lib/teamMeta'
@@ -100,7 +101,7 @@ export default function AwardPicker({
   return (
     <div className="picker">
       <div className={`picker-field ${disabled ? 'picker-disabled' : ''}`} ref={fieldRef}>
-        <span className="picker-chip">{selectedFlag ?? (disabled ? '🏳️' : '🔎')}</span>
+        <span className="picker-chip">{selectedFlag ?? (disabled ? '🏳️' : <Search size={16} aria-hidden="true" />)}</span>
         <input
           type="text"
           value={disabled ? teamName(query) : query}

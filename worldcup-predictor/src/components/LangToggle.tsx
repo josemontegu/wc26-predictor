@@ -1,3 +1,4 @@
+import { Languages } from 'lucide-react'
 import { useLang } from '../lib/i18n'
 
 export default function LangToggle() {
@@ -10,9 +11,7 @@ export default function LangToggle() {
       aria-label={lang === 'en' ? 'Cambiar a español' : 'Switch to English'}
       title={lang === 'en' ? 'Español' : 'English'}
     >
-      <span className="lang-globe" aria-hidden="true">
-        🌐
-      </span>
+      <Languages size={19} aria-hidden="true" />
     </button>
   )
 }

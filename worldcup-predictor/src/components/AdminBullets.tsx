@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Trash2, Zap } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Bullet, BulletValidity, Match } from '../lib/types'
 import { bulletOptions, isLocked, hasResult } from '../lib/types'
@@ -111,7 +112,7 @@ export default function AdminBullets({ matches }: { matches: Match[] }) {
   const byId = new Map(matches.map((m) => [m.id, m]))
 
   return (
-    <AdminSection icon="⚡" title={t('Bullets', 'Bullets')}>
+    <AdminSection icon={Zap} title={t('Bullets', 'Bullets')}>
       <p className="muted small">
         {t(
           'Prop bets on a match — Yes/No or multiple-choice. Flat points, and only counts if every official player who predicted the match also answered before kick-off.',
@@ -278,7 +279,7 @@ export default function AdminBullets({ matches }: { matches: Match[] }) {
                     disabled={busy}
                     aria-label={t('Delete', 'Eliminar')}
                   >
-                    🗑
+                    <Trash2 size={15} aria-hidden="true" />
                   </button>
                 </div>
               </div>

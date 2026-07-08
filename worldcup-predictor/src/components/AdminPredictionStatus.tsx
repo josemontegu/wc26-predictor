@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AlertTriangle, CheckCircle2, ListChecks } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import type { Match, MatchParticipation } from '../lib/types'
 import { isLocked, hasResult } from '../lib/types'
@@ -43,7 +44,7 @@ export default function AdminPredictionStatus({ matches }: { matches: Match[] })
   )
 
   return (
-    <AdminSection icon="📋" title={t('Prediction status', 'Estado de pronósticos')}>
+    <AdminSection icon={ListChecks} title={t('Prediction status', 'Estado de pronósticos')}>
       <p className="muted small">
         {t(
           "Who still needs to predict each upcoming match. You can't see anyone's pick — only whether they've submitted.",
@@ -71,11 +72,12 @@ export default function AdminPredictionStatus({ matches }: { matches: Match[] })
                 </div>
                 {missing.length === 0 ? (
                   <div className="pstatus-ok">
-                    ✅ {t(`Everyone's in (${forMatch.length})`, `Todos dentro (${forMatch.length})`)}
+                    <CheckCircle2 className="ic ic-good" aria-hidden="true" />{' '}
+                    {t(`Everyone's in (${forMatch.length})`, `Todos dentro (${forMatch.length})`)}
                   </div>
                 ) : (
                   <div className="pstatus-missing">
-                    ⚠️{' '}
+                    <AlertTriangle className="ic ic-warn" aria-hidden="true" />{' '}
                     {t(
                       `${missing.length} still to predict:`,
                       `${missing.length} por pronosticar:`,

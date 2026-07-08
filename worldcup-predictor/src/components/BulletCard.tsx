@@ -9,6 +9,7 @@ import type {
   LockedBulletPick,
   Match,
 } from '../lib/types'
+import { CheckCircle2, Flame, XCircle, Zap } from 'lucide-react'
 import { bulletOptions, isLocked } from '../lib/types'
 import { useT } from '../lib/i18n'
 
@@ -106,7 +107,7 @@ export default function BulletCard({ match }: { match: Match }) {
         return (
           <div className="form-card bullet-card" key={b.id}>
             <div className="bullet-head">
-              <span className="bullet-tag">⚡ {t('Bullet', 'Bullet')}</span>
+              <span className="bullet-tag"><Zap className="ic" aria-hidden="true" /> {t('Bullet', 'Bullet')}</span>
               <span className="bullet-pts">+{b.points}</span>
             </div>
             <div className="bullet-q">
@@ -161,7 +162,8 @@ export default function BulletCard({ match }: { match: Match }) {
                 {/* Void / live status */}
                 {!everyoneIn ? (
                   <div className="bullet-status bullet-void">
-                    {t('❌ Void — not everyone was in', '❌ Anulada — no estaban todos')}
+                    <XCircle className="ic" aria-hidden="true" />{' '}
+                    {t('Void — not everyone was in', 'Anulada — no estaban todos')}
                     {missing.length > 0 && (
                       <span className="muted">
                         {' '}
@@ -171,15 +173,27 @@ export default function BulletCard({ match }: { match: Match }) {
                   </div>
                 ) : !resolved ? (
                   <div className="bullet-status bullet-live">
-                    {t('🔥 It’s on — all in. Awaiting the result…', '🔥 Va en serio — todos dentro. Esperando el resultado…')}
+                    <Flame className="ic" aria-hidden="true" />{' '}
+                    {t('It’s on — all in. Awaiting the result…', 'Va en serio — todos dentro. Esperando el resultado…')}
                   </div>
                 ) : (
                   <div className={`bullet-status ${iWon ? 'bullet-win' : 'bullet-done'}`}>
-                    {isClassic
-                      ? b.answer === 'yes'
-                        ? t('✅ Yes — it happened', '✅ Sí — ocurrió')
-                        : t('❌ No — it didn’t', '❌ No — no ocurrió')
-                      : t(`✅ ${winningLabel()}`, `✅ ${winningLabel()}`)}
+                    {isClassic ? (
+                      b.answer === 'yes' ? (
+                        <>
+                          <CheckCircle2 className="ic" aria-hidden="true" />{' '}
+                          {t('Yes — it happened', 'Sí — ocurrió')}
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="ic" aria-hidden="true" /> {t('No — it didn’t', 'No — no ocurrió')}
+                        </>
+                      )
+                    ) : (
+                      <>
+                        <CheckCircle2 className="ic" aria-hidden="true" /> {winningLabel()}
+                      </>
+                    )}
                     {answered && (
                       <span className="bullet-my-result">
                         {' · '}

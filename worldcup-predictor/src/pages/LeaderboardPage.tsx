@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { CheckCircle2, ClipboardList, Flag, Target, Zap, type LucideIcon } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type {
@@ -398,11 +399,11 @@ export default function LeaderboardPage() {
   const playedCount = matches.filter((m) => m.home_score != null && m.away_score != null).length
 
   // Per-tile drill-down: icon, label and which scored matches it lists.
-  const statMeta: Record<StatKey, { ico: string; label: string; keep: (r: StatRow) => boolean }> = {
-    exact: { ico: '🎯', label: t('exact scores', 'exactos'), keep: (r) => r.exact },
-    results: { ico: '🏁', label: t('right results', 'resultados'), keep: (r) => r.rightResult },
-    advancing: { ico: '✅', label: t('advancing right', 'aciertos avance'), keep: (r) => r.advancingRight },
-    scored: { ico: '📋', label: t('matches predicted', 'partidos pronosticados'), keep: () => true },
+  const statMeta: Record<StatKey, { Icon: LucideIcon; label: string; keep: (r: StatRow) => boolean }> = {
+    exact: { Icon: Target, label: t('exact scores', 'exactos'), keep: (r) => r.exact },
+    results: { Icon: Flag, label: t('right results', 'resultados'), keep: (r) => r.rightResult },
+    advancing: { Icon: CheckCircle2, label: t('advancing right', 'aciertos avance'), keep: (r) => r.advancingRight },
+    scored: { Icon: ClipboardList, label: t('matches predicted', 'partidos pronosticados'), keep: () => true },
   }
   const detailMeta = statDetail ? statMeta[statDetail] : null
   const detailList = detailMeta ? selectedRows.filter(detailMeta.keep) : []
@@ -628,7 +629,7 @@ export default function LeaderboardPage() {
                     ← {t('Back', 'Volver')}
                   </button>
                   <span className="pcard-detail-heading">
-                    {detailMeta.ico} {detailMeta.label} · {detailList.length}
+                    <detailMeta.Icon className="pcard-stat-ico" aria-hidden="true" /> {detailMeta.label} · {detailList.length}
                   </span>
                 </div>
                 {detailList.length === 0 ? (
@@ -683,7 +684,7 @@ export default function LeaderboardPage() {
 
                 {selected.bullet_points > 0 && (
                   <div className="pcard-bonus">
-                    ⚡ {t(`incl. +${selected.bullet_points} from bullets`, `incl. +${selected.bullet_points} de bullets`)}
+                    <Zap className="ic ic-gold" aria-hidden="true" /> {t(`incl. +${selected.bullet_points} from bullets`, `incl. +${selected.bullet_points} de bullets`)}
                   </div>
                 )}
 
@@ -693,7 +694,7 @@ export default function LeaderboardPage() {
                     className="pcard-stat pcard-stat-btn"
                     onClick={() => setStatDetail('exact')}
                   >
-                    <span className="pcard-stat-ico">🎯</span>
+                    <Target className="pcard-stat-ico" aria-hidden="true" />
                     <span className="pcard-stat-val">{selected.exact_scores}</span>
                     <span className="pcard-stat-lbl">{t('exact scores', 'exactos')}</span>
                     <span className="pcard-stat-pct">
@@ -705,7 +706,7 @@ export default function LeaderboardPage() {
                     className="pcard-stat pcard-stat-btn"
                     onClick={() => setStatDetail('results')}
                   >
-                    <span className="pcard-stat-ico">🏁</span>
+                    <Flag className="pcard-stat-ico" aria-hidden="true" />
                     <span className="pcard-stat-val">{resultsByUser.get(selected.user_id) ?? 0}</span>
                     <span className="pcard-stat-lbl">{t('right results', 'resultados')}</span>
                     <span className="pcard-stat-pct">
@@ -717,7 +718,7 @@ export default function LeaderboardPage() {
                     className="pcard-stat pcard-stat-btn"
                     onClick={() => setStatDetail('advancing')}
                   >
-                    <span className="pcard-stat-ico">✅</span>
+                    <CheckCircle2 className="pcard-stat-ico" aria-hidden="true" />
                     <span className="pcard-stat-val">{selected.correct_advances}</span>
                     <span className="pcard-stat-lbl">{t('advancing right', 'aciertos avance')}</span>
                     <span className="pcard-stat-pct">
@@ -729,7 +730,7 @@ export default function LeaderboardPage() {
                     className="pcard-stat pcard-stat-btn"
                     onClick={() => setStatDetail('scored')}
                   >
-                    <span className="pcard-stat-ico">📋</span>
+                    <ClipboardList className="pcard-stat-ico" aria-hidden="true" />
                     <span className="pcard-stat-val">{selected.scored_predictions}</span>
                     <span className="pcard-stat-lbl">{t('matches predicted', 'partidos pronosticados')}</span>
                     <span className="pcard-stat-pct">

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { Crown, Footprints, Hand, Lock, LockOpen, Sparkles, Star, Trophy, type LucideIcon } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Award, AwardPrediction, LockedAwardPrediction } from '../lib/types'
@@ -9,11 +10,11 @@ import { teamFlag, teamName } from '../lib/teamMeta'
 import Spinner from '../components/Spinner'
 import AwardPicker from '../components/AwardPicker'
 
-const AWARD_ICON: Record<string, string> = {
-  champion: '🏆',
-  golden_ball: '⚽',
-  golden_boot: '👟',
-  golden_glove: '🧤',
+const AWARD_ICON: Record<string, LucideIcon> = {
+  champion: Crown,
+  golden_ball: Star,
+  golden_boot: Footprints,
+  golden_glove: Hand,
 }
 
 function awardName(key: string, fallback: string, t: TFn): string {
@@ -117,7 +118,7 @@ export default function AwardsPage() {
   const [poolDetail, setPoolDetail] = useState<{
     key: string
     kind: string
-    icon: string
+    icon: LucideIcon
     label: string
   } | null>(null)
   const [loading, setLoading] = useState(true)
@@ -218,7 +219,7 @@ export default function AwardsPage() {
 
   return (
     <div className="page">
-      <h1>🏅 {t('Tournament awards', 'Premios del torneo')}</h1>
+      <h1><Trophy className="h-icon" aria-hidden="true" /> {t('Tournament awards', 'Premios del torneo')}</h1>
       <p className="muted small">
         {t(
           'Call the champion and the individual award winners. Worth big points — editable until they lock before kick-off.',
@@ -236,10 +237,11 @@ export default function AwardsPage() {
             const decided = a.winner != null && a.winner !== ''
             const myPick = picks[a.id] ?? ''
             const got = decided && myPick.trim().toLowerCase() === a.winner!.trim().toLowerCase()
+            const AwardIcon = AWARD_ICON[a.key] ?? Trophy
             return (
               <div key={a.id} className={`award-card ${a.kind === 'team' ? 'award-champion' : ''}`}>
                 <div className="award-head">
-                  <span className="award-icon">{AWARD_ICON[a.key] ?? '🏅'}</span>
+                  <span className="award-icon"><AwardIcon size={22} aria-hidden="true" /></span>
                   <div className="award-title">
                     <div className="award-name">{awardName(a.key, a.name, t)}</div>
                     {awardDesc(a.key, a.description, t) && (
@@ -264,11 +266,11 @@ export default function AwardsPage() {
                     </span>
                   ) : locked ? (
                     <span className="muted small">
-                      🔒 {t('Locked · awaiting result', 'Cerrado · esperando resultado')}
+                      <Lock className="ic" aria-hidden="true" /> {t('Locked · awaiting result', 'Cerrado · esperando resultado')}
                     </span>
                   ) : (
                     <span className="muted small">
-                      🔓 {t('Closes in', 'Se cierra en')} {timeUntilLock(a.lock_time)}
+                      <LockOpen className="ic" aria-hidden="true" /> {t('Closes in', 'Se cierra en')} {timeUntilLock(a.lock_time)}
                       {a.lock_time ? ` · ${formatLock(a.lock_time)}` : ''}
                     </span>
                   )}
@@ -294,7 +296,7 @@ export default function AwardsPage() {
 
       {awardPicks.length > 0 && (
         <>
-          <h2 className="stat-h stat-h-divider">🔮 {t('Pool Pulse', 'Pulso del grupo')}</h2>
+          <h2 className="stat-h stat-h-divider"><Sparkles className="h-icon" aria-hidden="true" /> {t('Pool Pulse', 'Pulso del grupo')}</h2>
           <p className="muted small pp-hint">
             {t(
               'What everyone picked for the tournament awards — tap a card for the full breakdown.',
@@ -319,7 +321,7 @@ export default function AwardsPage() {
             rows={pulse.ballBars}
             kind="player"
             onOpen={() =>
-              setPoolDetail({ key: 'golden_ball', kind: 'player', icon: '⚽', label: t('Golden Ball', 'Balón de Oro') })
+              setPoolDetail({ key: 'golden_ball', kind: 'player', icon: AWARD_ICON.golden_ball, label: t('Golden Ball', 'Balón de Oro') })
             }
           />
           <PoolBarCard
@@ -327,7 +329,7 @@ export default function AwardsPage() {
             rows={pulse.bootBars}
             kind="player"
             onOpen={() =>
-              setPoolDetail({ key: 'golden_boot', kind: 'player', icon: '👟', label: t('Golden Boot', 'Bota de Oro') })
+              setPoolDetail({ key: 'golden_boot', kind: 'player', icon: AWARD_ICON.golden_boot, label: t('Golden Boot', 'Bota de Oro') })
             }
           />
           <PoolBarCard
@@ -335,7 +337,7 @@ export default function AwardsPage() {
             rows={pulse.gloveBars}
             kind="goalkeeper"
             onOpen={() =>
-              setPoolDetail({ key: 'golden_glove', kind: 'goalkeeper', icon: '🧤', label: t('Golden Glove', 'Guante de Oro') })
+              setPoolDetail({ key: 'golden_glove', kind: 'goalkeeper', icon: AWARD_ICON.golden_glove, label: t('Golden Glove', 'Guante de Oro') })
             }
           />
         </>
@@ -357,7 +359,7 @@ export default function AwardsPage() {
                   ✕
                 </button>
                 <div className="pp-modal-head">
-                  {poolDetail.icon} {poolDetail.label}
+                  <poolDetail.icon className="h-icon" aria-hidden="true" /> {poolDetail.label}
                 </div>
                 <div className="pp-modal-sub">
                   {t(`${list.length} picks`, `${list.length} pronósticos`)}

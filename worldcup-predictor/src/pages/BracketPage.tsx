@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Medal } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Match, RoundCode } from '../lib/types'
@@ -207,7 +208,7 @@ export default function BracketPage() {
         {to === 'F' &&
           (byRound['TP'] ?? []).map((tp) => (
             <div className="bk-thirdplace" key={tp.id}>
-              <div className="bk-tp-label">🥉 {roundName('TP')}</div>
+              <div className="bk-tp-label"><Medal className="ic" aria-hidden="true" /> {roundName('TP')}</div>
               <BracketMatch match={tp} onClick={() => navigate(`/match/${tp.id}`)} />
             </div>
           ))}

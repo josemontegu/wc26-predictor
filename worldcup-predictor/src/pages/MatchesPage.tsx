@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { AlertTriangle, Zap } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -218,7 +219,7 @@ export default function MatchesPage() {
 
       {activeBullets.map(({ b, m }) => (
         <Link key={b.id} to={`/match/${m.id}`} className="bullet-banner">
-          <span className="bullet-banner-ico">⚡</span>
+          <Zap className="bullet-banner-ico" aria-hidden="true" />
           <span className="bullet-banner-text">
             <b>{t('Bullet', 'Bullet')}:</b> {t(b.question_en, b.question_es)}
           </span>
@@ -228,7 +229,7 @@ export default function MatchesPage() {
 
       {needsPick.length > 0 && (
         <div className="pick-nudge">
-          <span className="pick-nudge-ico">⚠️</span>
+          <AlertTriangle className="pick-nudge-ico" aria-hidden="true" />
           <span>
             {needRounds.length === 1
               ? t(
