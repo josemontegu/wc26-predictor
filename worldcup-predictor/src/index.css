@@ -3472,17 +3472,17 @@ button.form-card.pp-clickable {
 /* Points-distribution categorical palette — validated for colour-blind
    separation and contrast on both surfaces (dataviz skill). Theme-aware: the
    dark card needs lighter, in-band steps. */
-/* Sources = one purple family (distinct hue from the blue round ramp), but the
+/* Sources = one green family (distinct hue from the blue round ramp), but the
    five shades are INTERLEAVED across the stack (light↔dark zig-zag) so adjacent
-   segments contrast strongly — worst adjacent CVD ΔE ≈ 21. The lightest shade
+   segments contrast strongly — worst adjacent CVD ΔE ≈ 20. The lightest shade
    sits on Advance (the large, well-bordered segment) so its low surface contrast
    doesn't matter. */
 :root {
-  --cat-advance: #c99ee0;
-  --cat-exact: #6f3196;
-  --cat-result: #ab6fce;
-  --cat-awards: #4f2072;
-  --cat-bullet: #8f47b5;
+  --cat-advance: #6cc596;
+  --cat-exact: #167345;
+  --cat-result: #40ac77;
+  --cat-awards: #0a5330;
+  --cat-bullet: #28905d;
   /* Rounds = sequential blue ramp (light R32 → dark Final); TP = neutral gray. */
   --round-r32: #86b6ef;
   --round-r16: #3987e5;
@@ -3492,11 +3492,11 @@ button.form-card.pp-clickable {
   --round-tp: #8a94a8;
 }
 [data-theme='dark'] {
-  --cat-advance: #dcbff0;
-  --cat-exact: #8f4fb8;
-  --cat-result: #c497df;
-  --cat-awards: #6f3a9c;
-  --cat-bullet: #aa6fce;
+  --cat-advance: #b6e6cd;
+  --cat-exact: #2f9161;
+  --cat-result: #7fd0a8;
+  --cat-awards: #1c6b45;
+  --cat-bullet: #4fb384;
   /* Dark card needs the lighter half of the ramp so the Final step stays visible. */
   --round-r32: #b7d3f6;
   --round-r16: #6da7ec;
