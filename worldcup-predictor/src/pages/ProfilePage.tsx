@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { AlertTriangle, BookOpen, Pencil } from 'lucide-react'
+import { AlertTriangle, BookOpen, Pencil, User } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -104,7 +104,7 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
 
   return (
     <div className="page">
-      <h1>{forced ? t('Set up your player', 'Configura tu jugador') : t('Your profile', 'Tu perfil')}</h1>
+      <h1><User className="h-icon" aria-hidden="true" /> {forced ? t('Set up your player', 'Configura tu jugador') : t('Your profile', 'Tu perfil')}</h1>
 
       {canEdit ? (
         <>

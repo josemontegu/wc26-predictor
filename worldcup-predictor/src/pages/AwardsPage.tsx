@@ -209,7 +209,7 @@ export default function AwardsPage() {
   if (loading) {
     return (
       <div className="page">
-        <h1>{t('Awards', 'Premios')}</h1>
+        <h1><Trophy className="h-icon" aria-hidden="true" /> {t('Awards', 'Premios')}</h1>
         <Spinner label={t('Loading awards…', 'Cargando premios…')} />
       </div>
     )

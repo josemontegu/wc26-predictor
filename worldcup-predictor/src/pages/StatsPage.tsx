@@ -316,7 +316,7 @@ export default function StatsPage() {
   if (loading) {
     return (
       <div className="page">
-        <h1>{t('Stats', 'Estadísticas')}</h1>
+        <h1><BarChart3 className="h-icon" aria-hidden="true" /> {t('Stats', 'Estadísticas')}</h1>
         <Spinner label={t('Crunching the numbers…', 'Procesando los números…')} />
       </div>
     )

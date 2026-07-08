@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { CheckCircle2, ClipboardList, Flag, Target, Zap, type LucideIcon } from 'lucide-react'
+import { CheckCircle2, ClipboardList, Flag, ListOrdered, Target, Zap, type LucideIcon } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type {
@@ -334,7 +334,7 @@ export default function LeaderboardPage() {
   if (loading) {
     return (
       <div className="page">
-        <h1>{t('Leaderboard', 'Tabla de posiciones')}</h1>
+        <h1><ListOrdered className="h-icon" aria-hidden="true" /> {t('Leaderboard', 'Tabla de posiciones')}</h1>
         <Spinner label={t('Loading leaderboard…', 'Cargando tabla de posiciones…')} />
       </div>
     )
@@ -411,7 +411,7 @@ export default function LeaderboardPage() {
   return (
     <div className="page">
       <div className="lb-head">
-        <h1>{t('Leaderboard', 'Tabla de posiciones')}</h1>
+        <h1><ListOrdered className="h-icon" aria-hidden="true" /> {t('Leaderboard', 'Tabla de posiciones')}</h1>
       </div>
       {rows.length > 0 && (
         <p className="lb-caption">

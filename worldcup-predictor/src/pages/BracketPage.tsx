@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Medal } from 'lucide-react'
+import { GitFork, Medal } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { Match, RoundCode } from '../lib/types'
@@ -119,7 +119,7 @@ export default function BracketPage() {
   if (loading) {
     return (
       <div className="page">
-        <h1>{t('Bracket', 'Llave')}</h1>
+        <h1><GitFork className="h-icon" aria-hidden="true" /> {t('Bracket', 'Llave')}</h1>
         <Spinner label={t('Building the bracket…', 'Construyendo la llave…')} />
       </div>
     )
@@ -128,7 +128,7 @@ export default function BracketPage() {
   if (!page) {
     return (
       <div className="page">
-        <h1>{t('Knockout bracket', 'Llave de eliminación')}</h1>
+        <h1><GitFork className="h-icon" aria-hidden="true" /> {t('Knockout bracket', 'Llave de eliminación')}</h1>
         <p className="muted">{t('The bracket appears once matches are set.', 'La llave aparece cuando se definan los partidos.')}</p>
       </div>
     )
@@ -141,7 +141,7 @@ export default function BracketPage() {
 
   return (
     <div className="page">
-      <h1>{t('Knockout bracket', 'Llave de eliminación')}</h1>
+      <h1><GitFork className="h-icon" aria-hidden="true" /> {t('Knockout bracket', 'Llave de eliminación')}</h1>
       <p className="muted small">
         {t('The two matches on the left feed the one on the right. Swipe or use the arrows to move between rounds.', 'Los dos partidos de la izquierda definen el de la derecha. Desliza o usa las flechas para cambiar de ronda.')}
       </p>

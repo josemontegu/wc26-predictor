@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Calculator, Goal, Handshake, HelpCircle, Pin, Target, TrendingUp, Trophy, Zap } from 'lucide-react'
+import { BookOpen, Calculator, Goal, Handshake, HelpCircle, Pin, Target, TrendingUp, Trophy, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { AppConfig, Round } from '../lib/types'
@@ -46,7 +46,7 @@ export default function RulesPage() {
 
   return (
     <div className="page">
-      <h1>{t('How it works', 'Cómo funciona')}</h1>
+      <h1><BookOpen className="h-icon" aria-hidden="true" /> {t('How it works', 'Cómo funciona')}</h1>
 
       <div className="form-card">
         <div className="rule-card-head">

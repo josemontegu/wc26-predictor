@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CalendarDays, Clock, Radio, RefreshCw, SlidersHorizontal, Trophy, Users } from 'lucide-react'
+import { CalendarDays, Clock, Radio, RefreshCw, SlidersHorizontal, Trophy, Users, Wrench } from 'lucide-react'
 import { supabase, DEMO } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { AdminPlayerEmail, AppConfig, Award, Match, Profile, Round, RoundCode } from '../lib/types'
@@ -289,7 +289,7 @@ export default function AdminPage() {
 
   return (
     <div className="page">
-      <h1>{t('Admin', 'Admin')}</h1>
+      <h1><Wrench className="h-icon" aria-hidden="true" /> {t('Admin', 'Admin')}</h1>
       {error && <div className="notice notice-err">{error}</div>}
 
       <AdminPredictionStatus matches={matches} />
