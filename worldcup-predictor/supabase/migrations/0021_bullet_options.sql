@@ -30,13 +30,27 @@ drop view if exists public.locked_bullet_picks;
 -- ---- 2. schema change -------------------------------------------------------
 alter table public.bullets add column if not exists options jsonb;
 
-alter table public.bullets
-  alter column answer type text
-  using (case when answer is null then null when answer then 'yes' else 'no' end);
+-- Convert answer/choice from boolean to a text option key, but ONLY if they are
+-- still boolean — so this whole migration is safe to re-run after a partial
+-- apply (a re-run would otherwise fail: `case when answer` needs a boolean).
+do $$
+begin
+  if (select data_type from information_schema.columns
+        where table_schema = 'public' and table_name = 'bullets'
+          and column_name = 'answer') = 'boolean' then
+    alter table public.bullets
+      alter column answer type text
+      using (case when answer is null then null when answer then 'yes' else 'no' end);
+  end if;
 
-alter table public.bullet_picks
-  alter column choice type text
-  using (case when choice then 'yes' else 'no' end);
+  if (select data_type from information_schema.columns
+        where table_schema = 'public' and table_name = 'bullet_picks'
+          and column_name = 'choice') = 'boolean' then
+    alter table public.bullet_picks
+      alter column choice type text
+      using (case when choice then 'yes' else 'no' end);
+  end if;
+end $$;
 
 -- ---- 3. recreate the dropped views ------------------------------------------
 
