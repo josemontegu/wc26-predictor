@@ -2200,6 +2200,10 @@ button.form-card.pp-clickable {
   color: var(--muted);
   opacity: 0.65;
 }
+.pick-bullet {
+  color: var(--gold);
+  margin-right: 0.15rem;
+}
 .pick-hit {
   color: var(--accent-dark);
 }

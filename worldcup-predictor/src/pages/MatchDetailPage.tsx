@@ -2,7 +2,17 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import type { AppConfig, LockedPrediction, Match, MyScore, Prediction, Round } from '../lib/types'
+import type {
+  AppConfig,
+  Bullet,
+  BulletValidity,
+  LockedBulletPick,
+  LockedPrediction,
+  Match,
+  MyScore,
+  Prediction,
+  Round,
+} from '../lib/types'
 import { isLocked, hasResult, resolveOutcome } from '../lib/types'
 import { roundName, formatKickoff } from '../lib/format'
 import { teamFlag, teamColor, teamName, avatarGradient } from '../lib/teamMeta'
@@ -46,6 +56,7 @@ export default function MatchDetailPage() {
   const [config, setConfig] = useState<AppConfig | null>(null)
   const [roundMult, setRoundMult] = useState(1)
   const [shadowIds, setShadowIds] = useState<Set<string>>(new Set())
+  const [bulletBonus, setBulletBonus] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const confettiFired = useRef(false)
@@ -95,6 +106,33 @@ export default function MatchDetailPage() {
             .map((pr) => pr.id),
         ),
       )
+
+      // Bullet bonus per player on this match — same "resolved + everyone in"
+      // rule as the leaderboard, so the picks list total matches what they
+      // actually got credited.
+      const { data: bulletRows } = await supabase.from('bullets').select('*').eq('match_id', id)
+      const bulletList = (bulletRows as Bullet[]) ?? []
+      if (bulletList.length) {
+        const ids = bulletList.map((b) => b.id)
+        const [valRes, revRes] = await Promise.all([
+          supabase.from('bullet_validity').select('*').in('bullet_id', ids),
+          supabase.from('locked_bullet_picks').select('*').in('bullet_id', ids),
+        ])
+        const valMap: Record<string, BulletValidity> = {}
+        for (const v of (valRes.data as BulletValidity[]) ?? []) valMap[v.bullet_id] = v
+        const bonus: Record<string, number> = {}
+        for (const r of (revRes.data as LockedBulletPick[]) ?? []) {
+          const b = bulletList.find((x) => x.id === r.bullet_id)
+          const v = valMap[r.bullet_id]
+          if (b && b.answer !== null && v?.everyone_in && r.choice === b.answer) {
+            bonus[r.user_id] = (bonus[r.user_id] ?? 0) + b.points
+          }
+        }
+        if (active) setBulletBonus(bonus)
+      } else if (active) {
+        setBulletBonus({})
+      }
+
       if (p) {
         setHome(String(p.home_score))
         setAway(String(p.away_score))
@@ -225,9 +263,10 @@ export default function MatchDetailPage() {
   const canEdit = !locked && teamsKnown
 
   // Points a pick earned on this (finished) match — shared scoring module,
-  // × the round multiplier.
+  // × the round multiplier — plus any bullet bonus they banked on this match.
   const pointsFor = (p: LockedPrediction): number =>
-    played && config ? scorePrediction(p, match, config, roundMult).points : 0
+    (played && config ? scorePrediction(p, match, config, roundMult).points : 0) +
+    (bulletBonus[p.user_id] ?? 0)
   const homeN = home === '' ? null : Number(home)
   const awayN = away === '' ? null : Number(away)
   const bothSet = homeN !== null && awayN !== null
@@ -308,8 +347,6 @@ export default function MatchDetailPage() {
           )}
         </div>
       )}
-
-      <BulletCard match={match} />
 
       <form onSubmit={handleSave} className="form-card">
         <h2>{prediction ? t('Your prediction', 'Tu pronóstico') : t('Make your prediction', 'Haz tu pronóstico')}</h2>
@@ -432,6 +469,8 @@ export default function MatchDetailPage() {
         )}
       </form>
 
+      <BulletCard match={match} />
+
       {locked && picks.length > 0 && (
         <div className="form-card">
           <div className="rule-card-head">
@@ -479,11 +518,16 @@ export default function MatchDetailPage() {
                     <span className={`pick-adv ${advRight ? 'pick-hit' : ''}`}>
                       {teamFlag(p.advancing_team)}
                     </span>
-                    {played && (
+                    {(played || bulletBonus[p.user_id] > 0) && (
                       <span
                         className={`pick-pts ${pointsFor(p) === 0 ? 'pick-pts-zero' : ''}`}
                         aria-label={t(`${pointsFor(p)} points`, `${pointsFor(p)} puntos`)}
                       >
+                        {bulletBonus[p.user_id] > 0 && (
+                          <span className="pick-bullet" title={t('Bullet bonus included', 'Incluye bono de bullet')}>
+                            ⚡
+                          </span>
+                        )}
                         +{pointsFor(p)}
                       </span>
                     )}
