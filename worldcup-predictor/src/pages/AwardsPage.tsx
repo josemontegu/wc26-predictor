@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from 'react'
-import { Crown, Footprints, Hand, Lock, LockOpen, Sparkles, Star, Trophy, type LucideIcon } from 'lucide-react'
+import { Crown, Hand, Lock, LockOpen, Sparkles, SportShoe, Trophy, Volleyball, type LucideIcon } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Award, AwardPrediction, LockedAwardPrediction } from '../lib/types'
@@ -12,8 +12,8 @@ import AwardPicker from '../components/AwardPicker'
 
 const AWARD_ICON: Record<string, LucideIcon> = {
   champion: Crown,
-  golden_ball: Star,
-  golden_boot: Footprints,
+  golden_ball: Volleyball,
+  golden_boot: SportShoe,
   golden_glove: Hand,
 }
 
