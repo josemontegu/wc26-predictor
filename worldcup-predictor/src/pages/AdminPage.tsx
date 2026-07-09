@@ -294,8 +294,6 @@ export default function AdminPage() {
 
       <AdminPredictionStatus matches={matches} />
 
-      <AdminBullets matches={matches} />
-
       <AdminSection icon={RefreshCw} title={t('Auto-fill bracket', 'Autocompletar llave')}>
         <p className="muted small">
           {t(
@@ -564,6 +562,8 @@ export default function AdminPage() {
         </>
       )}
       </AdminSection>
+
+      <AdminBullets matches={matches} />
 
       <AdminSection icon={Users} title={t('Players', 'Jugadores')}>
       <p className="muted small">

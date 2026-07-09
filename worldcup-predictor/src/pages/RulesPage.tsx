@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, Calculator, Goal, Handshake, HelpCircle, Pin, Target, TrendingUp, Trophy, Zap } from 'lucide-react'
+import { BookOpen, Calculator, Goal, Handshake, Pin, Target, TrendingUp, Trophy, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import type { AppConfig, Round } from '../lib/types'
@@ -122,65 +122,6 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <Trophy className="rule-icon" size={20} aria-hidden="true" />
-          <h2>{t('Tournament awards', 'Premios del torneo')}</h2>
-        </div>
-        <ul className="rules-list-plain">
-          <li>
-            {t(
-              'Pick a player for each tournament award: Golden Ball (best player), Golden Boot (top scorer) and Golden Glove (best goalkeeper).',
-              'Elige un jugador para cada premio del torneo: Balón de Oro (mejor jugador), Bota de Oro (máximo goleador) y Guante de Oro (mejor portero).',
-            )}
-          </li>
-          <li>{t('Each is worth a big bonus if you call it right.', 'Cada uno vale un gran bono si aciertas.')}</li>
-          <li>
-            {t(
-              'Award picks lock when the Round of 32 ends (just before the Round of 16).',
-              'Las elecciones de premios se cierran cuando termina la fase de 32 (justo antes de los octavos).',
-            )}
-          </li>
-          <li>
-            {t('Make yours on the', 'Haz las tuyas en la pestaña')}{' '}
-            <strong>{t('Awards', 'Premios')}</strong> {t('tab.', '.')}
-          </li>
-        </ul>
-      </div>
-
-      <div className="form-card">
-        <div className="rule-card-head">
-          <Zap className="rule-icon" size={20} aria-hidden="true" />
-          <h2>{t('Bullets', 'Bullets')}</h2>
-        </div>
-        <ul className="rules-list-plain">
-          <li>
-            {t(
-              'Every so often a big match gets a Bullet: a quick yes/no call, like "Will Ronaldo score?".',
-              'De vez en cuando un partido grande tiene un Bullet: una apuesta rápida de sí/no, como "¿Marcará Ronaldo?".',
-            )}
-          </li>
-          <li>
-            {t(
-              'It\'s worth a flat bonus (shown on the card), never multiplied by the round.',
-              'Vale un bono fijo (indicado en la tarjeta), nunca se multiplica por la ronda.',
-            )}
-          </li>
-          <li>
-            {t(
-              'All or nothing: it only counts if everyone who predicted that match also answers the Bullet before kick-off. If anyone misses it, it counts for no one.',
-              'Todo o nada: solo cuenta si todos los que pronosticaron ese partido también responden el Bullet antes del inicio. Si alguien no responde, no cuenta para nadie.',
-            )}
-          </li>
-          <li>
-            {t(
-              'It locks with the match, everyone\'s calls are revealed afterwards, and answering is optional.',
-              'Se cierra con el partido, las respuestas de todos se revelan después, y responder es opcional.',
-            )}
-          </li>
-        </ul>
-      </div>
-
-      <div className="form-card">
-        <div className="rule-card-head">
           <TrendingUp className="rule-icon" size={20} aria-hidden="true" />
           <h2>{t('Round multipliers', 'Multiplicadores de ronda')}</h2>
         </div>
@@ -227,62 +168,88 @@ export default function RulesPage() {
 
       <div className="form-card">
         <div className="rule-card-head">
-          <Handshake className="rule-icon" size={20} aria-hidden="true" />
-          <h2>{t('Fair play', 'Juego limpio')}</h2>
+          <Trophy className="rule-icon" size={20} aria-hidden="true" />
+          <h2>{t('Tournament awards', 'Premios del torneo')}</h2>
         </div>
         <ul className="rules-list-plain">
-          <li>{t('You can only see and edit your own predictions.', 'Solo puedes ver y editar tus propios pronósticos.')}</li>
-          <li>{t('Predictions lock automatically before kick-off: no late changes.', 'Los pronósticos se cierran automáticamente antes del inicio: nada de cambios tardíos.')}</li>
-          <li>{t('The admin enters official results; the table updates instantly.', 'El administrador ingresa los resultados oficiales; la tabla se actualiza al instante.')}</li>
+          <li>
+            {t(
+              'Pick a player for each tournament award: Golden Ball (best player), Golden Boot (top scorer) and Golden Glove (best goalkeeper).',
+              'Elige un jugador para cada premio del torneo: Balón de Oro (mejor jugador), Bota de Oro (máximo goleador) y Guante de Oro (mejor portero).',
+            )}
+          </li>
+          <li>{t('Each is worth a big bonus if you call it right.', 'Cada uno vale un gran bono si aciertas.')}</li>
+          <li>
+            {t(
+              'Award picks lock when the Round of 32 ends (just before the Round of 16), earlier than a normal match lock.',
+              'Las elecciones de premios se cierran cuando termina la fase de 32 (justo antes de los octavos), antes que el cierre normal de un partido.',
+            )}
+          </li>
+          <li>
+            {t('Make yours on the', 'Haz las tuyas en la pestaña')}{' '}
+            <strong>{t('Awards', 'Premios')}</strong> {t('tab.', '.')}
+          </li>
         </ul>
       </div>
 
       <div className="form-card">
         <div className="rule-card-head">
-          <HelpCircle className="rule-icon" size={20} aria-hidden="true" />
-          <h2>{t('FAQ', 'Preguntas frecuentes')}</h2>
+          <Zap className="rule-icon" size={20} aria-hidden="true" />
+          <h2>{t('Bullets', 'Bullets')}</h2>
         </div>
-        <div className="faq">
-          <p className="faq-q">{t('Can I change a pick after making it?', '¿Puedo cambiar un pronóstico después de hacerlo?')}</p>
-          <p className="faq-a">
+        <ul className="rules-list-plain">
+          <li>
             {t(
-              'Yes. Edit as many times as you like until that match locks, shortly before kick-off. After it locks, it\'s final.',
-              'Sí. Edítalo las veces que quieras hasta que ese partido se cierre, poco antes del inicio. Una vez cerrado, es definitivo.',
+              'Every so often a big match gets a Bullet: a quick yes/no call, like "Will Ronaldo score?".',
+              'De vez en cuando un partido grande tiene un Bullet: una apuesta rápida de sí/no, como "¿Marcará Ronaldo?".',
             )}
-          </p>
+          </li>
+          <li>
+            {t(
+              'It\'s worth a flat bonus (shown on the card), never multiplied by the round.',
+              'Vale un bono fijo (indicado en la tarjeta), nunca se multiplica por la ronda.',
+            )}
+          </li>
+          <li>
+            {t(
+              'All or nothing: it only counts if everyone who predicted that match also answers the Bullet before kick-off. If anyone misses it, it counts for no one.',
+              'Todo o nada: solo cuenta si todos los que pronosticaron ese partido también responden el Bullet antes del inicio. Si alguien no responde, no cuenta para nadie.',
+            )}
+          </li>
+          <li>
+            {t(
+              'It locks with the match, everyone\'s calls are revealed afterwards, and answering is optional.',
+              'Se cierra con el partido, las respuestas de todos se revelan después, y responder es opcional.',
+            )}
+          </li>
+        </ul>
+      </div>
 
-          <p className="faq-q">{t('When exactly do picks lock?', '¿Cuándo se cierran exactamente los pronósticos?')}</p>
-          <p className="faq-a">
-            {t(
-              'Each match locks a minute before kick-off. Its card shows a live "closes in…" countdown. The tournament award picks lock when the Round of 32 ends.',
-              'Cada partido se cierra un minuto antes del inicio. Su tarjeta muestra una cuenta regresiva "cierra en…". Las elecciones de premios se cierran cuando termina la fase de 32.',
-            )}
-          </p>
-
-          <p className="faq-q">{t('How are ties in the table broken?', '¿Cómo se desempata en la tabla?')}</p>
-          <p className="faq-a">
-            {t(
-              'Points first, then most exact scores, then most correct advancing picks. If players are still level, they share the same position.',
-              'Primero los puntos, luego más marcadores exactos, luego más aciertos de avance. Si siguen igualados, comparten la misma posición.',
-            )}
-          </p>
-
-          <p className="faq-q">{t('Can others see my picks before a match?', '¿Otros pueden ver mis pronósticos antes de un partido?')}</p>
-          <p className="faq-a">
-            {t(
-              'No. Your picks stay private until the match locks; then everyone\'s are revealed together on the match page.',
-              'No. Tus pronósticos son privados hasta que el partido se cierra; entonces se revelan los de todos en la página del partido.',
-            )}
-          </p>
-
-          <p className="faq-q">{t('Do results update on their own?', '¿Los resultados se actualizan solos?')}</p>
-          <p className="faq-a">
-            {t(
-              'Yes. Scores sync from a live feed within minutes of full-time, day or night. The admin can also enter or correct any result.',
-              'Sí. Los marcadores se sincronizan desde un feed en vivo a los pocos minutos del final, de día o de noche. El admin también puede ingresar o corregir cualquier resultado.',
-            )}
-          </p>
+      <div className="form-card">
+        <div className="rule-card-head">
+          <Handshake className="rule-icon" size={20} aria-hidden="true" />
+          <h2>{t('Fair play', 'Juego limpio')}</h2>
         </div>
+        <ul className="rules-list-plain">
+          <li>
+            {t(
+              'You can only see and edit your own predictions. Once a match locks, everyone\'s picks are revealed together on its page.',
+              'Solo puedes ver y editar tus propios pronósticos. Cuando un partido se cierra, los pronósticos de todos se revelan juntos en su página.',
+            )}
+          </li>
+          <li>
+            {t(
+              'Ties in the table are broken by points, then exact scores, then correct advancing picks. Still level? They share the same position.',
+              'Los empates en la tabla se resuelven por puntos, luego marcadores exactos, luego aciertos de avance. ¿Siguen igualados? Comparten la misma posición.',
+            )}
+          </li>
+          <li>
+            {t(
+              'The admin enters official results, and scores also sync automatically from a live feed within minutes of full-time, day or night.',
+              'El administrador ingresa los resultados oficiales, y los marcadores también se sincronizan automáticamente desde un feed en vivo a los pocos minutos del final, de día o de noche.',
+            )}
+          </li>
+        </ul>
       </div>
 
       <div className="form-card">
@@ -293,8 +260,6 @@ export default function RulesPage() {
         <ul className="rules-list-plain">
           <li>{t('This is a private game among friends, just for fun. No real money is involved.', 'Este es un juego privado entre amigos, solo por diversión. No hay dinero real de por medio.')}</li>
           <li>{t('Not affiliated with, or endorsed by, FIFA or the World Cup.', 'No está afiliado ni respaldado por la FIFA ni el Mundial.')}</li>
-          <li>{t('Match results come from public data and can occasionally lag or need a fix. The admin\'s entry is final.', 'Los resultados provienen de datos públicos y ocasionalmente pueden demorarse o requerir una corrección. La decisión del admin es definitiva.')}</li>
-          <li>{t('Your nickname and emoji are shown to the group; your predictions are yours alone until they lock.', 'Tu apodo y emoji se muestran al grupo; tus pronósticos son solo tuyos hasta que se cierran.')}</li>
         </ul>
       </div>
 
