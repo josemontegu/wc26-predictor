@@ -12,7 +12,7 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
   const { session, profile, isAdmin, refreshProfile, signOut } = useAuth()
   const [nickname, setNickname] = useState(profile?.nickname ?? '')
   const [emoji, setEmoji] = useState(profile?.emoji ?? '')
-  // Keep the emoji grid collapsed once one is chosen — open it on request.
+  // Keep the emoji grid collapsed once one is chosen. Open it on request.
   const [pickerOpen, setPickerOpen] = useState(false)
   const [others, setOthers] = useState<Pick<Profile, 'id' | 'nickname' | 'emoji'>[]>([])
   const [busy, setBusy] = useState(false)
@@ -37,7 +37,7 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
 
   const myId = session?.user.id
 
-  // Debounced availability: don't flash "taken" on every keystroke — wait until
+  // Debounced availability: don't flash "taken" on every keystroke. Wait until
   // they pause, then compare against everyone else's nickname.
   useEffect(() => {
     const value = nickname.trim().toLowerCase()
@@ -72,12 +72,12 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
     if (nameTaken)
       return setError(
         t(
-          `"${value}" is already taken — pick another nickname.`,
-          `"${value}" ya está en uso — elige otro apodo.`,
+          `"${value}" is already taken. Pick another nickname.`,
+          `"${value}" ya está en uso. Elige otro apodo.`,
         ),
       )
     if (takenEmojis.has(emoji))
-      return setError(t('That emoji is taken — pick another.', 'Ese emoji ya está en uso — elige otro.'))
+      return setError(t('That emoji is taken. Pick another.', 'Ese emoji ya está en uso. Elige otro.'))
 
     setBusy(true)
     setError(null)
@@ -91,8 +91,8 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
       setError(
         error.code === '23505'
           ? t(
-              'That nickname or emoji is already taken — pick another.',
-              'Ese apodo o emoji ya está en uso — elige otro.',
+              'That nickname or emoji is already taken. Pick another.',
+              'Ese apodo o emoji ya está en uso. Elige otro.',
             )
           : error.message,
       )
@@ -112,8 +112,8 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
             <div className="notice notice-info">
               <AlertTriangle className="ic" aria-hidden="true" />{' '}
               {t(
-                'Choose carefully — your nickname and emoji are set',
-                'Elige con cuidado — tu apodo y emoji se definen',
+                'Choose carefully. Your nickname and emoji are set',
+                'Elige con cuidado. Tu apodo y emoji se definen',
               )}{' '}
               <strong>{t('once', 'una sola vez')}</strong>{' '}
               {t("and can't be changed afterwards.", 'y no se pueden cambiar después.')}
@@ -146,7 +146,7 @@ export default function ProfilePage({ forced = false }: { forced?: boolean }) {
             )}
             {nickStatus === 'taken' && (
               <p className="nick-status nick-bad">
-                {t('Already taken — pick another', 'Ya está en uso — elige otro')}
+                {t('Already taken. Pick another', 'Ya está en uso. Elige otro')}
               </p>
             )}
 

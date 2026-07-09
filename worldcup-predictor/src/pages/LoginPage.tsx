@@ -52,7 +52,7 @@ export default function LoginPage() {
         <p className="login-tag">{t('La polla del Mundial 2026 🏆', 'La polla del Mundial 2026 🏆')}</p>
         <p className="muted">
           {t(
-            "Private knockout-stage prediction pool. Sign in with your email — we'll send you a one-tap magic link.",
+            "Private knockout-stage prediction pool. Sign in with your email and we'll send you a one-tap magic link.",
             'Polla privada de la fase de eliminación. Inicia sesión con tu correo electrónico y te enviaremos un enlace de acceso de un toque.',
           )}
         </p>

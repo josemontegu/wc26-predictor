@@ -14,7 +14,7 @@ import { bulletOptions, isLocked } from '../lib/types'
 import { useT } from '../lib/i18n'
 
 /**
- * ⚡ Bullet — a prop bet on a specific match, Yes/No or multiple-choice.
+ * ⚡ Bullet: a prop bet on a specific match, Yes/No or multiple-choice.
  * Editable until the match locks; then everyone's calls are revealed. A bullet
  * only counts if every official player who predicted the match also answered it
  * before lock.
@@ -149,7 +149,7 @@ export default function BulletCard({ match }: { match: Match }) {
                   </div>
                   <p className="bullet-rule muted small">
                     {everyoneIn
-                      ? t('🔥 Everyone who predicted is in — this one counts!', '🔥 Todos los que pronosticaron están dentro — ¡este cuenta!')
+                      ? t('🔥 Everyone who predicted is in. This one counts!', '🔥 Todos los que pronosticaron están dentro. ¡Este cuenta!')
                       : t(
                           'Everyone who predicted this match must answer before kick-off, or it counts for no one.',
                           'Todos los que pronosticaron este partido deben responder antes del inicio, o no cuenta para nadie.',
@@ -163,7 +163,7 @@ export default function BulletCard({ match }: { match: Match }) {
                 {!everyoneIn ? (
                   <div className="bullet-status bullet-void">
                     <XCircle className="ic" aria-hidden="true" />{' '}
-                    {t('Void — not everyone was in', 'Anulada — no estaban todos')}
+                    {t('Void: not everyone was in', 'Anulada: no estaban todos')}
                     {missing.length > 0 && (
                       <span className="muted">
                         {' '}
@@ -174,7 +174,7 @@ export default function BulletCard({ match }: { match: Match }) {
                 ) : !resolved ? (
                   <div className="bullet-status bullet-live">
                     <Flame className="ic" aria-hidden="true" />{' '}
-                    {t('It’s on — all in. Awaiting the result…', 'Va en serio — todos dentro. Esperando el resultado…')}
+                    {t('All in. Awaiting the result…', 'Todos dentro. Esperando el resultado…')}
                   </div>
                 ) : (
                   <div className={`bullet-status ${iWon ? 'bullet-win' : 'bullet-done'}`}>
@@ -182,11 +182,11 @@ export default function BulletCard({ match }: { match: Match }) {
                       b.answer === 'yes' ? (
                         <>
                           <CheckCircle2 className="ic" aria-hidden="true" />{' '}
-                          {t('Yes — it happened', 'Sí — ocurrió')}
+                          {t('Yes. It happened', 'Sí. Ocurrió')}
                         </>
                       ) : (
                         <>
-                          <XCircle className="ic" aria-hidden="true" /> {t('No — it didn’t', 'No — no ocurrió')}
+                          <XCircle className="ic" aria-hidden="true" /> {t('No. It didn’t', 'No. No ocurrió')}
                         </>
                       )
                     ) : (

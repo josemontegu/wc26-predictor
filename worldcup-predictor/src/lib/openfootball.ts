@@ -3,7 +3,7 @@
 // and by the optional scheduled GitHub Action (scripts/sync.ts).
 //
 // Source: https://github.com/openfootball/worldcup.json  (no API key, CORS-open)
-// We only sync MATCHUPS + KICKOFF TIMES — never scores. openfootball's `ft`
+// We only sync MATCHUPS + KICKOFF TIMES, never scores. openfootball's `ft`
 // can't distinguish a 90-minute score from one after extra time, and carries no
 // penalty data, so results remain admin-entered to keep scoring correct.
 
@@ -191,7 +191,7 @@ export interface MatchResultRow {
  * Derive a finished knockout result from an openfootball score, in our single
  * "final score" model: the score after extra time when played (`et`), else full
  * time (`ft`). A level final score means a shootout, taken from `p`. Returns
- * null when the match isn't finished/complete or the teams aren't confirmed —
+ * null when the match isn't finished/complete or the teams aren't confirmed,
  * so we never write a half-finished or ambiguous result.
  */
 export function deriveResult(f: FeedFixture): MatchResultRow | null {

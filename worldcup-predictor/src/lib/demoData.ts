@@ -14,7 +14,7 @@ import type {
 
 // In-memory dataset powering demo mode (no Supabase needed). It simulates a
 // tournament a few days into the Round of 32: real teams, some matches played,
-// everyone's predictions in, and awards locked — so every screen (leaderboard,
+// everyone's predictions in, and awards locked. Every screen (leaderboard,
 // everyone's picks, stats) is populated. The live app uses real Supabase data.
 
 export const DEMO_USER_ID = 'demo-me'
@@ -45,9 +45,9 @@ export const demoProfiles: Profile[] = [
   { id: 'u3', display_name: 'PriyaP', nickname: 'PriyaP', emoji: '🦄', is_admin: false, official: true, created_at: '' },
   { id: 'u4', display_name: 'TommyB', nickname: 'TommyB', emoji: '🐻', is_admin: false, official: true, created_at: '' },
   { id: 'u5', display_name: 'Lu', nickname: 'Lu', emoji: '🦉', is_admin: false, official: true, created_at: '' },
-  // A mid-tournament joiner — shadow (unofficial) player.
+  // A mid-tournament joiner, a shadow (unofficial) player.
   { id: 'u6', display_name: 'MarcoD', nickname: 'MarcoD', emoji: '🦁', is_admin: false, official: false, created_at: '' },
-  // Invited but never opened the app — no nickname/emoji chosen yet.
+  // Invited but never opened the app. No nickname/emoji chosen yet.
   { id: 'u7', display_name: '', nickname: '', emoji: '', is_admin: false, official: true, created_at: '2026-06-15T09:00:00Z' },
   { id: 'u8', display_name: '', nickname: '', emoji: '', is_admin: false, official: true, created_at: '2026-06-20T14:30:00Z' },
 ]
@@ -105,7 +105,7 @@ function mk(
 }
 
 export const demoMatches: Match[] = [
-  // Round of 32 — 73–78 played, 79–81 locked (underway/imminent), 82–88 open
+  // Round of 32: 73–78 played, 79–81 locked (underway/imminent), 82–88 open
   mk(73, 'R32', 'Argentina', 'Australia', -4 * DAY, { hs: 2, as: 1, adv: 'Argentina' }),
   mk(74, 'R32', 'France', 'Senegal', -4 * DAY + 3 * HOUR, { hs: 1, as: 1, pens: true, penH: 3, penA: 4, adv: 'Senegal' }),
   mk(75, 'R32', 'Brazil', 'South Korea', -3 * DAY, { hs: 4, as: 1, adv: 'Brazil' }),
@@ -152,7 +152,7 @@ const PREDS: Record<string, Tup[]> = {
   m76: [[1, 1, 'Morocco'], [0, 0, 'Spain'], [0, 0, 'Morocco'], [2, 1, 'Spain'], [1, 0, 'Spain'], [0, 0, 'Morocco']],
   m77: [[2, 0, 'Germany'], [1, 0, 'Germany'], [2, 1, 'Germany'], [0, 1, 'Japan'], [3, 1, 'Germany'], [1, 1, 'Germany']],
   m78: [[2, 1, 'Portugal'], [3, 2, 'Portugal'], [1, 0, 'Portugal'], [2, 2, 'Croatia'], [3, 2, 'Portugal'], [1, 2, 'Croatia']],
-  // open (future) — predicted early so the bullet has a "waiting on" tracker
+  // open (future): predicted early so the bullet has a "waiting on" tracker
   m82: [[1, 0, 'Italy'], [2, 1, 'Italy'], [0, 0, 'Italy'], [1, 1, 'Italy'], [2, 0, 'Italy'], [0, 1, 'Canada']],
   // locked, no result yet
   m79: [[2, 1, 'Netherlands'], [1, 1, 'Netherlands'], [0, 1, 'Mexico'], [2, 0, 'Netherlands'], [1, 0, 'Netherlands'], [2, 2, 'Mexico']],
@@ -215,11 +215,11 @@ for (const [uid, picks] of Object.entries(AWARD_PICKS)) {
 }
 
 // ---- ⚡ Bullets (demo) ------------------------------------------------------
-// db1: open Yes/No (m82, Italy v Canada) — pick + "waiting on" tracker.
-// db2: resolved & valid Yes/No (m73, played) — everyone answered → counts.
-// db3: void Yes/No (m74, played) — not everyone answered → counts for no one.
-// db4: resolved & valid multiple-choice (m75, played) — the N-option reveal.
-// db5: open multiple-choice (m82) — the N-button pick state + tracker.
+// db1: open Yes/No (m82, Italy v Canada). Pick + "waiting on" tracker.
+// db2: resolved & valid Yes/No (m73, played). Everyone answered, so it counts.
+// db3: void Yes/No (m74, played). Not everyone answered, so it counts for no one.
+// db4: resolved & valid multiple-choice (m75, played). The N-option reveal.
+// db5: open multiple-choice (m82). The N-button pick state + tracker.
 export const demoBullets: Bullet[] = [
   { id: 'db1', match_id: 'm82', question_en: 'Will there be a red card?', question_es: '¿Habrá tarjeta roja?', emoji: '🟥', points: 3, answer: null, options: null, created_at: '' },
   { id: 'db2', match_id: 'm73', question_en: 'Will Messi score?', question_es: '¿Messi marcará?', emoji: '⚽', points: 3, answer: 'yes', options: null, created_at: '' },

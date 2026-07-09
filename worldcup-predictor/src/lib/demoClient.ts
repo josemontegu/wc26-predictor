@@ -84,7 +84,7 @@ function matchLocked(m: Match) {
   return !!m.lock_time && Date.now() >= new Date(m.lock_time).getTime()
 }
 
-// Predictions for matches whose lock time has passed — revealed to everyone.
+// Predictions for matches whose lock time has passed. Revealed to everyone.
 function lockedPredictions() {
   const rows: any[] = []
   for (const p of store.predictions) {

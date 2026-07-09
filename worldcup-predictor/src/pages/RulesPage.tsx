@@ -56,8 +56,8 @@ export default function RulesPage() {
         <ul className="rules-list-plain">
           <li>
             {t(
-              'Predict every knockout match of the 2026 World Cup — from the Round of 32 to the Final.',
-              'Pronostica cada partido de eliminación del Mundial 2026 — desde los dieciseisavos hasta la final.',
+              'Predict every knockout match of the 2026 World Cup, from the Round of 32 to the Final.',
+              'Pronostica cada partido de eliminación del Mundial 2026, desde los dieciseisavos hasta la final.',
             )}
           </li>
           <li>
@@ -70,8 +70,8 @@ export default function RulesPage() {
             {t('and whether it went to', 'y si se definió por')}{' '}
             <strong>{t('penalties', 'penales')}</strong>{' '}
             {t(
-              'follow from your score — and if you predict a draw, you pick who wins the shootout.',
-              'se derivan de tu marcador — y si pronosticas un empate, eliges quién gana la tanda.',
+              'follow from your score. If you predict a draw, you pick who wins the shootout.',
+              'se derivan de tu marcador. Si pronosticas un empate, eliges quién gana la tanda.',
             )}
           </li>
           <li>
@@ -160,8 +160,8 @@ export default function RulesPage() {
           </li>
           <li>
             {t(
-              'It\'s worth a flat bonus (shown on the card) — never multiplied by the round.',
-              'Vale un bono fijo (indicado en la tarjeta) — nunca se multiplica por la ronda.',
+              'It\'s worth a flat bonus (shown on the card), never multiplied by the round.',
+              'Vale un bono fijo (indicado en la tarjeta), nunca se multiplica por la ronda.',
             )}
           </li>
           <li>
@@ -232,7 +232,7 @@ export default function RulesPage() {
         </div>
         <ul className="rules-list-plain">
           <li>{t('You can only see and edit your own predictions.', 'Solo puedes ver y editar tus propios pronósticos.')}</li>
-          <li>{t('Predictions lock automatically before kick-off — no late changes.', 'Los pronósticos se cierran automáticamente antes del inicio: nada de cambios tardíos.')}</li>
+          <li>{t('Predictions lock automatically before kick-off: no late changes.', 'Los pronósticos se cierran automáticamente antes del inicio: nada de cambios tardíos.')}</li>
           <li>{t('The admin enters official results; the table updates instantly.', 'El administrador ingresa los resultados oficiales; la tabla se actualiza al instante.')}</li>
         </ul>
       </div>
@@ -246,16 +246,16 @@ export default function RulesPage() {
           <p className="faq-q">{t('Can I change a pick after making it?', '¿Puedo cambiar un pronóstico después de hacerlo?')}</p>
           <p className="faq-a">
             {t(
-              'Yes — edit as many times as you like until that match locks, shortly before kick-off. After it locks, it\'s final.',
-              'Sí — edítalo las veces que quieras hasta que ese partido se cierre, poco antes del inicio. Una vez cerrado, es definitivo.',
+              'Yes. Edit as many times as you like until that match locks, shortly before kick-off. After it locks, it\'s final.',
+              'Sí. Edítalo las veces que quieras hasta que ese partido se cierre, poco antes del inicio. Una vez cerrado, es definitivo.',
             )}
           </p>
 
           <p className="faq-q">{t('When exactly do picks lock?', '¿Cuándo se cierran exactamente los pronósticos?')}</p>
           <p className="faq-a">
             {t(
-              'Each match locks a minute before kick-off — its card shows a live "closes in…" countdown. The tournament award picks lock when the Round of 32 ends.',
-              'Cada partido se cierra un minuto antes del inicio — su tarjeta muestra una cuenta regresiva "cierra en…". Las elecciones de premios se cierran cuando termina la fase de 32.',
+              'Each match locks a minute before kick-off. Its card shows a live "closes in…" countdown. The tournament award picks lock when the Round of 32 ends.',
+              'Cada partido se cierra un minuto antes del inicio. Su tarjeta muestra una cuenta regresiva "cierra en…". Las elecciones de premios se cierran cuando termina la fase de 32.',
             )}
           </p>
 
@@ -278,8 +278,8 @@ export default function RulesPage() {
           <p className="faq-q">{t('Do results update on their own?', '¿Los resultados se actualizan solos?')}</p>
           <p className="faq-a">
             {t(
-              'Yes — scores sync from a live feed within minutes of full-time, day or night. The admin can also enter or correct any result.',
-              'Sí — los marcadores se sincronizan desde un feed en vivo a los pocos minutos del final, de día o de noche. El admin también puede ingresar o corregir cualquier resultado.',
+              'Yes. Scores sync from a live feed within minutes of full-time, day or night. The admin can also enter or correct any result.',
+              'Sí. Los marcadores se sincronizan desde un feed en vivo a los pocos minutos del final, de día o de noche. El admin también puede ingresar o corregir cualquier resultado.',
             )}
           </p>
         </div>
@@ -291,9 +291,9 @@ export default function RulesPage() {
           <h2>{t('Good to know', 'Para tener en cuenta')}</h2>
         </div>
         <ul className="rules-list-plain">
-          <li>{t('This is a private game among friends, just for fun — no real money is involved.', 'Este es un juego privado entre amigos, solo por diversión — no hay dinero real de por medio.')}</li>
+          <li>{t('This is a private game among friends, just for fun. No real money is involved.', 'Este es un juego privado entre amigos, solo por diversión. No hay dinero real de por medio.')}</li>
           <li>{t('Not affiliated with, or endorsed by, FIFA or the World Cup.', 'No está afiliado ni respaldado por la FIFA ni el Mundial.')}</li>
-          <li>{t('Match results come from public data and can occasionally lag or need a fix — the admin\'s entry is final.', 'Los resultados provienen de datos públicos y ocasionalmente pueden demorarse o requerir una corrección — la decisión del admin es definitiva.')}</li>
+          <li>{t('Match results come from public data and can occasionally lag or need a fix. The admin\'s entry is final.', 'Los resultados provienen de datos públicos y ocasionalmente pueden demorarse o requerir una corrección. La decisión del admin es definitiva.')}</li>
           <li>{t('Your nickname and emoji are shown to the group; your predictions are yours alone until they lock.', 'Tu apodo y emoji se muestran al grupo; tus pronósticos son solo tuyos hasta que se cierran.')}</li>
         </ul>
       </div>

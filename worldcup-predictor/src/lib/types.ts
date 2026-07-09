@@ -13,7 +13,7 @@ export interface Profile {
   nickname: string
   emoji: string
   is_admin: boolean
-  /** Shadow (unofficial) players — mid-tournament joiners — are official: false. */
+  /** Shadow (unofficial) players, i.e. mid-tournament joiners, have official: false. */
   official: boolean
   created_at: string
 }

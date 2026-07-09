@@ -1,5 +1,5 @@
 // Live RESULTS source: ESPN's public scoreboard API. Free, no API key, CORS-open,
-// and near-instant — a finished knockout match shows up within seconds of full
+// and near-instant: a finished knockout match shows up within seconds of full
 // time, with the score, extra-time / penalty status, the shootout tally, and a
 // winner flag. This is the primary results source; openfootball is the fallback.
 //
@@ -18,7 +18,7 @@ import type { FdKnockout } from './footballdata'
 const ESPN_SCOREBOARD =
   'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard'
 
-// Knockout stages, keyed by ESPN's season "type"/"slug" wording — used only to
+// Knockout stages, keyed by ESPN's season "type"/"slug" wording. Used only to
 // skip group games. ESPN doesn't always label the round on the scoreboard, so
 // matching is by team pair; this filter just avoids group-stage noise.
 const GROUP_HINT = /group/i

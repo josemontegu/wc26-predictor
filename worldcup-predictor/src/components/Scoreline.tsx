@@ -3,7 +3,7 @@ import type { Match } from '../lib/types'
 /**
  * A finished match's score. When it was decided on penalties, the regulation
  * score stays the headline and the shootout tally is shown on a separate line
- * in parentheses ("(2–4)") — never fused onto the digit, which reads as a single
+ * in parentheses ("(2–4)"), never fused onto the digit, which reads as a single
  * wrong number (1–1 with a 2–4 shootout must not look like 12–14). The winner's
  * shootout number is highlighted.
  */

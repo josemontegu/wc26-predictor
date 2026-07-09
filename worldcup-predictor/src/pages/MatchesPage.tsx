@@ -76,7 +76,7 @@ export default function MatchesPage() {
   }, [load])
 
   // Matches still open (not locked, not played) with resolved teams that the
-  // viewer hasn't predicted — so we can nudge them before they lock. Soonest to
+  // viewer hasn't predicted, so we can nudge them before they lock. Soonest to
   // close first.
   const needsPick = useMemo(
     () =>
@@ -101,7 +101,7 @@ export default function MatchesPage() {
     for (const x of needsPick) m.set(x.round, (m.get(x.round) ?? 0) + 1)
     return m
   }, [needsPick])
-  // Rounds (in order) that still have unpicked matches — so the nudge can name
+  // Rounds (in order) that still have unpicked matches, so the nudge can name
   // where they are, instead of implying the current round is incomplete.
   const needRounds = useMemo(
     () => ROUND_ORDER.filter((r) => (needsByRound.get(r) ?? 0) > 0),
@@ -114,7 +114,7 @@ export default function MatchesPage() {
   }, [matches])
   const roundsForNav = roundsPresent.length ? roundsPresent : ROUND_ORDER
 
-  // Every open bullet (its match not locked/played yet) — each surfaced as a
+  // Every open bullet (its match not locked/played yet). Each is surfaced as a
   // banner so people don't miss any of the all-or-nothing calls. Soonest to
   // close first.
   const activeBullets = useMemo(() => {

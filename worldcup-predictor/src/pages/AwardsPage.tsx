@@ -182,7 +182,7 @@ export default function AwardsPage() {
     }
   }, [awardPicks])
 
-  // What the whole pool backs — only visible once award picks lock (the
+  // What the whole pool backs. Only visible once award picks lock (the
   // locked_award_predictions view stays empty until then).
   const pulse = useMemo(
     () => ({
@@ -254,8 +254,8 @@ export default function AwardsPage() {
       <h1><Trophy className="h-icon" aria-hidden="true" /> {t('Tournament awards', 'Premios del torneo')}</h1>
       <p className="muted small">
         {t(
-          'Call the champion and the individual award winners. Worth big points — editable until they lock before kick-off.',
-          'Predice al campeón y a los ganadores de los premios individuales. Valen muchos puntos — editables hasta que se cierran antes del inicio.',
+          'Call the champion and the individual award winners. Worth big points, editable until they lock before kick-off.',
+          'Predice al campeón y a los ganadores de los premios individuales. Valen muchos puntos, editables hasta que se cierran antes del inicio.',
         )}
       </p>
       {error && <div className="notice notice-err">{error}</div>}
@@ -331,8 +331,8 @@ export default function AwardsPage() {
           <h2 className="stat-h stat-h-divider"><Sparkles className="h-icon" aria-hidden="true" /> {t('Pool Pulse', 'Pulso del grupo')}</h2>
           <p className="muted small pp-hint">
             {t(
-              'What everyone picked for the tournament awards — tap a card for the full breakdown.',
-              'Lo que eligió cada uno para los premios del torneo — toca una tarjeta para ver el detalle.',
+              'What everyone picked for the tournament awards. Tap a card for the full breakdown.',
+              'Lo que eligió cada uno para los premios del torneo. Toca una tarjeta para ver el detalle.',
             )}
           </p>
           <PoolBarCard

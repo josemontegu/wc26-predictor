@@ -71,7 +71,7 @@ function loadPrevRanks(): Record<string, number> {
 
 /**
  * Standing per row. Rows must already be sorted (points → exact → advances).
- * Players who match on all three share a rank ("1, 2, 2, 4" style) — the name
+ * Players who match on all three share a rank ("1, 2, 2, 4" style). The name
  * only keeps the row order stable, it never changes a position.
  */
 function computeRanksBy(
@@ -103,7 +103,7 @@ export default function LeaderboardPage() {
   const [selected, setSelected] = useState<LeaderboardRow | null>(null)
   // Which stat tile is drilled into (null = the four-tile summary).
   const [statDetail, setStatDetail] = useState<StatKey | null>(null)
-  // Ids of shadow (unofficial) players — ranked & shown separately.
+  // Ids of shadow (unofficial) players. Ranked and shown separately.
   const [shadowIds, setShadowIds] = useState<Set<string>>(new Set())
   // Which table to show: cumulative total, or a single round's points.
   const [view, setView] = useState<'total' | RoundCode>('total')
@@ -200,7 +200,7 @@ export default function LeaderboardPage() {
   }, [fetchRows, fetchShadows, fetchRoundData])
 
   // Per-player, per-round stats: points (mirrors the DB prediction_scores
-  // formula) plus exact-score and advancing counts — so the round view can
+  // formula) plus exact-score and advancing counts, so the round view can
   // break ties exactly like the Total view (points → exact → advances).
   const roundStats = useMemo(() => {
     const out = new Map<string, Map<string, { pts: number; exact: number; adv: number }>>()
@@ -240,7 +240,7 @@ export default function LeaderboardPage() {
     return out
   }, [picks, matches, config, rounds, bulletRounds])
 
-  // Correct results (right winner/draw) per player — a right result earns the
+  // Correct results (right winner/draw) per player. A right result earns the
   // tendency points even when the exact score is missed, so it's the piece that
   // explains equal totals with different exact-score counts.
   const resultsByUser = useMemo(() => {
@@ -257,7 +257,7 @@ export default function LeaderboardPage() {
   }, [picks, matches, config])
 
   // Every scored match for the open player, with what they got right and the
-  // points it earned — the source for the per-tile drill-down. Ordered by
+  // points it earned. The source for the per-tile drill-down. Ordered by
   // schedule (match number).
   const selectedRows = useMemo<StatRow[]>(() => {
     if (!selected || !config) return []
@@ -279,7 +279,7 @@ export default function LeaderboardPage() {
   const roundsWithPoints = ROUND_ORDER.filter((rc) =>
     [...roundStats.values()].some((um) => (um.get(rc)?.pts ?? 0) > 0),
   )
-  // Every round the tournament has, in order — upcoming ones are shown but
+  // Every round the tournament has, in order. Upcoming ones are shown but
   // disabled until they're actually scored.
   const allRounds = ROUND_ORDER.filter((rc) => rounds.some((r) => r.code === rc))
   // A round we no longer have data for → fall back to Total.
@@ -364,7 +364,7 @@ export default function LeaderboardPage() {
   const overallRanks = computeRanks(officialAll)
 
   // Re-order for the active view: Total keeps the overall order; a round reranks
-  // by that round's points (ties share a place) — so late-joining guests can be
+  // by that round's points (ties share a place), so late-joining guests can be
   // compared to everyone on the rounds they actually played.
   const byView = (list: LeaderboardRow[]) =>
     activeView === 'total'
@@ -394,7 +394,7 @@ export default function LeaderboardPage() {
       : -1
 
   const pct = (n: number, d: number) => (d > 0 ? Math.round((n / d) * 100) : 0)
-  // How many matches have a final result — the denominator for a player's
+  // How many matches have a final result. The denominator for a player's
   // coverage (how much of the played tournament they actually predicted).
   const playedCount = matches.filter((m) => m.home_score != null && m.away_score != null).length
 

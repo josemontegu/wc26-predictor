@@ -27,7 +27,7 @@ function catLabel(label: string, t: TFn) {
 }
 
 // Four clearly-separated hues (green / blue / purple / gold) so the stacked
-// bars stay legible — the old palette used two near-identical greens.
+// bars stay legible. The old palette used two near-identical greens.
 const CATS = [
   { key: 'pts_advance', label: 'Advance', color: 'var(--cat-advance)' },
   { key: 'pts_exact', label: 'Exact', color: 'var(--cat-exact)' },
@@ -38,7 +38,7 @@ const CATS = [
 
 // Rounds are an ordered progression, so they read as a sequential blue ramp
 // (light R32 → dark Final). TP is the odd one out (a consolation match, not on
-// the path to the Final) — a neutral gray. Theme-aware; validated with --ordinal.
+// the path to the Final): a neutral gray. Theme-aware; validated with --ordinal.
 const ROUND_COLORS: Record<string, string> = {
   R32: 'var(--round-r32)',
   R16: 'var(--round-r16)',
@@ -60,7 +60,7 @@ export default function StatsPage() {
   const [loading, setLoading] = useState(true)
   // How the points-distribution bars are coloured.
   const [mode, setMode] = useState<'total' | 'source' | 'round'>('total')
-  // Superlatives are collapsed to a preview by default — there are ~11.
+  // Superlatives are collapsed to a preview by default. There are ~11.
   const [showAllSupers, setShowAllSupers] = useState(false)
 
   useEffect(() => {
@@ -77,7 +77,7 @@ export default function StatsPage() {
     ]).then(([b, s, p, m, cfg, rds, prof, br]) => {
       if (!active) return
       // Exclude players who haven't set a nickname yet (incomplete sign-ups),
-      // and shadow (unofficial) players — pool stats are official-only.
+      // and shadow (unofficial) players. Pool stats are official-only.
       const named = (n: string | null | undefined) => (n ?? '').trim() !== ''
       const shadow = new Set(
         ((prof.data as { id: string; official: boolean }[]) ?? [])
@@ -112,7 +112,7 @@ export default function StatsPage() {
     return { actual, predicted, playedCount: played.length }
   }, [matches, picks])
 
-  // Superlatives — objective titles computed from revealed picks + results.
+  // Superlatives: objective titles computed from revealed picks + results.
   const supers = useMemo(() => {
     const byUser = new Map<string, LockedPrediction[]>()
     for (const p of picks) {
@@ -144,7 +144,7 @@ export default function StatsPage() {
     const skillThresh = Math.max(2, Math.ceil(scoredTotal * 0.5))
     const crowdThresh = Math.max(2, Math.ceil(lockedTotal * 0.5))
 
-    // Who actually advanced in each match, plus match order — for streaks.
+    // Who actually advanced in each match, plus match order, for streaks.
     const resultByMatch = new Map<string, { advancing: string | null; no: number; scored: boolean }>()
     for (const m of matches) {
       resultByMatch.set(m.id, {
@@ -308,7 +308,7 @@ export default function StatsPage() {
     }
   }, [picks])
 
-  // Rounds that have any points yet — drives the "by round" legend.
+  // Rounds that have any points yet. Drives the "by round" legend.
   const roundsWithPoints = ROUND_ORDER.filter((rc) =>
     [...pointsByRound.values()].some((um) => (um.get(rc) ?? 0) > 0),
   )

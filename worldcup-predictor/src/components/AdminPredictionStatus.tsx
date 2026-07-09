@@ -10,7 +10,7 @@ import AdminSection from './AdminSection'
 
 /**
  * Admin: who still needs to predict each upcoming match, so late-comers can be
- * nudged before kick-off. Shows only whether a player has submitted — never
+ * nudged before kick-off. Shows only whether a player has submitted, never
  * their actual pick (that stays private until the match locks).
  */
 export default function AdminPredictionStatus({ matches }: { matches: Match[] }) {
@@ -47,8 +47,8 @@ export default function AdminPredictionStatus({ matches }: { matches: Match[] })
     <AdminSection icon={ListChecks} title={t('Prediction status', 'Estado de pronósticos')}>
       <p className="muted small">
         {t(
-          "Who still needs to predict each upcoming match. You can't see anyone's pick — only whether they've submitted.",
-          'Quién falta por pronosticar cada partido próximo. No puedes ver el pronóstico de nadie — solo si lo enviaron.',
+          "Who still needs to predict each upcoming match. You can't see anyone's pick, only whether they've submitted.",
+          'Quién falta por pronosticar cada partido próximo. No puedes ver el pronóstico de nadie, solo si lo enviaron.',
         )}
       </p>
 

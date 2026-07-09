@@ -42,8 +42,8 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
     setLock(isoToLocalInput(iso))
   }
 
-  // Result consistency: one final score (after extra time), then penalties and
-  // the advancing team are derived from it — never contradictory.
+  // Result consistency: one final score (after extra time) decides penalties
+  // and the advancing team, so the three can never contradict each other.
   const hsN = homeScore === '' ? null : Number(homeScore)
   const asN = awayScore === '' ? null : Number(awayScore)
   const resultIn = hsN !== null && asN !== null
@@ -92,7 +92,7 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
     const penA = isPens && penAN !== null ? penAN : null
     if (penH !== null && penA !== null && penH === penA) {
       setBusy(false)
-      setError(t('A penalty shootout needs a winner — the tallies can’t be equal.', 'Una tanda de penales necesita ganador: los marcadores no pueden ser iguales.'))
+      setError(t('A penalty shootout needs a winner. The tallies can’t be equal.', 'Una tanda de penales necesita ganador: los marcadores no pueden ser iguales.'))
       return
     }
     const adv = o?.winnerSide
@@ -253,7 +253,7 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
                   disabled={pensIn}
                   onChange={(e) => setAdvancing(e.target.value)}
                 >
-                  <option value="">{t('— pick winner —', '— elige ganador —')}</option>
+                  <option value="">{t('Pick winner', 'Elige ganador')}</option>
                   {teamOptions.map((tm) => (
                     <option key={tm} value={tm}>
                       {tm}
@@ -268,7 +268,7 @@ export default function AdminMatchRow({ match, config, onSaved }: Props) {
             <p className="muted small">
               {outcome.phase === 'reg' &&
                 t(
-                  `${winnerTeam} won — advances, no penalties.`,
+                  `${winnerTeam} won: advances, no penalties.`,
                   `${winnerTeam} ganó: avanza, sin penales.`,
                 )}
               {outcome.phase === 'shootout' &&

@@ -30,7 +30,7 @@ function clampScore(n: number): number {
 }
 
 // Countdown to lock: coarse when far off ("2d 4h"), down to the second in the
-// final hour ("5m 23s", "42s") — the last minute is when it matters, since
+// final hour ("5m 23s", "42s"). The last minute is when it matters, since
 // picks lock a minute before kickoff.
 function formatCountdown(ms: number): string {
   const s = Math.max(0, Math.floor(ms / 1000))
@@ -108,7 +108,7 @@ export default function MatchDetailPage() {
         ),
       )
 
-      // Bullet bonus per player on this match — same "resolved + everyone in"
+      // Bullet bonus per player on this match. Same "resolved + everyone in"
       // rule as the leaderboard, so the picks list total matches what they
       // actually got credited.
       const { data: bulletRows } = await supabase.from('bullets').select('*').eq('match_id', id)
@@ -139,7 +139,7 @@ export default function MatchDetailPage() {
         setAway(String(p.away_score))
         setAdvancing(p.advancing_team)
       } else {
-        // No prediction yet — blank slate (don't carry over the last match).
+        // No prediction yet. Blank slate (don't carry over the last match).
         setHome('')
         setAway('')
         setAdvancing('')
@@ -263,8 +263,8 @@ export default function MatchDetailPage() {
   const teamsKnown = match.home_team !== 'TBD' && match.away_team !== 'TBD'
   const canEdit = !locked && teamsKnown
 
-  // Points a pick earned on this (finished) match — shared scoring module,
-  // × the round multiplier — plus any bullet bonus they banked on this match.
+  // Points a pick earned on this (finished) match: shared scoring module,
+  // × the round multiplier, plus any bullet bonus they banked on this match.
   const pointsFor = (p: LockedPrediction): number =>
     (played && config ? scorePrediction(p, match, config, roundMult).points : 0) +
     (bulletBonus[p.user_id] ?? 0)
@@ -289,7 +289,7 @@ export default function MatchDetailPage() {
   const bumpAway = (d: number) =>
     setAway(awayN === null ? (d > 0 ? '0' : '') : awayN + d < 0 ? '' : String(clampScore(awayN + d)))
 
-  // Each side's own two-kit-colour band, meeting in the middle — same
+  // Each side's own two-kit-colour band, meeting in the middle. Same
   // treatment as the match cards, scaled up to a header.
   const [homeC1, homeC2] = teamColors(match.home_team)
   const [awayC1, awayC2] = teamColors(match.away_team)
@@ -329,7 +329,7 @@ export default function MatchDetailPage() {
             <span className="df-name">{teamName(match.away_team)}</span>
           </div>
         </div>
-        {/* Only spell out who advanced when it isn't implicit — a level result
+        {/* Only spell out who advanced when it isn't implicit: a level result
             decided on penalties. A decisive score speaks for itself. */}
         {played && match.went_to_penalties && match.advancing_team && (
           <div className="detail-meta">
@@ -440,7 +440,7 @@ export default function MatchDetailPage() {
             {canEdit && needsWinner && (
               <p className="small hint hint-needed">
                 {t(
-                  'One more step — pick who wins the shootout to submit.',
+                  'One more step: pick who wins the shootout to submit.',
                   'Un paso más: elige quién gana la tanda para enviar.',
                 )}
               </p>
@@ -454,7 +454,7 @@ export default function MatchDetailPage() {
 
             <div className={`outcome-chip outcome-${outcome.phase}`}>
               {outcome.phase === 'reg' && (
-                <><CheckCircle2 className="ic" aria-hidden="true" /> {t('Decided in normal or extra time — no penalties', 'Se define en el tiempo reglamentario o extra: sin penales')}</>
+                <><CheckCircle2 className="ic" aria-hidden="true" /> {t('Decided in normal or extra time: no penalties', 'Se define en el tiempo reglamentario o extra: sin penales')}</>
               )}
               {outcome.phase === 'shootout' && (
                 <><Goal className="ic" aria-hidden="true" /> {t('Goes to a penalty shootout', 'Se va a tanda de penales')}</>
@@ -595,7 +595,7 @@ function ScoreStepper({
         </button>
         <span className="step-val">
           {empty ? (
-            <span className="step-ghost" aria-label={t('not set — tap +', 'sin definir — toca +')}>
+            <span className="step-ghost" aria-label={t('not set, tap +', 'sin definir, toca +')}>
               0
             </span>
           ) : (
@@ -604,7 +604,7 @@ function ScoreStepper({
         </span>
         <button
           type="button"
-          // While empty, the + is the obvious starting point — give it the accent
+          // While empty, the + is the obvious starting point. Give it the accent
           // fill so a first-timer sees where to begin.
           className={`step-btn ${empty && !disabled ? 'step-btn-primed' : ''}`}
           disabled={disabled}

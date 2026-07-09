@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 
 /**
- * A collapsible admin section — collapsed by default, expanded by choice.
+ * A collapsible admin section. Collapsed by default, expanded by choice.
  * State-controlled so it survives the Admin page's frequent re-renders (a
  * plain uncontrolled <details> would snap shut whenever the parent updates).
  */

@@ -98,7 +98,7 @@ export default function AdminPage() {
   const pendingPlayers = useMemo(() => players.filter((p) => !p.nickname), [players])
 
   // Auto-sync the bracket from openfootball once, after the page's data loads.
-  // Live mode only — demo keeps the sample bracket and previews on demand.
+  // Live mode only. Demo keeps the sample bracket and previews on demand.
   useEffect(() => {
     if (DEMO || loading || didAutoSync.current || !config) return
     didAutoSync.current = true
@@ -180,8 +180,8 @@ export default function AdminPage() {
     }
   }
 
-  // Pull finished knockout results from ESPN's live feed and fill them in now —
-  // the same source and matcher the overnight auto-sync uses, but on demand.
+  // Pull finished knockout results from ESPN's live feed and fill them in now,
+  // using the same source and matcher the overnight auto-sync uses, but on demand.
   // Fill-only: a result already entered is never overwritten. Runs entirely in
   // the browser via the admin session (ESPN is CORS-open, no key needed).
   async function syncResults() {
@@ -195,8 +195,8 @@ export default function AdminPage() {
         setResMsg({
           ok: true,
           text: t(
-            `Live feed: ${espn.length} finished result(s); ${rows.length} new to fill (demo — not saved).`,
-            `Feed en vivo: ${espn.length} resultado(s) terminado(s); ${rows.length} nuevo(s) por completar (demo — no se guarda).`,
+            `Live feed: ${espn.length} finished result(s); ${rows.length} new to fill (demo, not saved).`,
+            `Feed en vivo: ${espn.length} resultado(s) terminado(s); ${rows.length} nuevo(s) por completar (demo, no se guarda).`,
           ),
         })
         return
@@ -392,8 +392,8 @@ export default function AdminPage() {
       <AdminSection icon={Radio} title={t('Fetch live results', 'Traer resultados en vivo')}>
         <p className="muted small">
           {t(
-            'Pull finished knockout scores — including extra time & penalties — from the live feed and fill them in right now. Fill-only: never overwrites a result you entered by hand. Results also sync automatically in the background around each match.',
-            'Trae los marcadores terminados —incluyendo prórroga y penales— del feed en vivo y complétalos ahora mismo. Solo completa: nunca sobrescribe un resultado que ingresaste a mano. Los resultados también se sincronizan automáticamente en segundo plano alrededor de cada partido.',
+            'Pull finished knockout scores (including extra time and penalties) from the live feed and fill them in right now. Fill-only: never overwrites a result you entered by hand. Results also sync automatically in the background around each match.',
+            'Trae los marcadores terminados (incluyendo prórroga y penales) del feed en vivo y complétalos ahora mismo. Solo completa: nunca sobrescribe un resultado que ingresaste a mano. Los resultados también se sincronizan automáticamente en segundo plano alrededor de cada partido.',
           )}
         </p>
         <button className="btn btn-primary" onClick={syncResults} disabled={resBusy}>
@@ -592,8 +592,8 @@ export default function AdminPage() {
         <AdminSection icon={Clock} title={`${t('Pending signups', 'Registros pendientes')} (${pendingPlayers.length})`}>
         <p className="muted small">
           {t(
-            "Accounts that exist but haven't picked a nickname yet — likely got the invite email but never opened the app.",
-            'Cuentas que existen pero aún no eligieron un apodo — probablemente recibieron el correo de invitación pero nunca abrieron la app.',
+            "Accounts that exist but haven't picked a nickname yet. They likely got the invite email but never opened the app.",
+            'Cuentas que existen pero aún no eligieron un apodo. Probablemente recibieron el correo de invitación pero nunca abrieron la app.',
           )}
         </p>
         <div className="admin-list">

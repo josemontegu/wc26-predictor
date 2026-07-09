@@ -7,8 +7,8 @@ import { AuthProvider } from './context/AuthContext'
 import { applyTheme, getInitialTheme } from './lib/theme'
 import { LangProvider, getInitialLang } from './lib/i18n'
 import { initMonitoring } from './lib/monitoring'
-// Self-hosted Inter (variable, with optical sizing) — one family for body and
-// display; no Google Fonts CDN dependency.
+// Self-hosted Inter (variable, with optical sizing). One family for body and
+// display. No Google Fonts CDN dependency.
 import '@fontsource-variable/inter/opsz.css'
 // A distinct display face for headings + wordmark only (body stays Inter).
 import '@fontsource-variable/bricolage-grotesque/wght.css'

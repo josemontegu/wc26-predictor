@@ -1,5 +1,5 @@
 // Live RESULTS source: football-data.org (v4). Unlike openfootball (volunteer
-// commits that can trail full-time by hours), this is a real live feed — a
+// commits that can trail full-time by hours), this is a real live feed. A
 // finished knockout match carries the winner, the score split into
 // regularTime / extraTime / penalties, and the shootout tally, so we get
 // near-instant, complete results including the penalty score your app displays.
@@ -8,7 +8,7 @@
 // Competition WC = FIFA World Cup (code "WC", id 2000).
 //
 // The catch vs openfootball: this feed has no notion of our app's match_no, so
-// we map each fixture onto our `matches` rows by team — primarily via the FIFA
+// we map each fixture onto our `matches` rows by team, primarily via the FIFA
 // 3-letter code the feed provides (`tla`), with a normalized-name fallback.
 
 import type { RoundCode } from './types'
@@ -204,7 +204,7 @@ export function buildResultUpsertsFromFd(
   // Index finished fixtures by round + unordered team-key pair, under both the
   // FIFA-code key and the normalized-name key, so either can find a match.
   // Team pairs are unique across a knockout bracket, so we match on the pair
-  // alone (round-agnostic) — which also lets sources that don't label the round
+  // alone (round-agnostic). This also lets sources that don't label the round
   // (e.g. ESPN's scoreboard) reuse this matcher.
   const pairKey = (a: string, b: string) => [a, b].sort().join('~')
   const index = new Map<string, FdKnockout>()
@@ -214,7 +214,7 @@ export function buildResultUpsertsFromFd(
   }
 
   const rows: MatchResultRow[] = []
-  // A feed fixture counts as "matched" whenever a DB row for it exists — even if
+  // A feed fixture counts as "matched" whenever a DB row for it exists, even if
   // that row is already scored (and therefore skipped by fill-only). Only truly
   // absent rows end up in `unmatched`, so the warning means a real name/code gap.
   const matched = new Set<FdKnockout>()

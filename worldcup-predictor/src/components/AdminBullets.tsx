@@ -115,8 +115,8 @@ export default function AdminBullets({ matches }: { matches: Match[] }) {
     <AdminSection icon={Zap} title={t('Bullets', 'Bullets')}>
       <p className="muted small">
         {t(
-          'Prop bets on a match — Yes/No or multiple-choice. Flat points, and only counts if every official player who predicted the match also answered before kick-off.',
-          'Apuestas sobre un partido — Sí/No o de opción múltiple. Puntos fijos, y solo cuenta si todos los jugadores oficiales que pronosticaron el partido también respondieron antes del inicio.',
+          'Prop bets on a match: Yes/No or multiple-choice. Flat points. Counts only if every official player who predicted the match also answered before kick-off.',
+          'Apuestas sobre un partido: Sí/No o de opción múltiple. Puntos fijos. Solo cuenta si todos los jugadores oficiales que pronosticaron el partido también respondieron antes del inicio.',
         )}
       </p>
 

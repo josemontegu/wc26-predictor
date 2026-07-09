@@ -25,7 +25,7 @@ export default function MatchCard({ match, prediction, points }: Props) {
 
   // A subtle team-colour accent in each top corner: the home colour dabbed at
   // the top-left, the away colour at the top-right, fading to nothing across
-  // the middle — a minimal identity hint rather than a full-width stripe.
+  // the middle. A minimal identity hint, not a full-width stripe.
   const [h1] = teamColors(match.home_team)
   const [a1] = teamColors(match.away_team)
 

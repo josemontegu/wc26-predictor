@@ -23,7 +23,7 @@ const result = (
   pens: boolean | null = false,
 ) => ({ home_score: h, away_score: a, advancing_team: adv, went_to_penalties: pens })
 
-describe('scorePrediction — components', () => {
+describe('scorePrediction: components', () => {
   it('awards nothing for an unplayed match (null scores)', () => {
     const s = scorePrediction(pick(2, 1, 'BRA'), result(null, null, null, null), CONFIG)
     expect(s).toEqual({
@@ -78,7 +78,7 @@ describe('scorePrediction — components', () => {
   })
 })
 
-describe('scorePrediction — round multiplier', () => {
+describe('scorePrediction: round multiplier', () => {
   it('multiplies the whole total (QF ×3 on a perfect match → 30)', () => {
     expect(scorePoints(pick(2, 1, 'BRA'), result(2, 1, 'BRA'), CONFIG, 3)).toBe(30)
   })
@@ -93,7 +93,7 @@ describe('scorePrediction — round multiplier', () => {
   })
 })
 
-describe('scorePrediction — penalties component', () => {
+describe('scorePrediction: penalties component', () => {
   const withPens: ScoringConfig = { ...CONFIG, points_penalties: 1 }
 
   it('rewards correctly calling a shootout when configured', () => {
@@ -117,7 +117,7 @@ describe('scorePrediction — penalties component', () => {
   })
 })
 
-describe('scorePrediction — advancing edge cases', () => {
+describe('scorePrediction: advancing edge cases', () => {
   it('no credit when the result has no advancing team recorded yet', () => {
     expect(scorePrediction(pick(2, 1, 'BRA'), result(2, 1, null), CONFIG).advancingRight).toBe(false)
   })

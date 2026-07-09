@@ -1,5 +1,5 @@
 // Avatar emojis players choose from, grouped into ordered categories (shown as
-// labelled sections in the picker). Each emoji is unique across the whole set —
+// labelled sections in the picker). Each emoji is unique across the whole set:
 // the picker uses it as a React key and enforces one-per-player. Every emoji any
 // player may already have saved is included, so no avatar ever disappears.
 

@@ -2,7 +2,7 @@
 //
 // This mirrors the DB's `prediction_scores` view exactly. The value clients see
 // (leaderboard drill-downs, per-match points, stats) must match what Postgres
-// computes, so the formula lives here once and is unit-tested — rather than
+// computes, so the formula lives here once and is unit-tested, instead of
 // being re-implemented in each page.
 
 /** The prediction side: what the player called. */

@@ -37,8 +37,8 @@ function LegalDoc({
       <div className="notice notice-info legal-draft">
         <AlertTriangle className="ic" aria-hidden="true" />{' '}
         {t(
-          'Working draft — not legal advice. The details below are sensible defaults; please confirm them and have a qualified professional review this document before an official launch.',
-          'Borrador de trabajo — no es asesoramiento legal. Los datos a continuación son valores razonables por defecto; por favor confírmalos y haz que un profesional cualificado revise este documento antes de un lanzamiento oficial.',
+          'Working draft, not legal advice. The details below are sensible defaults. Please confirm them and have a qualified professional review this document before an official launch.',
+          'Borrador de trabajo, no es asesoramiento legal. Los datos a continuación son valores razonables por defecto. Por favor confírmalos y haz que un profesional cualificado revise este documento antes de un lanzamiento oficial.',
         )}
       </div>
 
@@ -127,8 +127,8 @@ export function TermsPage() {
               'No harás trampa, no explotarás errores, no usarás acceso automatizado ni obtendrás ventajas indebidas de otro modo.',
             ],
             [
-              'Your nickname and emoji are visible to your pool — keep them appropriate and non-offensive.',
-              'Tu apodo y emoji son visibles para tu grupo — mantenlos apropiados y no ofensivos.',
+              'Your nickname and emoji are visible to your pool. Keep them appropriate and non-offensive.',
+              'Tu apodo y emoji son visibles para tu grupo. Mantenlos apropiados y no ofensivos.',
             ],
           ],
         },
