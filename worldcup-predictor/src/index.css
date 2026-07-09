@@ -2129,6 +2129,7 @@ button.form-card.pp-clickable {
   width: 40px;
   height: 40px;
   font-size: 1rem;
+  color: inherit;
   cursor: pointer;
   display: flex;
   align-items: center;
