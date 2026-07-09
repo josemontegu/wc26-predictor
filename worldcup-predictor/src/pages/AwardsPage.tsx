@@ -79,6 +79,7 @@ function breakdown(list: LockedAwardPrediction[]) {
 
 function PoolBarCard({
   title,
+  icon: Icon,
   rows,
   kind,
   tone,
@@ -86,6 +87,7 @@ function PoolBarCard({
   onOpen,
 }: {
   title: string
+  icon: LucideIcon
   rows: { pick: string; n: number; pct: number }[]
   kind: 'team' | 'player' | 'goalkeeper'
   tone: string
@@ -100,7 +102,9 @@ function PoolBarCard({
       style={{ '--cbar-color': tone } as CSSProperties}
       onClick={onOpen}
     >
-      <div className="stat-title">{title}</div>
+      <div className="stat-title">
+        <Icon className="cbar-card-ico" aria-hidden="true" /> {title}
+      </div>
       {rows.map((b) => (
         <div key={b.pick} className="cbar-row">
           <span className="cbar-label">
@@ -333,9 +337,10 @@ export default function AwardsPage() {
           </p>
           <PoolBarCard
             title={awardName('champion', 'Champion', t)}
+            icon={AWARD_ICON.champion}
             rows={pulse.champBars}
             kind="team"
-            tone="var(--round-r16)"
+            tone="var(--gold)"
             playerFlags={playerFlags}
             onOpen={() =>
               setPoolDetail({
@@ -348,9 +353,10 @@ export default function AwardsPage() {
           />
           <PoolBarCard
             title={t('Golden Ball', 'Balón de Oro')}
+            icon={AWARD_ICON.golden_ball}
             rows={pulse.ballBars}
             kind="player"
-            tone="var(--round-qf)"
+            tone="var(--round-r16)"
             playerFlags={playerFlags}
             onOpen={() =>
               setPoolDetail({ key: 'golden_ball', kind: 'player', icon: AWARD_ICON.golden_ball, label: t('Golden Ball', 'Balón de Oro') })
@@ -358,9 +364,10 @@ export default function AwardsPage() {
           />
           <PoolBarCard
             title={t('Golden Boot', 'Bota de Oro')}
+            icon={AWARD_ICON.golden_boot}
             rows={pulse.bootBars}
             kind="player"
-            tone="var(--round-sf)"
+            tone="var(--round-qf)"
             playerFlags={playerFlags}
             onOpen={() =>
               setPoolDetail({ key: 'golden_boot', kind: 'player', icon: AWARD_ICON.golden_boot, label: t('Golden Boot', 'Bota de Oro') })
@@ -368,6 +375,7 @@ export default function AwardsPage() {
           />
           <PoolBarCard
             title={t('Golden Glove', 'Guante de Oro')}
+            icon={AWARD_ICON.golden_glove}
             rows={pulse.gloveBars}
             kind="goalkeeper"
             tone="var(--round-f)"

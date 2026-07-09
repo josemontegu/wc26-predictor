@@ -3057,9 +3057,20 @@ button.form-card.pp-clickable {
   border-top: 1px solid var(--line-soft);
 }
 .stat-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   font-weight: 700;
   font-size: 0.92rem;
   margin-bottom: 0.2rem;
+}
+/* Small per-card icon next to a bar-chart title (e.g. Pool Pulse) — tinted
+   with the card's own --cbar-color tone for a bit of variety between cards. */
+.cbar-card-ico {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+  color: var(--cbar-color, var(--accent-dark));
 }
 .cbar-row {
   display: grid;
